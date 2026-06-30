@@ -1,0 +1,146 @@
+/* Navigation management styles */
+
+.nav-admin-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 2rem;
+}
+
+@media (max-width: 1024px) {
+  .nav-admin-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tree-panel, .form-panel {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.tree-item-wrapper {
+  margin-bottom: 0.5rem;
+  width: 100%;
+}
+
+.tree-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--panel-border);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: grab;
+  user-select: none;
+}
+
+.tree-item:active {
+  cursor: grabbing;
+}
+
+.tree-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: var(--panel-border-hover);
+}
+
+.tree-item-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  overflow: hidden;
+}
+
+.tree-item-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.tree-item-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.tree-item-meta {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.15rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tree-item-actions {
+  display: flex;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.tree-item:hover .tree-item-actions {
+  opacity: 1;
+}
+
+.action-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--panel-border);
+  color: var(--text-secondary);
+  padding: 0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+
+.action-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.btn-primary-small {
+  background: rgba(79, 70, 229, 0.15);
+  color: #a5b4fc;
+  border-color: rgba(79, 70, 229, 0.25);
+}
+
+.btn-primary-small:hover {
+  background: rgba(79, 70, 229, 0.25);
+  color: white;
+}
+
+/* Drag-and-drop indicator outlines */
+.tree-item.drag-over-self {
+  outline: 2px dashed var(--primary);
+  background: rgba(79, 70, 229, 0.08);
+  border-color: var(--primary);
+}
+
+.tree-item.drag-over-before {
+  border-top: 3px solid var(--primary);
+  transform: translateY(2px);
+}
+
+.tree-item.drag-over-after {
+  border-bottom: 3px solid var(--primary);
+  transform: translateY(-2px);
+}
+
+.tree-item.dragging {
+  opacity: 0.4;
+  border-style: dotted;
+}
