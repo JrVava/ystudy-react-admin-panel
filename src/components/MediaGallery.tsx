@@ -438,8 +438,8 @@ export const MediaGallery: React.FC = () => {
 
       {/* Pop-up Uploader Modal */}
       {isUploadModalOpen && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(10, 14, 26, 0.8)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-          <div className="panel-glass modal-solid-bg animate-fade-in" style={{ width: "90%", maxWidth: "600px", padding: "2rem", overflowY: "auto", maxHeight: "85vh" }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(10, 14, 26, 0.8)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", alignItems: "flex-start", overflowY: "auto", padding: "40px 16px", zIndex: 9999 }}>
+          <div className="panel-glass modal-solid-bg animate-fade-in" style={{ width: "100%", maxWidth: "600px", padding: "2rem", margin: "auto 0" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
               <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <UploadCloud size={20} style={{ color: "var(--primary)" }} />
@@ -490,8 +490,8 @@ export const MediaGallery: React.FC = () => {
 
       {/* Edit SEO Modal (Solid background) */}
       {editingImage && (
-        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(10, 14, 26, 0.85)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-          <div className="panel-glass modal-solid-bg animate-fade-in" style={{ width: "100%", maxWidth: "440px", padding: "2rem" }}>
+        <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(10, 14, 26, 0.85)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", alignItems: "flex-start", overflowY: "auto", padding: "40px 16px", zIndex: 9999 }}>
+          <div className="panel-glass modal-solid-bg animate-fade-in" style={{ width: "100%", maxWidth: "440px", padding: "2rem", margin: "auto 0" }}>
             
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
               <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 700, display: "flex", alignItems: "center", gap: "0.5rem" }}>

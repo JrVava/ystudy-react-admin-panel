@@ -117,15 +117,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           backdropFilter: "blur(12px)",
           zIndex: 99999,
           display: "flex",
-          alignItems: "center",
           justifyContent: "center",
+          alignItems: "flex-start",
+          overflowY: "auto",
+          padding: "40px 16px",
           color: "var(--text-primary)",
           fontFamily: "'Outfit', sans-serif"
         }}>
           <div className="panel-glass animate-fade-in modal-solid-bg" style={{
-            width: "90%",
+            width: "100%",
             maxWidth: "420px",
             padding: "2.5rem 2rem",
+            margin: "auto 0",
             textAlign: "center",
             display: "flex",
             flexDirection: "column",

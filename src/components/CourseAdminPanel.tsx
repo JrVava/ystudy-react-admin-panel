@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { courseApi } from '../utils/courseApi';
 import { Save, ArrowLeft, Image, X, Plus, Search, GraduationCap, ChevronDown } from 'lucide-react';
+import { MediaPickerModal } from './MediaPickerModal';
 
 const Input = ({ label, value, onChange, placeholder, type = "text" }: { label: string; value: string | number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; type?: string }) => (
   <div className="form-group">
@@ -58,11 +59,14 @@ const MultiSelectDropdown = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filteredOptions = options.filter(opt => 
-    opt.title.toLowerCase().includes(search.toLowerCase())
+  const optionsList = Array.isArray(options) ? options : [];
+  const selectedIdsList = Array.isArray(selectedIds) ? selectedIds : [];
+
+  const filteredOptions = optionsList.filter(opt => 
+    opt && typeof opt.title === 'string' && opt.title.toLowerCase().includes((search || "").toLowerCase())
   );
 
-  const selectedOptions = options.filter(opt => selectedIds.includes(opt._id));
+  const selectedOptions = optionsList.filter(opt => opt && opt._id && selectedIdsList.includes(opt._id));
 
   return (
     <div className="form-group" style={{ position: "relative", display: "flex", flexDirection: "column", gap: "0.5rem" }} ref={dropdownRef}>
@@ -181,7 +185,7 @@ const MultiSelectDropdown = ({
               </div>
             ) : (
               filteredOptions.map(opt => {
-                const isSelected = selectedIds.includes(opt._id);
+                const isSelected = selectedIdsList.includes(opt._id);
                 return (
                   <div
                     key={opt._id}

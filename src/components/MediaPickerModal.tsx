@@ -66,8 +66,8 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({ onSelect, on
   });
 
   return (
-    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(15, 23, 42, 0.8)", backdropFilter: "blur(6px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999 }}>
-      <div className="panel-glass animate-fade-in" style={{ width: "90%", maxWidth: "850px", maxHeight: "85vh", overflowY: "auto", padding: "2rem" }}>
+    <div style={{ position: "fixed", top: 0, left: 0, right: 0, bottom: 0, background: "rgba(15, 23, 42, 0.8)", backdropFilter: "blur(6px)", display: "flex", justifyContent: "center", alignItems: "flex-start", overflowY: "auto", padding: "40px 16px", zIndex: 9999 }}>
+      <div className="panel-glass animate-fade-in" style={{ width: "100%", maxWidth: "850px", padding: "2rem", margin: "auto 0" }}>
         
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem", gap: "1rem", flexWrap: "wrap" }}>
           <h2 style={{ margin: 0, fontSize: "1.5rem", fontWeight: 800 }}>Choose Media</h2>
