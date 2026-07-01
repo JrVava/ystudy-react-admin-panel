@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { courseApi } from '../utils/courseApi';
-import { MediaPickerModal } from './MediaPickerModal';
-import { Save, ArrowLeft, Image, X, Plus, Search, GraduationCap } from 'lucide-react';
+import { Save, ArrowLeft, Image, X, Plus, Search, GraduationCap, ChevronDown } from 'lucide-react';
 
 const Input = ({ label, value, onChange, placeholder, type = "text" }: { label: string; value: string | number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; type?: string }) => (
   <div className="form-group">
@@ -30,6 +29,196 @@ const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px" }: 
   </div>
 );
 
+const MultiSelectDropdown = ({ 
+  label, 
+  description,
+  placeholder, 
+  options, 
+  selectedIds, 
+  onChange 
+}: { 
+  label: string; 
+  description?: string;
+  placeholder: string; 
+  options: any[]; 
+  selectedIds: string[]; 
+  onChange: (id: string) => void;
+}) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [search, setSearch] = useState("");
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const filteredOptions = options.filter(opt => 
+    opt.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const selectedOptions = options.filter(opt => selectedIds.includes(opt._id));
+
+  return (
+    <div className="form-group" style={{ position: "relative", display: "flex", flexDirection: "column", gap: "0.5rem" }} ref={dropdownRef}>
+      <div>
+        <label className="form-label" style={{ margin: 0 }}>{label}</label>
+        {description && <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>{description}</p>}
+      </div>
+      
+      {/* Select Box Trigger */}
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          minHeight: "42px",
+          padding: "6px 12px",
+          background: "rgba(255, 255, 255, 0.02)",
+          border: "1px solid var(--panel-border)",
+          borderRadius: "10px",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "6px",
+          alignItems: "center",
+          cursor: "pointer",
+          position: "relative",
+          paddingRight: "36px",
+          transition: "all 0.2s"
+        }}
+        onMouseEnter={(e) => e.currentTarget.style.borderColor = "var(--primary)"}
+        onMouseLeave={(e) => {
+          if (!isOpen) e.currentTarget.style.borderColor = "var(--panel-border)";
+        }}
+      >
+        {selectedOptions.length === 0 ? (
+          <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>{placeholder}</span>
+        ) : (
+          selectedOptions.map(opt => (
+            <span
+              key={opt._id}
+              onClick={(e) => {
+                e.stopPropagation();
+                onChange(opt._id);
+              }}
+              style={{
+                background: "rgba(99, 102, 241, 0.15)",
+                border: "1px solid rgba(99, 102, 241, 0.3)",
+                color: "var(--text-primary)",
+                padding: "3px 8px",
+                borderRadius: "6px",
+                fontSize: "0.75rem",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "6px",
+                fontWeight: 500
+              }}
+            >
+              {opt.title}
+              <button
+                type="button"
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  cursor: "pointer",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  color: "var(--text-muted)"
+                }}
+              >
+                <X size={10} style={{ color: "var(--text-muted)" }} />
+              </button>
+            </span>
+          ))
+        )}
+
+        <div style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)", pointerEvents: "none", display: "flex", alignItems: "center" }}>
+          <ChevronDown size={16} style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+        </div>
+      </div>
+
+      {/* Dropdown Options List */}
+      {isOpen && (
+        <div
+          style={{
+            position: "absolute",
+            top: "100%",
+            left: 0,
+            right: 0,
+            background: "rgba(15, 23, 42, 0.95)",
+            backdropFilter: "blur(20px)",
+            border: "1px solid var(--panel-border)",
+            borderRadius: "10px",
+            marginTop: "6px",
+            zIndex: 1000,
+            boxShadow: "0 10px 25px -5px rgba(0,0,0,0.5)",
+            overflow: "hidden"
+          }}
+        >
+          {/* Search Input */}
+          <div style={{ padding: "8px", borderBottom: "1px solid var(--panel-border)", position: "relative" }}>
+            <Search size={14} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+            <input
+              type="text"
+              placeholder="Search courses..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="form-input"
+              style={{ height: "34px", fontSize: "0.8rem", padding: "6px 10px 6px 30px" }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+
+          {/* Options Scrolling Box */}
+          <div style={{ maxHeight: "200px", overflowY: "auto", padding: "4px" }}>
+            {filteredOptions.length === 0 ? (
+              <div style={{ padding: "12px", textAlign: "center", fontSize: "0.8rem", color: "var(--text-muted)" }}>
+                No courses found
+              </div>
+            ) : (
+              filteredOptions.map(opt => {
+                const isSelected = selectedIds.includes(opt._id);
+                return (
+                  <div
+                    key={opt._id}
+                    onClick={() => onChange(opt._id)}
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: "6px",
+                      fontSize: "0.85rem",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      background: isSelected ? "rgba(99, 102, 241, 0.08)" : "transparent",
+                      color: isSelected ? "var(--text-primary)" : "var(--text-secondary)",
+                      transition: "background 0.15s"
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)"}
+                    onMouseLeave={(e) => e.currentTarget.style.background = isSelected ? "rgba(99, 102, 241, 0.08)" : "transparent"}
+                  >
+                    <span>{opt.title}</span>
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      readOnly
+                      style={{ accentColor: "var(--primary)", cursor: "pointer" }}
+                    />
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const CourseAdminPanel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -38,8 +227,6 @@ const CourseAdminPanel: React.FC = () => {
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(!!id);
   const [allCoursesList, setAllCoursesList] = useState<any[]>([]);
-  const [availableSearch, setAvailableSearch] = useState("");
-  const [relatedSearch, setRelatedSearch] = useState("");
   const [newBadgeText, setNewBadgeText] = useState("");
   
   // Normalized form state
@@ -256,14 +443,7 @@ const CourseAdminPanel: React.FC = () => {
     );
   }
 
-  // Filter relationship list based on searches
-  const filteredAvailableCoursesList = allCoursesList
-    .filter(c => c._id !== id) // Exclude current course
-    .filter(c => c.title.toLowerCase().includes(availableSearch.toLowerCase()));
-
-  const filteredRelatedCoursesList = allCoursesList
-    .filter(c => c._id !== id) // Exclude current course
-    .filter(c => c.title.toLowerCase().includes(relatedSearch.toLowerCase()));
+  // Empty space or clean placeholder for unused filters
 
   return (
     <div className="animate-fade-in" style={{ width: '100%' }}>
@@ -525,127 +705,23 @@ const CourseAdminPanel: React.FC = () => {
         {/* Tab 3: Relationships */}
         {activeTab === 'relations' && (
           <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-            
-            {/* Available Courses list */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-primary)', margin: 0 }}>
-                  Available Courses Links
-                </h4>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Select courses available under this study program pathway.</p>
-              </div>
+            <MultiSelectDropdown
+              label="Available Courses Links"
+              description="Select courses available under this study program pathway."
+              placeholder="Choose available courses..."
+              options={allCoursesList.filter(c => c._id !== id)}
+              selectedIds={formData.availableCourses}
+              onChange={(courseId) => handleRelationToggle('availableCourses', courseId)}
+            />
 
-              {/* Quick Search */}
-              <div style={{ position: 'relative' }}>
-                <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input
-                  type="text"
-                  placeholder="Filter courses list..."
-                  className="form-input"
-                  style={{ width: '100%', height: '34px', paddingLeft: '30px', fontSize: '0.8rem' }}
-                  value={availableSearch}
-                  onChange={e => setAvailableSearch(e.target.value)}
-                />
-              </div>
-
-              {/* Checklist Container */}
-              <div style={{ background: 'rgba(0,0,0,0.15)', border: '1px solid var(--panel-border)', borderRadius: '12px', padding: '10px', maxHeight: '250px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {filteredAvailableCoursesList.length === 0 ? (
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>No matching courses found.</span>
-                ) : (
-                  filteredAvailableCoursesList.map(course => {
-                    const isChecked = formData.availableCourses.includes(course._id);
-                    return (
-                      <label
-                        key={course._id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '6px 10px',
-                          borderRadius: '8px',
-                          background: isChecked ? 'rgba(99, 102, 241, 0.06)' : 'transparent',
-                          border: isChecked ? '1px solid rgba(99, 102, 241, 0.15)' : '1px solid transparent',
-                          cursor: 'pointer',
-                          fontSize: '0.85rem'
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => handleRelationToggle('availableCourses', course._id)}
-                          style={{ accentColor: 'var(--primary)' }}
-                        />
-                        <span style={{ color: isChecked ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: isChecked ? 600 : 400 }}>
-                          {course.title}
-                        </span>
-                      </label>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
-            {/* Related Courses list */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              <div>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-primary)', margin: 0 }}>
-                  Related Courses Options
-                </h4>
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>Select courses to display as recommendations for this pathway.</p>
-              </div>
-
-              {/* Quick Search */}
-              <div style={{ position: 'relative' }}>
-                <Search size={14} style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)' }} />
-                <input
-                  type="text"
-                  placeholder="Filter courses list..."
-                  className="form-input"
-                  style={{ width: '100%', height: '34px', paddingLeft: '30px', fontSize: '0.8rem' }}
-                  value={relatedSearch}
-                  onChange={e => setRelatedSearch(e.target.value)}
-                />
-              </div>
-
-              {/* Checklist Container */}
-              <div style={{ background: 'rgba(0,0,0,0.15)', border: '1px solid var(--panel-border)', borderRadius: '12px', padding: '10px', maxHeight: '250px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                {filteredRelatedCoursesList.length === 0 ? (
-                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center', padding: '1rem' }}>No matching courses found.</span>
-                ) : (
-                  filteredRelatedCoursesList.map(course => {
-                    const isChecked = formData.relatedCourses.includes(course._id);
-                    return (
-                      <label
-                        key={course._id}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          padding: '6px 10px',
-                          borderRadius: '8px',
-                          background: isChecked ? 'rgba(99, 102, 241, 0.06)' : 'transparent',
-                          border: isChecked ? '1px solid rgba(99, 102, 241, 0.15)' : '1px solid transparent',
-                          cursor: 'pointer',
-                          fontSize: '0.85rem'
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => handleRelationToggle('relatedCourses', course._id)}
-                          style={{ accentColor: 'var(--primary)' }}
-                        />
-                        <span style={{ color: isChecked ? 'var(--text-primary)' : 'var(--text-secondary)', fontWeight: isChecked ? 600 : 400 }}>
-                          {course.title}
-                        </span>
-                      </label>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-
+            <MultiSelectDropdown
+              label="Related Courses Options"
+              description="Select courses to display as recommendations for this pathway."
+              placeholder="Choose related courses..."
+              options={allCoursesList.filter(c => c._id !== id)}
+              selectedIds={formData.relatedCourses}
+              onChange={(courseId) => handleRelationToggle('relatedCourses', courseId)}
+            />
           </div>
         )}
 

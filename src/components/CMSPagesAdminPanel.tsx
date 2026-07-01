@@ -31,6 +31,7 @@ export const CMSPagesAdminPanel: React.FC = () => {
 
   // Media picker path for dynamic image fields
   const [activeMediaPickerPath, setActiveMediaPickerPath] = useState<string[] | null>(null);
+  const [mediaPreviews, setMediaPreviews] = useState<Record<string, string>>({});
 
   useEffect(() => {
     fetchPages();
@@ -161,8 +162,26 @@ export const CMSPagesAdminPanel: React.FC = () => {
         }
         return `${hostUrl}/media/uploads/${cleanPath}`;
       };
+
+      const getParentObj = (path: string[], data: any): any => {
+        let current = data;
+        for (let i = 0; i < path.length - 1; i++) {
+          if (!current) return null;
+          current = current[path[i]];
+        }
+        return current;
+      };
+
+      const parentObj = getParentObj(path, pageData);
       
-      const fullUrl = getImageUrl(value || '');
+      let previewPath = value;
+      if (value && mediaPreviews[value]) {
+        previewPath = mediaPreviews[value];
+      } else if (parentObj && parentObj.fullImageUrl && label === 'image') {
+        previewPath = parentObj.fullImageUrl;
+      }
+      
+      const fullUrl = getImageUrl(previewPath || '');
       
       return (
         <div className="form-group" key={path.join('.')}>
@@ -179,10 +198,10 @@ export const CMSPagesAdminPanel: React.FC = () => {
               />
               <div style={{ flexGrow: 1, overflow: 'hidden' }}>
                 <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {value.split('/').pop()}
+                  {previewPath && previewPath.includes('/') ? previewPath.split('/').pop() : value}
                 </p>
                 <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  {value}
+                  {value && /^[0-9a-fA-F]{24}$/.test(value) ? `ID: ${value}` : value}
                 </p>
               </div>
               <button
@@ -264,9 +283,11 @@ export const CMSPagesAdminPanel: React.FC = () => {
                     {formatLabel(label).replace(/s$/, '')} #{index + 1}
                   </div>
                   {isObj ? (
-                    Object.keys(item).map(subKey => 
-                      renderField(item[subKey], [...itemPath, subKey], subKey)
-                    )
+                    Object.keys(item)
+                      .filter(subKey => subKey !== 'fullImageUrl')
+                      .map(subKey => 
+                        renderField(item[subKey], [...itemPath, subKey], subKey)
+                      )
                   ) : (
                     <input
                       type="text"
@@ -296,7 +317,7 @@ export const CMSPagesAdminPanel: React.FC = () => {
             {formatLabel(label)} Details
           </h5>
           {Object.keys(value)
-            .filter(k => k !== 'status') // Status handles at parent accordion level
+            .filter(k => k !== 'status' && k !== 'fullImageUrl') // Status handles at parent accordion level
             .map(subKey => 
               renderField(value[subKey], [...path, subKey], subKey)
             )
@@ -590,8 +611,9 @@ export const CMSPagesAdminPanel: React.FC = () => {
       {activeMediaPickerPath && (
         <MediaPickerModal
           onClose={() => setActiveMediaPickerPath(null)}
-          onSelect={(_, filePath) => {
-            handleValueChange(activeMediaPickerPath, filePath);
+          onSelect={(mediaId, filePath) => {
+            setMediaPreviews(prev => ({ ...prev, [mediaId]: filePath }));
+            handleValueChange(activeMediaPickerPath, mediaId);
             setActiveMediaPickerPath(null);
           }}
         />

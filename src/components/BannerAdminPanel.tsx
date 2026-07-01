@@ -71,7 +71,7 @@ const BannerAdminPanel: React.FC = () => {
           const banner = await bannerApi.getById(id);
           setFormData({
             internalName: banner.internalName || '',
-            background: { imageUrl: banner.background?.imageUrl || '', fullImageUrl: banner.background?.fullImageUrl || '' },
+            background: { imageUrl: banner.background?.imageUrl || '', fullImageUrl: banner.fullImageUrl || banner.background?.fullImageUrl || '' },
             leftContent: banner.leftContent || { title: '', description: '', badgeText: '', footerItems: [] },
             rightCard: banner.rightCard || { layoutType: 'stacked-cards', title: 'Snapshot', mainValue: '', items: [] }
           });
@@ -296,8 +296,21 @@ const BannerAdminPanel: React.FC = () => {
             {isMediaPickerOpen && (
               <MediaPickerModal
                 onClose={() => setIsMediaPickerOpen(false)}
-                onSelect={(_, filePath) => {
-                  updateBackground('imageUrl', filePath);
+                onSelect={(mediaId, filePath) => {
+                  const apiUrl = (import.meta.env.VITE_API_URL as string) || "http://localhost:4000/api";
+                  const hostUrl = apiUrl.replace(/\/api$/, "");
+                  const cleanPath = filePath.replace(/^\/+/, "");
+                  const resolvedUrl = cleanPath.startsWith('uploads/') || cleanPath.startsWith('media/')
+                    ? `${hostUrl}/${cleanPath}`
+                    : `${hostUrl}/media/uploads/${cleanPath}`;
+
+                  setFormData(prev => ({
+                    ...prev,
+                    background: {
+                      imageUrl: mediaId,
+                      fullImageUrl: resolvedUrl
+                    }
+                  }));
                   setIsMediaPickerOpen(false);
                 }}
               />
