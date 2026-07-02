@@ -1,3 +1,5 @@
+![Vocean Technologies](Voceantechnologies.png)
+
 # Y Study - Admin Control Panel
 
 A modern, high-performance, and secure Content Management & Administrative Console built with **React**, **TypeScript**, and **Vite**. This dashboard provides the Y Study administrative team with a powerful interface to manage media assets, homepage banners, navigations, custom CMS page templates, and the courses curriculum database.
