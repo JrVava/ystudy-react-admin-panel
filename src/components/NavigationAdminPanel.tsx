@@ -15,6 +15,16 @@ interface NavigationItem {
   position: number;
 }
 
+const slugify = (text: string): string => {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-') // Replace spaces with -
+    .replace(/[^\w\-]+/g, '') // Remove all non-word chars
+    .replace(/\-\-+/g, '-'); // Replace multiple - with single -
+};
+
 export const NavigationAdminPanel: React.FC = () => {
   const [items, setItems] = useState<NavigationItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -542,7 +552,14 @@ export const NavigationAdminPanel: React.FC = () => {
                 <input 
                   type="text" 
                   value={editForm.pageName} 
-                  onChange={e => setEditForm({ ...editForm, pageName: e.target.value })} 
+                  onChange={e => {
+                    const val = e.target.value;
+                    setEditForm(prev => ({
+                      ...prev,
+                      pageName: val,
+                      slug: slugify(val)
+                    }));
+                  }} 
                   className="form-input" 
                   required 
                 />

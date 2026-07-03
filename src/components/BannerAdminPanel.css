@@ -155,7 +155,7 @@
 }
 
 .banner-preview-bg {
-  flex: 1;
+  height: 480px;
   width: 100%;
   position: relative;
   padding-top: 48px;
@@ -166,6 +166,7 @@
   background-size: cover;
   background-position: center;
   transition: all 0.5s ease;
+  overflow: hidden;
 }
 
 .banner-content-layout {
@@ -187,6 +188,28 @@
     align-items: center;
     gap: 1.5rem;
     padding: 3rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .banner-preview-bg {
+    height: auto;
+    min-height: 480px;
+  }
+  .banner-content-layout {
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    gap: 1.25rem;
+  }
+  .banner-title {
+    font-size: 1.5rem !important;
+  }
+  .banner-description {
+    font-size: 0.85rem !important;
+  }
+  .banner-card {
+    padding: 1rem !important;
+    max-width: 100% !important;
   }
 }
 

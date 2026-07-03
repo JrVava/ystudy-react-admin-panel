@@ -9,6 +9,10 @@ import { CMSPagesAdminPanel } from "./components/CMSPagesAdminPanel";
 import LoginPage from "./pages/LoginPage";
 import { CourseListPage } from "./pages/CourseListPage";
 import CourseAdminPanel from "./components/CourseAdminPanel";
+import { LocationListPage } from "./pages/LocationListPage";
+import LocationAdminPanel from "./components/LocationAdminPanel";
+import { FAQListPage } from "./pages/FAQListPage";
+import { FAQAdminPanel } from "./components/FAQAdminPanel";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -95,6 +99,42 @@ function App() {
           <Route path="/courses/edit/:id" element={
             <ProtectedRoute>
               <CourseAdminPanel />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/locations" element={
+            <ProtectedRoute>
+              <LocationListPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/locations/new" element={
+            <ProtectedRoute>
+              <LocationAdminPanel />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/locations/edit/:id" element={
+            <ProtectedRoute>
+              <LocationAdminPanel />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/faqs" element={
+            <ProtectedRoute>
+              <FAQListPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/faqs/new" element={
+            <ProtectedRoute>
+              <FAQAdminPanel />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/faqs/edit/:slug" element={
+            <ProtectedRoute>
+              <FAQAdminPanel />
             </ProtectedRoute>
           } />
 

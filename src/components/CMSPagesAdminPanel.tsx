@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { cmsApi } from '../utils/cmsApi';
+import { navigationApi } from '../utils/navigationApi';
 import { 
   FileText, Edit2, X, Save, AlertCircle, 
-  CheckCircle, Info, ChevronDown, ChevronUp, Search, Image
+  CheckCircle, Info, ChevronDown, ChevronUp, Search, Image, ArrowLeft
 } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
 
@@ -15,6 +16,7 @@ interface CMSPage {
 
 export const CMSPagesAdminPanel: React.FC = () => {
   const [pages, setPages] = useState<CMSPage[]>([]);
+  const [navItems, setNavItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -41,9 +43,21 @@ export const CMSPagesAdminPanel: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const data = await cmsApi.getAll();
-      if (data && data.success) {
-        setPages(data.data);
+      
+      const [cmsRes, navData] = await Promise.all([
+        cmsApi.getAll(),
+        navigationApi.getFlat().catch(err => {
+          console.error("Failed to load navigations", err);
+          return [];
+        })
+      ]);
+
+      if (navData) {
+        setNavItems(navData);
+      }
+
+      if (cmsRes && cmsRes.success) {
+        setPages(cmsRes.data);
       } else {
         setError('Failed to fetch pages');
       }
@@ -353,10 +367,24 @@ export const CMSPagesAdminPanel: React.FC = () => {
     );
   };
 
+  const getPageDisplayName = (slug: string) => {
+    const navItem = navItems.find(n => n.slug === slug);
+    if (navItem && navItem.pageName) {
+      return navItem.pageName;
+    }
+    return slug
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, c => c.toUpperCase());
+  };
+
   // Client-side search filter for pages
-  const filteredPages = pages.filter(p => 
-    p.page && p.page.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredPages = pages.filter(p => {
+    if (!p.page) return false;
+    const displayName = getPageDisplayName(p.page).toLowerCase();
+    const slugName = p.page.toLowerCase();
+    const query = searchQuery.toLowerCase();
+    return displayName.includes(query) || slugName.includes(query);
+  });
 
   if (loading && pages.length === 0) {
     return (
@@ -425,7 +453,7 @@ export const CMSPagesAdminPanel: React.FC = () => {
               <tbody>
                 {filteredPages.map((page) => (
                   <tr key={page._id}>
-                    <td style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{page.page}</td>
+                    <td style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{getPageDisplayName(page.page)}</td>
                     <td>{page.created_at ? new Date(page.created_at).toLocaleString() : 'N/A'}</td>
                     <td>{page.updated_at ? new Date(page.updated_at).toLocaleString() : 'N/A'}</td>
                     <td style={{ textAlign: 'right' }}>
@@ -473,10 +501,10 @@ export const CMSPagesAdminPanel: React.FC = () => {
                 onClick={() => { setEditingPage(null); setPageData(null); }}
                 className="btn-secondary"
                 disabled={isSaving}
-                style={{ padding: '0.5rem 1rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                style={{ padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}
               >
-                <X size={16} />
-                Cancel
+                <ArrowLeft size={16} />
+                Back
               </button>
               <button 
                 onClick={handleSave}

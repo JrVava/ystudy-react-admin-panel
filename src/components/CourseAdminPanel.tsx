@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { courseApi } from '../utils/courseApi';
+import { locationApi } from '../utils/locationApi';
 import { Save, ArrowLeft, Image, X, Plus, Search, GraduationCap, ChevronDown } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
 
@@ -231,6 +232,7 @@ const CourseAdminPanel: React.FC = () => {
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(!!id);
   const [allCoursesList, setAllCoursesList] = useState<any[]>([]);
+  const [allLocationsList, setAllLocationsList] = useState<any[]>([]);
   const [newBadgeText, setNewBadgeText] = useState("");
   
   // Normalized form state
@@ -249,7 +251,8 @@ const CourseAdminPanel: React.FC = () => {
     },
     careerOutcomeBadge: '',
     availableCourses: [],
-    relatedCourses: []
+    relatedCourses: [],
+    locations: []
   });
 
   const [isSlugAutoSynced, setIsSlugAutoSynced] = useState(!id); // Auto-sync slug with title only if creating new
@@ -271,16 +274,30 @@ const CourseAdminPanel: React.FC = () => {
   };
 
   useEffect(() => {
-    // Load related/available courses for relationship selection
+    // Load related/available courses for relationship selection using paginated route (limit 1000) to bypass status: true constraint
     const loadCoursesList = async () => {
       try {
-        const list = await courseApi.getList();
-        setAllCoursesList(list || []);
+        const res = await courseApi.getPaginated(1, 1000);
+        if (res && res.success) {
+          setAllCoursesList(res.data || []);
+        }
       } catch (e) {
         console.error("Failed to load courses selection list", e);
       }
     };
+    // Load locations using paginated route (limit 1000) to bypass status: true constraint
+    const loadLocationsList = async () => {
+      try {
+        const res = await locationApi.getPaginated(1, 1000);
+        if (res && res.success) {
+          setAllLocationsList(res.data || []);
+        }
+      } catch (e) {
+        console.error("Failed to load locations list", e);
+      }
+    };
     loadCoursesList();
+    loadLocationsList();
 
     if (id) {
       const fetchCourse = async () => {
@@ -301,7 +318,8 @@ const CourseAdminPanel: React.FC = () => {
             },
             careerOutcomeBadge: course.careerOutcomeBadge || '',
             availableCourses: normalizeIdArray(course.availableCourses),
-            relatedCourses: normalizeIdArray(course.relatedCourses)
+            relatedCourses: normalizeIdArray(course.relatedCourses),
+            locations: normalizeIdArray(course.locations)
           });
         } catch (e) {
           console.error("Failed to fetch course", e);
@@ -360,7 +378,7 @@ const CourseAdminPanel: React.FC = () => {
     }));
   };
 
-  const handleRelationToggle = (field: 'availableCourses' | 'relatedCourses', courseId: string) => {
+  const handleRelationToggle = (field: 'availableCourses' | 'relatedCourses' | 'locations', courseId: string) => {
     setFormData((prev: any) => {
       const currentRelations = [...prev[field]];
       const index = currentRelations.indexOf(courseId);
@@ -395,7 +413,8 @@ const CourseAdminPanel: React.FC = () => {
         salaryRange: formData.salaryRange,
         careerOutcomeBadge: formData.careerOutcomeBadge,
         availableCourses: formData.availableCourses,
-        relatedCourses: formData.relatedCourses
+        relatedCourses: formData.relatedCourses,
+        locations: formData.locations
       };
 
       let res;
@@ -726,6 +745,17 @@ const CourseAdminPanel: React.FC = () => {
               selectedIds={formData.relatedCourses}
               onChange={(courseId) => handleRelationToggle('relatedCourses', courseId)}
             />
+
+            <div style={{ gridColumn: 'span 2' }}>
+              <MultiSelectDropdown
+                label="Locations Availability"
+                description="Select locations where this course study path is active."
+                placeholder="Choose locations..."
+                options={allLocationsList}
+                selectedIds={formData.locations}
+                onChange={(locationId) => handleRelationToggle('locations', locationId)}
+              />
+            </div>
           </div>
         )}
 

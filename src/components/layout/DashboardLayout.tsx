@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Image, Layers, LayoutTemplate, LogOut, FileText, User, Menu, X, GraduationCap } from 'lucide-react';
+import { Image, Layers, LayoutTemplate, LogOut, FileText, User, Menu, X, GraduationCap, HelpCircle, MapPin } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -104,6 +104,22 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             >
               <GraduationCap size={20} />
               Courses
+            </NavLink>
+            <NavLink 
+              to="/locations" 
+              className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+              onClick={closeMobileSidebar}
+            >
+              <MapPin size={20} />
+              Locations
+            </NavLink>
+            <NavLink 
+              to="/faqs" 
+              className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+              onClick={closeMobileSidebar}
+            >
+              <HelpCircle size={20} />
+              FAQs
             </NavLink>
           </nav>
         </div>

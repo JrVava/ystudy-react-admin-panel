@@ -30,6 +30,7 @@ export const useIdleLogout = (onLogout?: () => void) => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       localStorage.removeItem("idleTimeoutMs");
+      localStorage.removeItem("lastActivity");
       
       if (onLogout) {
         onLogout();
@@ -46,10 +47,33 @@ export const useIdleLogout = (onLogout?: () => void) => {
     if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
   };
 
+  const checkSessionExpiration = () => {
+    const token = localStorage.getItem("token");
+    if (!token) return false;
+
+    const storedTimeout = localStorage.getItem("idleTimeoutMs");
+    const timeoutMs = storedTimeout ? parseInt(storedTimeout, 10) : DEFAULT_IDLE_TIMEOUT_MS;
+
+    const lastActivity = localStorage.getItem("lastActivity");
+    if (lastActivity) {
+      const elapsed = Date.now() - parseInt(lastActivity, 10);
+      if (elapsed >= timeoutMs) {
+        logout();
+        return true;
+      }
+    } else {
+      localStorage.setItem("lastActivity", String(Date.now()));
+    }
+    return false;
+  };
+
   const resetTimer = () => {
     clearAllTimers();
     setShowWarning(false);
     setTimeLeft(0);
+    
+    // Save current activity timestamp
+    localStorage.setItem("lastActivity", String(Date.now()));
     
     const storedTimeout = localStorage.getItem("idleTimeoutMs");
     const timeoutMs = storedTimeout ? parseInt(storedTimeout, 10) : DEFAULT_IDLE_TIMEOUT_MS;
@@ -62,8 +86,15 @@ export const useIdleLogout = (onLogout?: () => void) => {
     
     // Warning Timer
     warningTimerRef.current = setTimeout(() => {
+      const elapsed = Date.now() - parseInt(localStorage.getItem("lastActivity") || "0", 10);
+      const remainingSec = Math.max(0, Math.floor((timeoutMs - elapsed) / 1000));
+      
+      if (remainingSec <= 0) {
+        logout();
+        return;
+      }
+
       setShowWarning(true);
-      const remainingSec = Math.max(0, Math.floor((timeoutMs - warningMs) / 1000));
       setTimeLeft(remainingSec);
       
       let sec = remainingSec;
@@ -71,6 +102,7 @@ export const useIdleLogout = (onLogout?: () => void) => {
         sec -= 1;
         if (sec <= 0) {
           if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+          logout();
         }
         setTimeLeft(Math.max(0, sec));
       }, 1000);
@@ -84,11 +116,22 @@ export const useIdleLogout = (onLogout?: () => void) => {
     const token = localStorage.getItem("token");
     if (!token) return; // Do not monitor if not logged in
 
+    // Check if session has already expired since last check/activity
+    if (checkSessionExpiration()) return;
+
     resetTimer();
+
+    // Set up a periodic check (e.g., every 5 seconds) to catch session expiry
+    // when computer was asleep or tab was in background
+    const checkInterval = setInterval(() => {
+      checkSessionExpiration();
+    }, 5000);
 
     const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
     
     const handleEvent = () => {
+      if (checkSessionExpiration()) return;
+
       // If warning modal is active, don't reset timer on random mouse movements/scrolls.
       // The user must explicitly interact with the modal ("Stay Logged In") to reset.
       if (!showWarningRef.current) {
@@ -102,6 +145,7 @@ export const useIdleLogout = (onLogout?: () => void) => {
 
     return () => {
       clearAllTimers();
+      clearInterval(checkInterval);
       events.forEach(event => {
         window.removeEventListener(event, handleEvent);
       });
