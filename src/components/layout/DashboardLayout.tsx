@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Image, Layers, LayoutTemplate, LogOut, FileText, User, Menu, X, GraduationCap, HelpCircle, MapPin } from 'lucide-react';
+import { Image, Layers, LayoutTemplate, LogOut, FileText, User, Menu, X, GraduationCap, HelpCircle, MapPin, Clock, Trash2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -120,6 +120,22 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             >
               <HelpCircle size={20} />
               FAQs
+            </NavLink>
+            <NavLink 
+              to="/time-tables" 
+              className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+              onClick={closeMobileSidebar}
+            >
+              <Clock size={20} />
+              Time Tables
+            </NavLink>
+            <NavLink 
+              to="/recycle-bin" 
+              className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+              onClick={closeMobileSidebar}
+            >
+              <Trash2 size={20} />
+              Recycle Bin
             </NavLink>
           </nav>
         </div>

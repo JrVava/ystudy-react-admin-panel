@@ -13,6 +13,9 @@ import { LocationListPage } from "./pages/LocationListPage";
 import LocationAdminPanel from "./components/LocationAdminPanel";
 import { FAQListPage } from "./pages/FAQListPage";
 import { FAQAdminPanel } from "./components/FAQAdminPanel";
+import { TimeTableListPage } from "./pages/TimeTableListPage";
+import { TimeTableAdminPanel } from "./components/TimeTableAdminPanel";
+import { RecycleBinPage } from "./pages/RecycleBinPage";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -135,6 +138,30 @@ function App() {
           <Route path="/faqs/edit/:slug" element={
             <ProtectedRoute>
               <FAQAdminPanel />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/time-tables" element={
+            <ProtectedRoute>
+              <TimeTableListPage />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/time-tables/new" element={
+            <ProtectedRoute>
+              <TimeTableAdminPanel />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/time-tables/edit/:id" element={
+            <ProtectedRoute>
+              <TimeTableAdminPanel />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/recycle-bin" element={
+            <ProtectedRoute>
+              <RecycleBinPage />
             </ProtectedRoute>
           } />
 
