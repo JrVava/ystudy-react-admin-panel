@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { locationApi } from '../utils/locationApi';
 import { Edit2, Plus, MapPin, AlertCircle, Search, X, Trash2 } from 'lucide-react';
+import { toast } from '../context/ToastContext';
 
 export const LocationListPage: React.FC = () => {
   const [locations, setLocations] = useState<any[]>([]);
@@ -39,14 +40,14 @@ export const LocationListPage: React.FC = () => {
       setLoading(true);
       const res = await locationApi.delete(id);
       if (res.success) {
-        alert("Location deleted successfully");
+        toast.success("Location deleted successfully");
         fetchLocations();
       } else {
-        alert("Failed to delete location: " + res.message);
+        toast.error("Failed to delete location: " + res.message);
       }
     } catch (e: any) {
       console.error(e);
-      alert("Error deleting location: " + (e.message || "Unknown error"));
+      toast.error("Error deleting location: " + (e.message || "Unknown error"));
     } finally {
       setLoading(false);
     }

@@ -5,6 +5,7 @@ import {
   ChevronDown, ChevronRight, Search
 } from "lucide-react";
 import "./Navigation.css";
+import { toast } from "../context/ToastContext";
 
 interface NavigationItem {
   _id: string;
@@ -208,7 +209,7 @@ export const NavigationAdminPanel: React.FC = () => {
       let currentParentId = targetNode.parentId;
       while (currentParentId) {
         if (currentParentId === draggedId) {
-          alert("Cannot move a parent node inside its own child.");
+          toast.warning("Cannot move a parent node inside its own child.");
           cleanupDrag();
           return;
         }

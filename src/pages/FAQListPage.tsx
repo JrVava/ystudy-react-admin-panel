@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { faqApi } from '../utils/faqApi';
 import { Edit2, Plus, HelpCircle, AlertCircle, Search, X, Trash2 } from 'lucide-react';
+import { toast } from '../context/ToastContext';
 
 interface GroupedFAQ {
   slug: string;
@@ -46,15 +47,15 @@ export const FAQListPage: React.FC = () => {
       setLoading(true);
       const res = await faqApi.delete(slug);
       if (res.success || res.message) {
-        alert("FAQs deleted successfully!");
+        toast.success("FAQs deleted successfully!");
         fetchFAQs();
       } else {
-        alert("Failed to delete FAQs: " + (res.message || "Unknown error"));
+        toast.error("Failed to delete FAQs: " + (res.message || "Unknown error"));
         setLoading(false);
       }
     } catch (err: any) {
       console.error(err);
-      alert("Error deleting FAQs: " + (err.message || "Check console"));
+      toast.error("Error deleting FAQs: " + (err.message || "Check console"));
       setLoading(false);
     }
   };

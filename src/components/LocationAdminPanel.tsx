@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { locationApi } from '../utils/locationApi';
+import { toast } from '../context/ToastContext';
 import { Save, ArrowLeft, Image, MapPin } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
 
@@ -66,7 +67,7 @@ export const LocationAdminPanel: React.FC = () => {
           });
         } catch (e) {
           console.error("Failed to fetch location", e);
-          alert("Failed to load location details.");
+          toast.error("Failed to load location details.");
           navigate('/locations');
         } finally {
           setIsLoading(false);
@@ -105,11 +106,11 @@ export const LocationAdminPanel: React.FC = () => {
 
   const handleSave = async () => {
     if (!formData.title.trim()) {
-      alert("Title is required!");
+      toast.warning("Title is required!");
       return;
     }
     if (!formData.slug.trim()) {
-      alert("Slug is required!");
+      toast.warning("Slug is required!");
       return;
     }
 
@@ -131,14 +132,14 @@ export const LocationAdminPanel: React.FC = () => {
       }
 
       if (res.success || res.data?.success) {
-        alert(id ? "Location updated successfully!" : "Location created successfully!");
+        toast.success(id ? "Location updated successfully!" : "Location created successfully!");
         navigate('/locations');
       } else {
-        alert("Failed to save location: " + (res.message || "Unknown error"));
+        toast.error("Failed to save location: " + (res.message || "Unknown error"));
       }
     } catch (e: any) {
       console.error("Failed to save location", e);
-      alert("Error saving location: " + (e.response?.data?.message || e.message || "Check logs."));
+      toast.error("Error saving location: " + (e.response?.data?.message || e.message || "Check logs."));
     }
   };
 
@@ -205,7 +206,7 @@ export const LocationAdminPanel: React.FC = () => {
       <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         {/* Title and Slug */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div className="responsive-form-grid">
           <Input
             label="Location Title *"
             placeholder="e.g. London Campus"
@@ -243,9 +244,6 @@ export const LocationAdminPanel: React.FC = () => {
               <div style={{ flexGrow: 1, overflow: 'hidden' }}>
                 <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {formData.imageUrl ? formData.imageUrl.split('/').pop() : 'Selected Image'}
-                </p>
-                <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  ID: {formData.image}
                 </p>
               </div>
               <button

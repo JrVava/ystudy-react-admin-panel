@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { timeTableApi } from '../utils/timeTableApi';
 import { Edit2, Plus, Clock, AlertCircle, Search, X, Trash2 } from 'lucide-react';
+import { toast } from '../context/ToastContext';
 
 export const TimeTableListPage: React.FC = () => {
   const [timeTables, setTimeTables] = useState<any[]>([]);
@@ -40,14 +41,14 @@ export const TimeTableListPage: React.FC = () => {
       setLoading(true);
       const res = await timeTableApi.delete(id);
       if (res.success || res.data?.success) {
-        alert("Timetable deleted successfully");
+        toast.success("Timetable deleted successfully");
         await fetchTimeTables();
       } else {
-        alert("Failed to delete timetable: " + (res.message || "Unknown error"));
+        toast.error("Failed to delete timetable: " + (res.message || "Unknown error"));
       }
     } catch (err: any) {
       console.error(err);
-      alert("Error deleting timetable: " + (err.message || "Unknown error"));
+      toast.error("Error deleting timetable: " + (err.message || "Unknown error"));
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { recycleBinApi } from '../utils/recycleBinApi';
 import { Trash2, RotateCcw, AlertTriangle, Info, Calendar, FileText, LayoutTemplate, HelpCircle, MapPin, Layers, Image, FolderOpen, RefreshCw, Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { toast } from '../context/ToastContext';
 
 const collectionsList = [
   { value: 'courses', label: 'Courses', icon: FileText },
@@ -57,14 +58,14 @@ export const RecycleBinPage: React.FC = () => {
       setLoading(true);
       const res = await recycleBinApi.restore(id, selectedCollection);
       if (res.success || res.data?.success) {
-        alert(`"${name}" has been successfully restored.`);
+        toast.success(`"${name}" has been successfully restored.`);
         fetchDeletedItems();
       } else {
-        alert("Failed to restore: " + (res.message || "Unknown error"));
+        toast.error("Failed to restore: " + (res.message || "Unknown error"));
       }
     } catch (e: any) {
       console.error(e);
-      alert("Error restoring record: " + (e.message || "Unknown error"));
+      toast.error("Error restoring record: " + (e.message || "Unknown error"));
     } finally {
       setLoading(false);
     }
@@ -76,7 +77,7 @@ export const RecycleBinPage: React.FC = () => {
 
     const confirm2 = window.prompt(`To confirm permanent deletion of "${name}", type "DELETE" below:`);
     if (confirm2 !== "DELETE") {
-      alert("Deletion cancelled. Confirmation text did not match.");
+      toast.warning("Deletion cancelled. Confirmation text did not match.");
       return;
     }
 
@@ -84,14 +85,14 @@ export const RecycleBinPage: React.FC = () => {
       setLoading(true);
       const res = await recycleBinApi.delete(id, selectedCollection);
       if (res.success || res.data?.success) {
-        alert(`"${name}" was permanently deleted.`);
+        toast.success(`"${name}" was permanently deleted.`);
         fetchDeletedItems();
       } else {
-        alert("Failed to delete record: " + (res.message || "Unknown error"));
+        toast.error("Failed to delete record: " + (res.message || "Unknown error"));
       }
     } catch (e: any) {
       console.error(e);
-      alert("Error permanently deleting record: " + (e.message || "Unknown error"));
+      toast.error("Error permanently deleting record: " + (e.message || "Unknown error"));
     } finally {
       setLoading(false);
     }
@@ -223,7 +224,6 @@ export const RecycleBinPage: React.FC = () => {
               <thead>
                 <tr>
                   <th>Resource Identity / Name</th>
-                  <th>ID</th>
                   <th
                     style={{ cursor: 'pointer', userSelect: 'none' }}
                     onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
@@ -264,9 +264,7 @@ export const RecycleBinPage: React.FC = () => {
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name || 'Unnamed Record'}</span>
                           </div>
                         </td>
-                        <td style={{ fontFamily: 'monospace', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                          {item._id}
-                        </td>
+
                         <td>
                           {item.updatedAt
                             ? new Date(item.updatedAt).toLocaleString()

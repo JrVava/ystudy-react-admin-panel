@@ -174,9 +174,6 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({ onSelect, on
                 <p style={{ marginTop: "8px", fontSize: "0.8rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-primary)", fontWeight: 600 }}>
                   {img.fileName}
                 </p>
-                <p style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
-                  ID: {img._id.substring(img._id.length - 6)}
-                </p>
               </div>
             ))}
           </div>

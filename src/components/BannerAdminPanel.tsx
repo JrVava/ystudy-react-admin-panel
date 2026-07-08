@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { bannerApi } from '../utils/bannerApi';
 import { MediaPickerModal } from './MediaPickerModal';
+import { toast } from '../context/ToastContext';
 import { Save, ArrowLeft, Image } from 'lucide-react';
 import './BannerAdminPanel.css';
 
@@ -77,7 +78,7 @@ const BannerAdminPanel: React.FC = () => {
           });
         } catch (e) {
           console.error("Failed to fetch banner", e);
-          alert("Failed to load banner details.");
+          toast.error("Failed to load banner details.");
         } finally {
           setIsLoading(false);
         }
@@ -128,14 +129,14 @@ const BannerAdminPanel: React.FC = () => {
         res = await bannerApi.create(formData);
       }
       if (res.success) {
-        alert("Banner saved successfully!");
+        toast.success("Banner saved successfully!");
         navigate('/banners');
       } else {
-        alert("Failed to save banner: " + res.message);
+        toast.error("Failed to save banner: " + res.message);
       }
     } catch (e: any) {
       console.error("Failed to save banner", e);
-      alert("Error saving banner: " + (e.message || "Check console for details."));
+      toast.error("Error saving banner: " + (e.message || "Check console for details."));
     }
   };
 
@@ -176,7 +177,6 @@ const BannerAdminPanel: React.FC = () => {
   };
 
   const bgUrl = getPreviewBgUrl();
-  console.log('bgUrl', bgUrl);
 
   return (
     <div className="banner-admin-wrapper animate-fade-in">
@@ -392,7 +392,7 @@ const BannerAdminPanel: React.FC = () => {
                         <button onClick={() => removeItem(index)} style={{ background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>Remove</button>
                       </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '8px' }}>
                         <div>
                           <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, marginBottom: '2px', color: 'var(--text-muted)' }}>Title</label>
                           <input type="text" value={item.title} onChange={e => updateItem(index, 'title', e.target.value)} className="form-input" style={{ padding: '6px 10px', fontSize: '0.85rem' }} />

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { courseApi } from '../utils/courseApi';
+import { toast } from '../context/ToastContext';
 import { locationApi } from '../utils/locationApi';
 import { Save, ArrowLeft, Image, X, Plus, Search, GraduationCap, ChevronDown } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
@@ -200,7 +201,7 @@ const MultiSelectDropdown = ({
                       alignItems: "center",
                       justifyContent: "space-between",
                       background: isSelected ? "rgba(99, 102, 241, 0.08)" : "transparent",
-                      color: isSelected ? "var(--text-primary)" : "var(--text-secondary)",
+                      color: "white",
                       transition: "background 0.15s"
                     }}
                     onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)"}
@@ -234,6 +235,7 @@ const CourseAdminPanel: React.FC = () => {
   const [allCoursesList, setAllCoursesList] = useState<any[]>([]);
   const [allLocationsList, setAllLocationsList] = useState<any[]>([]);
   const [newBadgeText, setNewBadgeText] = useState("");
+  const [newEntryRequirementText, setNewEntryRequirementText] = useState("");
   
   // Normalized form state
   const [formData, setFormData] = useState<any>({
@@ -252,7 +254,10 @@ const CourseAdminPanel: React.FC = () => {
     careerOutcomeBadge: '',
     availableCourses: [],
     relatedCourses: [],
-    locations: []
+    locations: [],
+    courseType: 'General',
+    entryRequirement: [],
+    modeType: []
   });
 
   const [isSlugAutoSynced, setIsSlugAutoSynced] = useState(!id); // Auto-sync slug with title only if creating new
@@ -319,11 +324,14 @@ const CourseAdminPanel: React.FC = () => {
             careerOutcomeBadge: course.careerOutcomeBadge || '',
             availableCourses: normalizeIdArray(course.availableCourses),
             relatedCourses: normalizeIdArray(course.relatedCourses),
-            locations: normalizeIdArray(course.locations)
+            locations: normalizeIdArray(course.locations),
+            courseType: course.courseType || 'General',
+            entryRequirement: Array.isArray(course.entryRequirement) ? course.entryRequirement : [],
+            modeType: Array.isArray(course.modeType) ? course.modeType : []
           });
         } catch (e) {
           console.error("Failed to fetch course", e);
-          alert("Failed to load course details.");
+          toast.error("Failed to load course details.");
         } finally {
           setIsLoading(false);
         }
@@ -378,6 +386,24 @@ const CourseAdminPanel: React.FC = () => {
     }));
   };
 
+  const handleAddEntryRequirement = () => {
+    const req = newEntryRequirementText.trim();
+    if (req && !formData.entryRequirement.includes(req)) {
+      setFormData((prev: any) => ({
+        ...prev,
+        entryRequirement: [...prev.entryRequirement, req]
+      }));
+      setNewEntryRequirementText("");
+    }
+  };
+
+  const handleRemoveEntryRequirement = (reqToRemove: string) => {
+    setFormData((prev: any) => ({
+      ...prev,
+      entryRequirement: prev.entryRequirement.filter((r: string) => r !== reqToRemove)
+    }));
+  };
+
   const handleRelationToggle = (field: 'availableCourses' | 'relatedCourses' | 'locations', courseId: string) => {
     setFormData((prev: any) => {
       const currentRelations = [...prev[field]];
@@ -393,11 +419,11 @@ const CourseAdminPanel: React.FC = () => {
 
   const handleSave = async () => {
     if (!formData.title.trim()) {
-      alert("Title is required!");
+      toast.warning("Title is required!");
       return;
     }
     if (!formData.slug.trim()) {
-      alert("Slug is required!");
+      toast.warning("Slug is required!");
       return;
     }
 
@@ -414,7 +440,10 @@ const CourseAdminPanel: React.FC = () => {
         careerOutcomeBadge: formData.careerOutcomeBadge,
         availableCourses: formData.availableCourses,
         relatedCourses: formData.relatedCourses,
-        locations: formData.locations
+        locations: formData.locations,
+        courseType: formData.courseType,
+        entryRequirement: formData.entryRequirement,
+        modeType: formData.modeType
       };
 
       let res;
@@ -422,17 +451,22 @@ const CourseAdminPanel: React.FC = () => {
         res = await courseApi.update(id, payload);
       } else {
         res = await courseApi.create(payload);
+        const createdId = res.courseId || res.data?.courseId || res.data?.data?.courseId;
+        if (createdId) {
+          // Immediately update to persist courseType, entryRequirement, and modeType on backend
+          await courseApi.update(createdId, payload);
+        }
       }
 
       if (res.success || res.data?.success) {
-        alert(id ? "Course updated successfully!" : "Course created successfully!");
+        toast.success(id ? "Course updated successfully!" : "Course created successfully!");
         navigate('/courses');
       } else {
-        alert("Failed to save course: " + (res.message || "Unknown error"));
+        toast.error("Failed to save course: " + (res.message || "Unknown error"));
       }
     } catch (e: any) {
       console.error("Failed to save course", e);
-      alert("Error saving course: " + (e.response?.data?.message || e.message || "Check logs."));
+      toast.error("Error saving course: " + (e.response?.data?.message || e.message || "Check logs."));
     }
   };
 
@@ -529,7 +563,7 @@ const CourseAdminPanel: React.FC = () => {
         {activeTab === 'general' && (
           <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
             
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+            <div className="responsive-form-grid">
               <Input
                 label="Course Title *"
                 placeholder="e.g. Master of Business Administration (MBA)"
@@ -551,6 +585,19 @@ const CourseAdminPanel: React.FC = () => {
               </div>
             </div>
 
+            <div className="form-group">
+              <label className="form-label">Course Type *</label>
+              <select
+                className="form-input"
+                value={formData.courseType || 'General'}
+                onChange={e => setFormData({ ...formData, courseType: e.target.value })}
+                style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
+              >
+                <option value="General" style={{ background: '#0b0f19' }}>General</option>
+                <option value="Social" style={{ background: '#0b0f19' }}>Social</option>
+              </select>
+            </div>
+
             {/* Image Selector */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               <label className="form-label">Course Cover Image</label>
@@ -567,9 +614,6 @@ const CourseAdminPanel: React.FC = () => {
                   <div style={{ flexGrow: 1, overflow: 'hidden' }}>
                     <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                       {formData.imageUrl ? formData.imageUrl.split('/').pop() : 'Selected Image'}
-                    </p>
-                    <p style={{ margin: '4px 0 0 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                      ID: {formData.image}
                     </p>
                   </div>
                   <button
@@ -680,12 +724,100 @@ const CourseAdminPanel: React.FC = () => {
               </div>
             </div>
 
+            {/* Study Mode Type */}
+            <MultiSelectDropdown
+              label="Study Mode Type"
+              description="Select available learning patterns/modes."
+              placeholder="Choose mode types..."
+              options={[
+                { _id: 'Full-time', title: 'Full-time' },
+                { _id: 'Part-time', title: 'Part-time' },
+                { _id: 'Blended', title: 'Blended' },
+                { _id: 'Online', title: 'Online' },
+                { _id: 'Distance Learning', title: 'Distance Learning' }
+              ]}
+              selectedIds={formData.modeType || []}
+              onChange={(mode) => {
+                const currentModes = [...(formData.modeType || [])];
+                const index = currentModes.indexOf(mode);
+                if (index > -1) {
+                  currentModes.splice(index, 1);
+                } else {
+                  currentModes.push(mode);
+                }
+                setFormData({ ...formData, modeType: currentModes });
+              }}
+            />
+
+            {/* Entry Requirements Input */}
+            <div className="form-group">
+              <label className="form-label">Entry Requirements</label>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. 80 UCAS Points, IELTS 5.5"
+                  value={newEntryRequirementText}
+                  onChange={e => setNewEntryRequirementText(e.target.value)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddEntryRequirement();
+                    }
+                  }}
+                  style={{ flexGrow: 1 }}
+                />
+                <button
+                  type="button"
+                  onClick={handleAddEntryRequirement}
+                  className="btn-secondary"
+                  style={{ display: 'flex', alignItems: 'center', justifySelf: 'center', padding: '0 1rem' }}
+                >
+                  <Plus size={16} />
+                  Add
+                </button>
+              </div>
+
+              {/* Entry Requirements Display */}
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '10px', border: '1px solid var(--panel-border)', minHeight: '52px', alignItems: 'center' }}>
+                {(formData.entryRequirement || []).length === 0 ? (
+                  <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', paddingLeft: '4px' }}>No entry requirements added. Type requirement and click Add.</span>
+                ) : (
+                  formData.entryRequirement.map((req: string, i: number) => (
+                    <span
+                      key={i}
+                      style={{
+                        background: 'rgba(99, 102, 241, 0.15)',
+                        border: '1px solid rgba(99, 102, 241, 0.3)',
+                        color: 'var(--text-primary)',
+                        padding: '4px 10px',
+                        borderRadius: '99px',
+                        fontSize: '0.8rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}
+                    >
+                      {req}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveEntryRequirement(req)}
+                        style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                      >
+                        <X size={12} style={{ color: 'var(--text-muted)' }} />
+                      </button>
+                    </span>
+                  ))
+                )}
+              </div>
+            </div>
+
             {/* Salary Range */}
             <div style={{ background: 'rgba(0,0,0,0.1)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
               <h4 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '1rem', letterSpacing: '0.5px' }}>
                 Expected Graduate Salary Outcomes
               </h4>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+              <div className="responsive-form-grid">
                 <div className="form-group">
                   <label className="form-label">Salary From (£ / year)</label>
                   <input
@@ -727,7 +859,7 @@ const CourseAdminPanel: React.FC = () => {
 
         {/* Tab 3: Relationships */}
         {activeTab === 'relations' && (
-          <div className="animate-fade-in" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+          <div className="animate-fade-in responsive-form-grid" style={{ gap: '2rem' }}>
             <MultiSelectDropdown
               label="Available Courses Links"
               description="Select courses available under this study program pathway."

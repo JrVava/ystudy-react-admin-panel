@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { faqApi } from '../utils/faqApi';
 import { Save, ArrowLeft, Plus, Trash2, HelpCircle, ChevronUp, ChevronDown } from 'lucide-react';
+import { toast } from '../context/ToastContext';
 
 interface FAQItem {
   _id?: string;
@@ -40,7 +41,7 @@ export const FAQAdminPanel: React.FC = () => {
           }
         } catch (e) {
           console.error("Failed to fetch FAQ", e);
-          alert("Failed to load FAQ details.");
+          toast.error("Failed to load FAQ details.");
           navigate('/faqs');
         } finally {
           setLoading(false);
@@ -71,7 +72,7 @@ export const FAQAdminPanel: React.FC = () => {
 
   const removeFAQRow = (index: number) => {
     if (faqs.length === 1) {
-      alert("At least one FAQ item is required.");
+      toast.warning("At least one FAQ item is required.");
       return;
     }
     const updated = faqs.filter((_, i) => i !== index);
@@ -93,21 +94,21 @@ export const FAQAdminPanel: React.FC = () => {
   const handleSave = async () => {
     const cleanSlug = formSlug.trim();
     if (!cleanSlug) {
-      alert("Slug is required!");
+      toast.warning("Slug is required!");
       return;
     }
 
     // Filter out empty items
     const validFaqs = faqs.filter(f => f.question.trim() || f.answer.trim());
     if (validFaqs.length === 0) {
-      alert("Please add at least one FAQ with question and answer content.");
+      toast.warning("Please add at least one FAQ with question and answer content.");
       return;
     }
 
     // Ensure all remaining rows are filled
     const hasEmptyField = validFaqs.some(f => !f.question.trim() || !f.answer.trim());
     if (hasEmptyField) {
-      alert("Please fill in both question and answer for all FAQ rows.");
+      toast.warning("Please fill in both question and answer for all FAQ rows.");
       return;
     }
 
@@ -132,15 +133,15 @@ export const FAQAdminPanel: React.FC = () => {
       }
 
       if (res.success || res.message) {
-        alert(slug ? "FAQ group updated successfully!" : "FAQ group created successfully!");
+        toast.success(slug ? "FAQ group updated successfully!" : "FAQ group created successfully!");
         navigate('/faqs');
       } else {
-        alert("Failed to save FAQs: " + (res.message || "Unknown error"));
+        toast.error("Failed to save FAQs: " + (res.message || "Unknown error"));
         setLoading(false);
       }
     } catch (e: any) {
       console.error(e);
-      alert("Error saving FAQs: " + (e.response?.data?.message || e.message || "Check logs."));
+      toast.error("Error saving FAQs: " + (e.response?.data?.message || e.message || "Check logs."));
       setLoading(false);
     }
   };
@@ -188,7 +189,7 @@ export const FAQAdminPanel: React.FC = () => {
       <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         {/* Slug and Status config */}
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1.5rem', alignItems: 'flex-end', background: 'rgba(255,255,255,0.01)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--panel-border)' }}>
+        <div className="responsive-grid-2-1" style={{ alignItems: 'flex-end', background: 'rgba(255,255,255,0.01)', padding: '1.25rem', borderRadius: '12px', border: '1px solid var(--panel-border)' }}>
           <div className="form-group" style={{ margin: 0 }}>
             <label className="form-label">FAQ Group Slug *</label>
             <input

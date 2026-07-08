@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import api from "../utils/api";
+import { toast } from "../context/ToastContext";
 
 const DEFAULT_IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes fallback
 
@@ -11,6 +12,7 @@ export const useIdleLogout = (onLogout?: () => void) => {
   const warningTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const showWarningRef = useRef(false);
+  const lastResetRef = useRef(0);
 
   // Sync state to ref for access in static event handler
   useEffect(() => {
@@ -35,7 +37,7 @@ export const useIdleLogout = (onLogout?: () => void) => {
       if (onLogout) {
         onLogout();
       } else {
-        alert("You have been logged out due to inactivity.");
+        toast.warning("You have been logged out due to inactivity.");
         window.location.href = "/login";
       }
     }
@@ -74,6 +76,7 @@ export const useIdleLogout = (onLogout?: () => void) => {
     
     // Save current activity timestamp
     localStorage.setItem("lastActivity", String(Date.now()));
+    lastResetRef.current = Date.now();
     
     const storedTimeout = localStorage.getItem("idleTimeoutMs");
     const timeoutMs = storedTimeout ? parseInt(storedTimeout, 10) : DEFAULT_IDLE_TIMEOUT_MS;
@@ -135,7 +138,10 @@ export const useIdleLogout = (onLogout?: () => void) => {
       // If warning modal is active, don't reset timer on random mouse movements/scrolls.
       // The user must explicitly interact with the modal ("Stay Logged In") to reset.
       if (!showWarningRef.current) {
-        resetTimer();
+        const now = Date.now();
+        if (now - lastResetRef.current > 15000) {
+          resetTimer();
+        }
       }
     };
 

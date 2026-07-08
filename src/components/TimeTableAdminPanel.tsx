@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { timeTableApi } from '../utils/timeTableApi';
+import { courseApi } from '../utils/courseApi';
 import { Save, ArrowLeft, Clock, Plus, Trash2 } from 'lucide-react';
+import { toast } from '../context/ToastContext';
 
 const Input = ({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string }) => (
   <div className="form-group">
@@ -35,6 +37,7 @@ export const TimeTableAdminPanel: React.FC = () => {
   
   const [isLoading, setIsLoading] = useState(!!id);
   const [isSlugAutoSynced, setIsSlugAutoSynced] = useState(!id);
+  const [coursesList, setCoursesList] = useState<any[]>([]);
 
   const [formData, setFormData] = useState<any>({
     title: '',
@@ -44,6 +47,18 @@ export const TimeTableAdminPanel: React.FC = () => {
     items: [],
     status: true
   });
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const list = await courseApi.getList();
+        setCoursesList(list || []);
+      } catch (e) {
+        console.error("Failed to load courses list", e);
+      }
+    };
+    fetchCourses();
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -60,7 +75,7 @@ export const TimeTableAdminPanel: React.FC = () => {
           });
         } catch (e) {
           console.error("Failed to fetch timetable", e);
-          alert("Failed to load timetable details.");
+          toast.error("Failed to load timetable details.");
           navigate('/time-tables');
         } finally {
           setIsLoading(false);
@@ -91,12 +106,6 @@ export const TimeTableAdminPanel: React.FC = () => {
     });
   };
 
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const customSlug = e.target.value;
-    setIsSlugAutoSynced(false);
-    setFormData((prev: any) => ({ ...prev, slug: customSlug }));
-  };
-
   const handleAddItem = () => {
     setFormData((prev: any) => ({
       ...prev,
@@ -121,11 +130,11 @@ export const TimeTableAdminPanel: React.FC = () => {
 
   const handleSave = async () => {
     if (!formData.title.trim()) {
-      alert("Title is required!");
+      toast.warning("Title is required!");
       return;
     }
     if (!formData.slug.trim()) {
-      alert("Slug is required!");
+      toast.warning("Slug is required!");
       return;
     }
 
@@ -147,14 +156,14 @@ export const TimeTableAdminPanel: React.FC = () => {
       }
 
       if (res.success || res.data?.success) {
-        alert(id ? "Time table updated successfully!" : "Time table created successfully!");
+        toast.success(id ? "Time table updated successfully!" : "Time table created successfully!");
         navigate('/time-tables');
       } else {
-        alert("Failed to save time table: " + (res.message || "Unknown error"));
+        toast.error("Failed to save time table: " + (res.message || "Unknown error"));
       }
     } catch (e: any) {
       console.error("Failed to save timetable", e);
-      alert("Error saving timetable: " + (e.response?.data?.message || e.message || "Check logs."));
+      toast.error("Error saving timetable: " + (e.response?.data?.message || e.message || "Check logs."));
     }
   };
 
@@ -199,7 +208,7 @@ export const TimeTableAdminPanel: React.FC = () => {
       <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         
         {/* Title and Slug */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div className="responsive-form-grid">
           <Input
             label="Timetable Title *"
             placeholder="e.g. Health & Social Care Blended Schedule"
@@ -207,22 +216,29 @@ export const TimeTableAdminPanel: React.FC = () => {
             onChange={handleTitleChange}
           />
           <div className="form-group">
-            <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Slug *</span>
-              {isSlugAutoSynced && <span style={{ fontSize: '0.7rem', color: 'var(--success)' }}>Auto-synced</span>}
-            </label>
-            <input
-              type="text"
+            <label className="form-label">Associated Course Slug *</label>
+            <select
               className="form-input"
-              placeholder="e.g. health-social-care-blended"
               value={formData.slug}
-              onChange={handleSlugChange}
-            />
+              onChange={(e) => {
+                const selectedSlug = e.target.value;
+                setIsSlugAutoSynced(false);
+                setFormData((prev: any) => ({ ...prev, slug: selectedSlug }));
+              }}
+              style={{ background: 'rgba(255,255,255,0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
+            >
+              <option value="" style={{ background: '#0b0f19' }}>Select a course...</option>
+              {coursesList.map((course) => (
+                <option key={course._id} value={course.slug} style={{ background: '#0b0f19' }}>
+                  {course.title} ({course.slug})
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
         {/* Badge & Status */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+        <div className="responsive-form-grid">
           <Input
             label="Badge Text (Kicker / Tagline)"
             placeholder="e.g. Sept / Jan / May Intakes"
@@ -279,15 +295,12 @@ export const TimeTableAdminPanel: React.FC = () => {
             {formData.items.map((item: any, index: number) => (
               <div 
                 key={index} 
+                className="timetable-row-grid"
                 style={{ 
                   background: 'rgba(255,255,255,0.02)', 
                   border: '1px solid var(--panel-border)', 
                   borderRadius: '10px', 
-                  padding: '12px',
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1fr auto',
-                  alignItems: 'end',
-                  gap: '12px'
+                  padding: '12px'
                 }}
               >
                 <div>

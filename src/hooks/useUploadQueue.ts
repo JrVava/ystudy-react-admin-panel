@@ -6,6 +6,7 @@ import type { UploadItem } from "../utils/queueUtils";
 export const useUploadQueue = () => {
   const [queue, setQueue] = useState<UploadItem[]>([]);
   const activeUploads = useRef<Record<string, boolean>>({});
+  const pollTimeouts = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   // Load from local storage on mount
   useEffect(() => {
@@ -18,11 +19,19 @@ export const useUploadQueue = () => {
       return item;
     });
     setQueue(resetQueue);
+
+    return () => {
+      // Clear all active timeouts on unmount
+      Object.values(pollTimeouts.current).forEach(clearTimeout);
+    };
   }, []);
 
-  // Save to local storage on queue change
+  // Save to local storage on queue change (debounced to avoid heavy storage writes during progress updates)
   useEffect(() => {
-    saveQueueToStorage(queue);
+    const timer = setTimeout(() => {
+      saveQueueToStorage(queue);
+    }, 1000);
+    return () => clearTimeout(timer);
   }, [queue]);
 
   const updateItem = useCallback((id: string, updates: Partial<UploadItem>) => {
@@ -102,21 +111,25 @@ export const useUploadQueue = () => {
 
   const startPollingStatus = useCallback((itemId: string, backendUploadId: string) => {
     const poll = async () => {
+      if (!activeUploads.current[itemId]) return; // Stop polling if paused/cancelled
+
       try {
         const { data } = await api.get(`/upload/status/${backendUploadId}`);
+        if (!activeUploads.current[itemId]) return; // Check again after await
+
         if (data.status === "completed") {
           updateItem(itemId, { status: "completed", eta: 0, speed: 0 });
-          // Auto-remove from queue after a short delay so user sees completion
-          setTimeout(() => {
+          const timer = setTimeout(() => {
             setQueue((prev) => prev.filter((item) => item.id !== itemId));
+            delete pollTimeouts.current[itemId];
           }, 1000);
-        } else if (data.status === "processing") {
-          setTimeout(poll, 2000);
+          pollTimeouts.current[itemId] = timer;
         } else {
-          setTimeout(poll, 2000);
+          const timer = setTimeout(poll, 2000);
+          pollTimeouts.current[itemId] = timer;
         }
       } catch (e) {
-        // Stop polling on error
+        delete pollTimeouts.current[itemId];
       }
     };
     poll();
@@ -162,6 +175,10 @@ export const useUploadQueue = () => {
 
   const pauseUpload = async (id: string) => {
     activeUploads.current[id] = false;
+    if (pollTimeouts.current[id]) {
+      clearTimeout(pollTimeouts.current[id]);
+      delete pollTimeouts.current[id];
+    }
     updateItem(id, { status: "paused", speed: 0, eta: undefined });
     const item = queue.find((q) => q.id === id);
     if (item && item.backendUploadId) {
@@ -189,6 +206,10 @@ export const useUploadQueue = () => {
 
   const cancelUpload = async (id: string) => {
     activeUploads.current[id] = false;
+    if (pollTimeouts.current[id]) {
+      clearTimeout(pollTimeouts.current[id]);
+      delete pollTimeouts.current[id];
+    }
     const item = queue.find((q) => q.id === id);
     setQueue((prev) => prev.filter((item) => item.id !== id));
     

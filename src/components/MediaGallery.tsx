@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import api from "../utils/api";
 import { decrypt } from "../utils/crypto";
+import { toast } from "../context/ToastContext";
 import { useUploadQueue } from "../hooks/useUploadQueue";
 import { UploadDropzone } from "./UploadDropzone";
 import { UploadList } from "./UploadList";
@@ -75,7 +76,7 @@ export const MediaGallery: React.FC = () => {
       }
     } catch (e) {
       console.error("Failed to delete image", e);
-      alert("Failed to delete image.");
+      toast.error("Failed to delete image.");
     }
   };
 
@@ -95,11 +96,11 @@ export const MediaGallery: React.FC = () => {
         fetchFolders();
         fetchImages(1, folderId);
       } else {
-        alert(decrypted.message || "Failed to rename folder");
+        toast.error(decrypted.message || "Failed to rename folder");
       }
     } catch (e) {
       console.error("Failed to rename folder", e);
-      alert("Failed to rename folder.");
+      toast.error("Failed to rename folder.");
     } finally {
       setRenamingFolderId(null);
     }
@@ -116,11 +117,11 @@ export const MediaGallery: React.FC = () => {
         fetchFolders();
         fetchImages(1, null);
       } else {
-        alert(decrypted.message || "Failed to delete folder");
+        toast.error(decrypted.message || "Failed to delete folder");
       }
     } catch (e) {
       console.error("Failed to delete folder", e);
-      alert("Failed to delete folder.");
+      toast.error("Failed to delete folder.");
     }
   };
 
@@ -161,7 +162,7 @@ export const MediaGallery: React.FC = () => {
       }
     } catch (e) {
       console.error("Failed to save SEO metadata", e);
-      alert("Failed to save SEO metadata.");
+      toast.error("Failed to save SEO metadata.");
     } finally {
       setIsSavingSeo(false);
     }
@@ -395,16 +396,13 @@ export const MediaGallery: React.FC = () => {
                 {img.fileName}
               </p>
               
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "4px" }}>
-                <span style={{ fontSize: "0.75rem", color: "var(--text-muted)", fontFamily: "monospace" }}>
-                  ID: {img._id.substring(img._id.length - 6)}
-                </span>
-                {img.altText && (
+              {img.altText && (
+                <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginTop: "4px" }}>
                   <span style={{ fontSize: "0.7rem", color: "var(--success)", background: "rgba(16, 185, 129, 0.1)", padding: "2px 6px", borderRadius: "4px", fontWeight: 600 }}>
                     SEO Set
                   </span>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

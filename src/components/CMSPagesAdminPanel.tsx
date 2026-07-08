@@ -214,9 +214,6 @@ export const CMSPagesAdminPanel: React.FC = () => {
                 <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {previewPath && previewPath.includes('/') ? previewPath.split('/').pop() : value}
                 </p>
-                <p style={{ margin: 0, fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                  {value && /^[0-9a-fA-F]{24}$/.test(value) ? `ID: ${value}` : value}
-                </p>
               </div>
               <button
                 type="button"
@@ -492,7 +489,6 @@ export const CMSPagesAdminPanel: React.FC = () => {
                 <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 700 }}>
                   Editing Page: <span style={{ color: 'var(--accent)', textTransform: 'capitalize' }}>{editingPage.page}</span>
                 </h3>
-                <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>ID: {editingPage._id}</span>
               </div>
             </div>
             
@@ -555,6 +551,26 @@ export const CMSPagesAdminPanel: React.FC = () => {
               </div>
               
               <form onSubmit={e => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div className="form-group" style={{ padding: '0 0.5rem 1.25rem 0.5rem', borderBottom: '1px solid var(--panel-border)', marginBottom: '1rem' }}>
+                  <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Page Slug / Name *</label>
+                  <select
+                    className="form-input"
+                    value={pageData.page || ''}
+                    onChange={(e) => setPageData({ ...pageData, page: e.target.value })}
+                    style={{ background: 'rgba(255,255,255,0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)', fontSize: '0.9rem' }}
+                  >
+                    <option value="" style={{ background: '#0b0f19' }}>Select a page slug...</option>
+                    {navItems.map((nav: any) => (
+                      <option key={nav._id} value={nav.slug} style={{ background: '#0b0f19' }}>
+                        {nav.pageName} ({nav.slug})
+                      </option>
+                    ))}
+                  </select>
+                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                    Warning: Changing this links this CMS layout configuration to a different frontend route/slug.
+                  </span>
+                </div>
+
                 {Object.keys(pageData)
                   .filter(key => !isMetadataKey(key))
                   .map(key => {

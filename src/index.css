@@ -513,3 +513,65 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }
+
+/* Responsive Form Grids */
+.responsive-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Responsive 2 Column Grid (2:1 ratio on desktop, stacked on mobile) */
+.responsive-grid-2-1 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+/* Timetable dynamic pattern rows grid */
+.timetable-row-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 12px;
+  align-items: end;
+}
+
+@media (max-width: 768px) {
+  .responsive-grid-2-1 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .timetable-row-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .timetable-row-grid button {
+    width: 100% !important;
+  }
+}
+
+/* Toast Animations */
+@keyframes toast-slide-in {
+  from {
+    transform: translateY(-50px) scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Dropdown & Multiselect Options Text Color Override */
+select, .form-select, select option {
+  color: #ffffff !important;
+}
+
+select option {
+  background-color: #0b0f19 !important;
+}
+
+

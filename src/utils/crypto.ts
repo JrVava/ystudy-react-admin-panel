@@ -1,9 +1,11 @@
 import CryptoJS from "crypto-js";
 
 // Uses VITE_CRYPTO_SECRET_KEY from .env or fallback
-const SECRET_KEY = CryptoJS.enc.Hex.parse(
-    (import.meta.env.VITE_CRYPTO_SECRET_KEY as string) || "9318cd9b582062e4723131d497581c5965b29365c0c495a0d17076d48df8354d"
-);
+const keyStr = import.meta.env.VITE_CRYPTO_SECRET_KEY;
+if (!keyStr) {
+  throw new Error("Critical Configuration Error: VITE_CRYPTO_SECRET_KEY is undefined in environment variables.");
+}
+const SECRET_KEY = CryptoJS.enc.Hex.parse(keyStr);
 const IV = CryptoJS.lib.WordArray.create(new Uint8Array(16) as any); // 16 bytes of 0s
 
 export const decrypt = (encryptedDataBase64: string) => {

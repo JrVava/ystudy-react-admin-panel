@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import { ToastProvider } from "./context/ToastContext";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
 import { MediaPage } from "./pages/MediaPage";
 import { BannerListPage } from "./pages/BannerListPage";
@@ -40,7 +41,8 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
+        <ToastProvider>
+          <Routes>
           {/* Public login route */}
           <Route path="/login" element={<LoginPage />} />
 
@@ -168,6 +170,7 @@ function App() {
           {/* Catch-all redirect */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </ToastProvider>
       </AuthProvider>
     </BrowserRouter>
   );
