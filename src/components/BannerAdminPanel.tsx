@@ -57,6 +57,7 @@ const BannerAdminPanel: React.FC = () => {
     rightCard: {
       layoutType: 'stacked-cards',
       title: 'Snapshot',
+      description: '',
       mainValue: '~£23,925',
       items: [
         { title: 'Free guidance', subtitle: '', description: 'Get professional support', value: '', icon: '' },
@@ -74,7 +75,13 @@ const BannerAdminPanel: React.FC = () => {
             internalName: banner.internalName || '',
             background: { imageUrl: banner.background?.imageUrl || '', fullImageUrl: banner.fullImageUrl || banner.background?.fullImageUrl || '' },
             leftContent: banner.leftContent || { title: '', description: '', badgeText: '', footerItems: [] },
-            rightCard: banner.rightCard || { layoutType: 'stacked-cards', title: 'Snapshot', mainValue: '', items: [] }
+            rightCard: {
+              layoutType: banner.rightCard?.layoutType || 'stacked-cards',
+              title: banner.rightCard?.title || '',
+              description: banner.rightCard?.description || '',
+              mainValue: banner.rightCard?.mainValue || '',
+              items: banner.rightCard?.items || []
+            }
           });
         } catch (e) {
           console.error("Failed to fetch banner", e);
@@ -177,6 +184,8 @@ const BannerAdminPanel: React.FC = () => {
   };
 
   const bgUrl = getPreviewBgUrl();
+  const hasLeft = !!(formData.leftContent.title || formData.leftContent.description || formData.leftContent.badgeText);
+  const hasRight = formData.rightCard.layoutType !== 'none';
 
   return (
     <div className="banner-admin-wrapper animate-fade-in">
@@ -346,6 +355,7 @@ const BannerAdminPanel: React.FC = () => {
                 <Select
                   label="Card Layout Structure"
                   options={[
+                    { label: 'None (No Right Card)', value: 'none' },
                     { label: 'Stacked Cards (Headline & Description)', value: 'stacked-cards' },
                     { label: 'List Rows (Items & Mini Value)', value: 'list-items' },
                     { label: 'Highlight Stat Card (Huge Text & Sub Stats)', value: 'stats-highlight' },
@@ -355,76 +365,96 @@ const BannerAdminPanel: React.FC = () => {
                   onChange={e => updateRightCard('layoutType', e.target.value)}
                 />
 
-                <Input
-                  label="Card Header Title"
-                  placeholder="e.g., At a glance"
-                  value={formData.rightCard.title}
-                  onChange={e => updateRightCard('title', e.target.value)}
-                />
-
-                {formData.rightCard.layoutType === 'stats-highlight' && (
-                  <Input
-                    label="Stat Highlight Value"
-                    placeholder="e.g., ~£23,925"
-                    value={formData.rightCard.mainValue || ''}
-                    onChange={e => updateRightCard('mainValue', e.target.value)}
-                  />
-                )}
-
-                <div style={{ marginTop: '2rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h4 style={{ fontSize: '0.95rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
-                      Card Details List
-                    </h4>
-                    <button
-                      onClick={addItem}
-                      className="btn-secondary"
-                      style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
-                    >
-                      + Add Item
-                    </button>
+                {formData.rightCard.layoutType === 'none' ? (
+                  <div style={{ padding: '2rem', textAlign: 'center', background: 'rgba(255, 255, 255, 0.02)', border: '1px dashed var(--panel-border)', borderRadius: '12px', marginTop: '1.5rem' }}>
+                    <p style={{ margin: 0, fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
+                      Right Card is disabled.
+                    </p>
+                    <p style={{ margin: '8px 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      The banner will only show the background and left headline content.
+                    </p>
                   </div>
+                ) : (
+                  <>
+                    <Input
+                      label="Card Header Title"
+                      placeholder="e.g., At a glance"
+                      value={formData.rightCard.title}
+                      onChange={e => updateRightCard('title', e.target.value)}
+                    />
 
-                  {formData.rightCard.items.map((item, index) => (
-                    <div key={index} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--panel-border)', borderRadius: '10px', padding: '12px', marginBottom: '12px' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                        <span style={{ fontWeight: 600, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Card Item #{index + 1}</span>
-                        <button onClick={() => removeItem(index)} style={{ background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>Remove</button>
+                    <Textarea
+                      label="Card Header Description"
+                      placeholder="e.g., Most adult learners choose by city..."
+                      value={formData.rightCard.description || ''}
+                      onChange={e => updateRightCard('description', e.target.value)}
+                    />
+
+                    {formData.rightCard.layoutType === 'stats-highlight' && (
+                      <Input
+                        label="Stat Highlight Value"
+                        placeholder="e.g., ~£23,925"
+                        value={formData.rightCard.mainValue || ''}
+                        onChange={e => updateRightCard('mainValue', e.target.value)}
+                      />
+                    )}
+
+                    <div style={{ marginTop: '2rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <h4 style={{ fontSize: '0.95rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
+                          Card Details List
+                        </h4>
+                        <button
+                          onClick={addItem}
+                          className="btn-secondary"
+                          style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
+                        >
+                          + Add Item
+                        </button>
                       </div>
 
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '8px' }}>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, marginBottom: '2px', color: 'var(--text-muted)' }}>Title</label>
-                          <input type="text" value={item.title} onChange={e => updateItem(index, 'title', e.target.value)} className="form-input" style={{ padding: '6px 10px', fontSize: '0.85rem' }} />
-                        </div>
-                        <div>
-                          <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, marginBottom: '2px', color: 'var(--text-muted)' }}>Subtitle</label>
-                          <input type="text" value={item.subtitle || ''} onChange={e => updateItem(index, 'subtitle', e.target.value)} className="form-input" style={{ padding: '6px 10px', fontSize: '0.85rem' }} />
-                        </div>
-                      </div>
+                      {formData.rightCard.items.map((item, index) => (
+                        <div key={index} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--panel-border)', borderRadius: '10px', padding: '12px', marginBottom: '12px' }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                            <span style={{ fontWeight: 600, fontSize: '0.8rem', color: 'var(--text-muted)' }}>Card Item #{index + 1}</span>
+                            <button onClick={() => removeItem(index)} style={{ background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>Remove</button>
+                          </div>
 
-                      {['stats-highlight', 'grid-2x2'].includes(formData.rightCard.layoutType) && (
-                        <div style={{ marginBottom: '8px' }}>
-                          <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, marginBottom: '2px', color: 'var(--text-muted)' }}>Stat Value</label>
-                          <input type="text" value={item.value || ''} onChange={e => updateItem(index, 'value', e.target.value)} className="form-input" style={{ padding: '6px 10px', fontSize: '0.85rem' }} />
-                        </div>
-                      )}
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '8px' }}>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, marginBottom: '2px', color: 'var(--text-muted)' }}>Title</label>
+                              <input type="text" value={item.title} onChange={e => updateItem(index, 'title', e.target.value)} className="form-input" style={{ padding: '6px 10px', fontSize: '0.85rem', width: '100%' }} />
+                            </div>
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, marginBottom: '2px', color: 'var(--text-muted)' }}>Subtitle</label>
+                              <input type="text" value={item.subtitle || ''} onChange={e => updateItem(index, 'subtitle', e.target.value)} className="form-input" style={{ padding: '6px 10px', fontSize: '0.85rem', width: '100%' }} />
+                            </div>
+                          </div>
 
-                      {formData.rightCard.layoutType !== 'stats-highlight' && (
-                        <div>
-                          <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, marginBottom: '2px', color: 'var(--text-muted)' }}>Description</label>
-                          <textarea value={item.description || ''} onChange={e => updateItem(index, 'description', e.target.value)} className="form-textarea" style={{ padding: '6px 10px', minHeight: '50px', fontSize: '0.85rem' }}></textarea>
+                          {['stats-highlight', 'grid-2x2'].includes(formData.rightCard.layoutType) && (
+                            <div style={{ marginBottom: '8px' }}>
+                              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, marginBottom: '2px', color: 'var(--text-muted)' }}>Stat Value</label>
+                              <input type="text" value={item.value || ''} onChange={e => updateItem(index, 'value', e.target.value)} className="form-input" style={{ padding: '6px 10px', fontSize: '0.85rem', width: '100%' }} />
+                            </div>
+                          )}
+
+                          {formData.rightCard.layoutType !== 'stats-highlight' && (
+                            <div>
+                              <label style={{ display: 'block', fontSize: '0.7rem', fontWeight: 600, marginBottom: '2px', color: 'var(--text-muted)' }}>Description</label>
+                              <textarea value={item.description || ''} onChange={e => updateItem(index, 'description', e.target.value)} className="form-textarea" style={{ padding: '6px 10px', minHeight: '50px', fontSize: '0.85rem', width: '100%' }}></textarea>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+
+                      {formData.rightCard.items.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '2rem', border: '1px dashed var(--panel-border)', borderRadius: '10px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                          No items set up.
                         </div>
                       )}
                     </div>
-                  ))}
-
-                  {formData.rightCard.items.length === 0 && (
-                    <div style={{ textAlign: 'center', padding: '2rem', border: '1px dashed var(--panel-border)', borderRadius: '10px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
-                      No items set up.
-                    </div>
-                  )}
-                </div>
+                  </>
+                )}
               </div>
             )}
           </div>
@@ -449,104 +479,119 @@ const BannerAdminPanel: React.FC = () => {
               backgroundSize: "cover",      // Fills the div, crops if needed
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
+              height: (!hasLeft && !hasRight) ? '300px' : '480px',
             }}
           >
             {/* Ambient Dark Overlay to make headline readable */}
             <div className="banner-overlay"></div>
 
             {/* Main Content Layout */}
-            <div className="banner-content-layout">
+            <div
+              className="banner-content-layout"
+              style={{
+                flexDirection: (!hasLeft && !hasRight) ? 'row' : (hasLeft && !hasRight) ? 'column' : undefined
+              }}
+            >
               {/* Left Content Area */}
-              <div className="banner-left">
-                {formData.leftContent.badgeText && (
-                  <span className="banner-badge">
-                    {formData.leftContent.badgeText}
-                  </span>
-                )}
+              {hasLeft && (
+                <div className="banner-left" style={{ flex: hasRight ? '1.2' : '1' }}>
+                  {formData.leftContent.badgeText && (
+                    <span className="banner-badge">
+                      {formData.leftContent.badgeText}
+                    </span>
+                  )}
 
-                <h1 className="banner-title">
-                  {formData.leftContent.title || 'Add main title headline...'}
-                </h1>
+                  <h1 className="banner-title">
+                    {formData.leftContent.title || 'Add main title headline...'}
+                  </h1>
 
-                <p className="banner-description">
-                  {formData.leftContent.description || 'Add supporting details here.'}
-                </p>
-              </div>
+                  <p className="banner-description">
+                    {formData.leftContent.description || 'Add supporting details here.'}
+                  </p>
+                </div>
+              )}
 
               {/* Right Card Area representing frontend mockup */}
-              <div className="banner-right">
-                <div className="banner-card">
-                  {/* Card Title rendered ONCE at the absolute top of the card for all layouts */}
-                  <h3 className="card-title">
-                    {formData.rightCard.title || 'Information Card'}
-                  </h3>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {formData.rightCard.layoutType === 'stacked-cards' && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              {hasRight && (
+                <div className="banner-right">
+                  {formData.rightCard.layoutType === 'list-items' && formData.rightCard.items ? (
+                    <aside className="loc-glass">
+                      <h3>{formData.rightCard.title || 'Built for mature students'}</h3>
+                      {formData.rightCard.description && <p>{formData.rightCard.description}</p>}
+                      <div className="loc-mini-list">
                         {formData.rightCard.items.map((item, idx) => (
-                          <div key={idx} style={{ color: '#0f172a' }}>
-                            {item.subtitle && (
-                              <div style={{ fontSize: '11px', fontWeight: 800, color: '#f97316', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.5px' }}>
-                                {item.subtitle}
+                          <div className="loc-mini" key={idx}>
+                            <span>{item.title}</span>
+                            <span>{item.description || ''}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </aside>
+                  ) : (
+                    <div className="banner-card">
+                      {/* Card Title rendered ONCE at the absolute top of the card for all layouts */}
+                      <h3 className="card-title">
+                        {formData.rightCard.title || 'Information Card'}
+                      </h3>
+                      {formData.rightCard.description && (
+                        <p className="card-description" style={{ fontSize: '0.9rem', color: '#475569', marginTop: '-0.75rem', marginBottom: '1.25rem', lineHeight: 1.4 }}>
+                          {formData.rightCard.description}
+                        </p>
+                      )}
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {formData.rightCard.layoutType === 'stacked-cards' && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            {formData.rightCard.items.map((item, idx) => (
+                              <div key={idx} style={{ color: '#0f172a' }}>
+                                {item.subtitle && (
+                                  <div style={{ fontSize: '11px', fontWeight: 800, color: '#f97316', textTransform: 'uppercase', marginBottom: '4px', letterSpacing: '0.5px' }}>
+                                    {item.subtitle}
+                                  </div>
+                                )}
+                                <div style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '6px', lineHeight: 1.2, color: '#0f172a' }}>
+                                  {item.title || `Item ${idx + 1}`}
+                                </div>
+                                {item.description && (
+                                  <div style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.4 }}>
+                                    {item.description}
+                                  </div>
+                                )}
                               </div>
-                            )}
-                            <div style={{ fontSize: '1.35rem', fontWeight: 800, marginBottom: '6px', lineHeight: 1.2, color: '#0f172a' }}>
-                              {item.title || `Item ${idx + 1}`}
-                            </div>
-                            {item.description && (
-                              <div style={{ fontSize: '0.85rem', color: '#475569', lineHeight: 1.4 }}>
-                                {item.description}
+                            ))}
+                          </div>
+                        )}
+
+                        {formData.rightCard.layoutType === 'grid-2x2' && (
+                          <div className="grid-2x2">
+                            {formData.rightCard.items.map((item, idx) => (
+                              <div key={idx} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px', borderRadius: '10px', color: '#0f172a' }}>
+                                <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#4f46e5', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
+                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.value || item.subtitle || 'Stat...'}</div>
                               </div>
-                            )}
+                            ))}
                           </div>
-                        ))}
-                      </div>
-                    )}
+                        )}
 
-                    {formData.rightCard.layoutType === 'grid-2x2' && (
-                      <div className="grid-2x2">
-                        {formData.rightCard.items.map((item, idx) => (
-                          <div key={idx} style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '12px', borderRadius: '10px', color: '#0f172a' }}>
-                            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#4f46e5', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.title}</div>
-                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.value || item.subtitle || 'Stat...'}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {formData.rightCard.layoutType === 'list-items' && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {formData.rightCard.items.map((item, idx) => (
-                          <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', color: '#0f172a', alignItems: 'center' }}>
-                            <div>
-                              <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{item.title || `Row ${idx + 1}`}</div>
-                              {item.subtitle && <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.subtitle}</div>}
+                        {formData.rightCard.layoutType === 'stats-highlight' && (
+                          <div className="stats-card" style={{ padding: '16px 12px 12px' }}>
+                            <div className="stats-label">Snapshot highlights</div>
+                            <div className="stats-value">{formData.rightCard.mainValue || '~£0'}</div>
+                            <div className="stats-grid">
+                              {formData.rightCard.items.map((item, idx) => (
+                                <div key={idx} className="stats-mini">
+                                  <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginBottom: '2px' }}>{item.value || item.title || '£0'}</div>
+                                  <div style={{ fontSize: '0.7rem', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.subtitle || item.description || 'Stat'}</div>
+                                </div>
+                              ))}
                             </div>
-                            <div style={{ fontWeight: 700, fontSize: '0.8rem', color: '#f97316' }}>{item.value || ''}</div>
                           </div>
-                        ))}
+                        )}
                       </div>
-                    )}
-
-                    {formData.rightCard.layoutType === 'stats-highlight' && (
-                      <div className="stats-card" style={{ padding: '16px 12px 12px' }}>
-                        <div className="stats-label">Snapshot highlights</div>
-                        <div className="stats-value">{formData.rightCard.mainValue || '~£0'}</div>
-                        <div className="stats-grid">
-                          {formData.rightCard.items.map((item, idx) => (
-                            <div key={idx} className="stats-mini">
-                              <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#0f172a', marginBottom: '2px' }}>{item.value || item.title || '£0'}</div>
-                              <div style={{ fontSize: '0.7rem', color: '#64748b', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.subtitle || item.description || 'Stat'}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
           </div>
         </div>

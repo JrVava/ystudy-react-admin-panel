@@ -382,3 +382,57 @@
   background: rgba(11, 15, 25, 0.5); /* darkened overlay for readable text */
   z-index: 0;
 }
+
+/* Glassmorphism Locations Sidebar Preview */
+.loc-glass {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(18px);
+  border-radius: 24px;
+  padding: 18px;
+  color: #fff;
+  width: 100%;
+  max-width: 380px;
+  box-sizing: border-box;
+  text-align: left;
+}
+
+.loc-glass h3 {
+  font-size: 24px;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin: 0 0 10px;
+}
+
+.loc-glass p {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+  margin: 0 0 14px;
+}
+
+.loc-mini-list {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.loc-mini {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  font-weight: 800;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+.loc-mini span:last-child {
+  color: #f9b45b;
+  text-align: right;
+}
