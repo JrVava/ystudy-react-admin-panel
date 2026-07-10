@@ -91,9 +91,12 @@ export const CourseListPage: React.FC = () => {
         </div>
       )}
 
-      {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: "3rem", color: "var(--text-secondary)" }}>
-          <span>Loading courses...</span>
+      {loading && courses.length === 0 ? (
+        <div className="admin-page-loader">
+          <div className="loader-content">
+            <img src="/ystudy-logo.png" alt="YStudy Logo" className="loader-logo animate-pulse" />
+            <div className="loader-spinner"></div>
+          </div>
         </div>
       ) : (
         <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>

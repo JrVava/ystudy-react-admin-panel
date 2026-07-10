@@ -4,8 +4,12 @@ import { locationApi } from '../utils/locationApi';
 import { toast } from '../context/ToastContext';
 import { Save, ArrowLeft, Image, MapPin } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
+import config from '../config';
+import api from '../utils/api';
+import { decrypt } from '../utils/crypto';
+import { SearchableSelect } from './SearchableSelect';
 
-const Input = ({ label, value, onChange, placeholder, type = "text" }: { label: string; value: string | number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; type?: string }) => (
+const Input = ({ label, value, onChange, placeholder, type = "text", required = false }: { label: string; value: string | number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; type?: string; required?: boolean }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
     <input
@@ -14,11 +18,12 @@ const Input = ({ label, value, onChange, placeholder, type = "text" }: { label: 
       placeholder={placeholder}
       value={value === undefined || value === null ? '' : value}
       onChange={onChange}
+      required={required}
     />
   </div>
 );
 
-const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; placeholder?: string; minHeight?: string }) => (
+const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px", required = false }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; placeholder?: string; minHeight?: string; required?: boolean }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
     <textarea
@@ -27,6 +32,7 @@ const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px" }: 
       value={value || ''}
       onChange={onChange}
       style={{ minHeight }}
+      required={required}
     />
   </div>
 );
@@ -37,7 +43,8 @@ export const LocationAdminPanel: React.FC = () => {
   
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(!!id);
-  const [isSlugAutoSynced, setIsSlugAutoSynced] = useState(!id); // Auto-sync slug with title only if creating new
+  const [isSlugAutoSynced, setIsSlugAutoSynced] = useState(!id);
+  const [slugsList, setSlugsList] = useState<any[]>([]);
 
   const [formData, setFormData] = useState<any>({
     title: '',
@@ -49,6 +56,21 @@ export const LocationAdminPanel: React.FC = () => {
     fullImageUrl: '', // Backend absolute URL
     status: true
   });
+
+  useEffect(() => {
+    const fetchSlugs = async () => {
+      try {
+        const res = await api.get("/navigations/allInOne");
+        const decrypted = decrypt(res.data.data);
+        if (decrypted && decrypted.success && decrypted.data) {
+          setSlugsList(decrypted.data);
+        }
+      } catch (e) {
+        console.error("Failed to load slugs list", e);
+      }
+    };
+    fetchSlugs();
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -68,7 +90,7 @@ export const LocationAdminPanel: React.FC = () => {
         } catch (e) {
           console.error("Failed to fetch location", e);
           toast.error("Failed to load location details.");
-          navigate('/locations');
+          navigate('/courses/locations');
         } finally {
           setIsLoading(false);
         }
@@ -98,13 +120,10 @@ export const LocationAdminPanel: React.FC = () => {
     });
   };
 
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const customSlug = e.target.value;
-    setIsSlugAutoSynced(false); // Stop auto-syncing if manually typed
-    setFormData((prev: any) => ({ ...prev, slug: customSlug }));
-  };
 
-  const handleSave = async () => {
+
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!formData.title.trim()) {
       toast.warning("Title is required!");
       return;
@@ -133,7 +152,7 @@ export const LocationAdminPanel: React.FC = () => {
 
       if (res.success || res.data?.success) {
         toast.success(id ? "Location updated successfully!" : "Location created successfully!");
-        navigate('/locations');
+        navigate('/courses/locations');
       } else {
         toast.error("Failed to save location: " + (res.message || "Unknown error"));
       }
@@ -152,7 +171,7 @@ export const LocationAdminPanel: React.FC = () => {
       if (path.startsWith('http') || path.startsWith('blob:')) {
         return path;
       }
-      const apiUrl = (import.meta.env.VITE_API_URL as string) || "http://localhost:4000/api";
+      const apiUrl = config.apiUrl;
       const hostUrl = apiUrl.replace(/\/api$/, "");
       const cleanPath = path.replace(/^\/+/, "");
       if (cleanPath.startsWith('uploads/') || cleanPath.startsWith('media/')) {
@@ -167,66 +186,70 @@ export const LocationAdminPanel: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-        <span>Loading Location Details...</span>
+      <div className="admin-page-loader">
+        <div className="loader-content">
+          <img src="/ystudy-logo.png" alt="YStudy Logo" className="loader-logo animate-pulse" />
+          <div className="loader-spinner"></div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="animate-fade-in" style={{ width: '100%' }}>
-      <div className="page-header" style={{ marginBottom: '1.5rem' }}>
-        <div>
-          <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <MapPin size={28} style={{ color: 'var(--primary)' }} />
-            {id ? 'Edit Location' : 'Create Location'}
-          </h1>
-          <p className="page-subtitle">{id ? `Update campus title, description, and status.` : 'Add a new campus site location to the portal.'}</p>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={() => navigate('/locations')}
-            className="btn-secondary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem' }}
-          >
-            <ArrowLeft size={16} />
-            Back
-          </button>
-          <button
-            onClick={handleSave}
-            className="btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1.25rem' }}
-          >
-            <Save size={16} />
-            Save Location
-          </button>
-        </div>
-      </div>
-
-      <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        
-        {/* Title and Slug */}
-        <div className="responsive-form-grid">
-          <Input
-            label="Location Title *"
-            placeholder="e.g. London Campus"
-            value={formData.title}
-            onChange={handleTitleChange}
-          />
-          <div className="form-group">
-            <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-              <span>Slug *</span>
-              {isSlugAutoSynced && <span style={{ fontSize: '0.7rem', color: 'var(--success)' }}>Auto-synced</span>}
-            </label>
-            <input
-              type="text"
-              className="form-input"
-              placeholder="e.g. london-campus"
-              value={formData.slug}
-              onChange={handleSlugChange}
-            />
+      <form onSubmit={handleSave} id="location-form">
+        <div className="page-header" style={{ marginBottom: '1.5rem' }}>
+          <div>
+            <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <MapPin size={28} style={{ color: 'var(--primary)' }} />
+              {id ? 'Edit Location' : 'Create Location'}
+            </h1>
+            <p className="page-subtitle">{id ? `Update campus title, description, and status.` : 'Add a new campus site location to the portal.'}</p>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/courses/locations')}
+              className="btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem' }}
+            >
+              <ArrowLeft size={16} />
+              Back
+            </button>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1.25rem' }}
+            >
+              <Save size={16} />
+              Save Location
+            </button>
           </div>
         </div>
+
+        <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          {/* Title and Slug */}
+          <div className="responsive-form-grid">
+            <Input
+              label="Location Title *"
+              placeholder="e.g. London Campus"
+              value={formData.title}
+              onChange={handleTitleChange}
+              required
+            />
+            <SearchableSelect
+              label="Location Slug *"
+              value={formData.slug}
+              onChange={(selectedSlug) => {
+                setIsSlugAutoSynced(false);
+                setFormData((prev: any) => ({ ...prev, slug: selectedSlug }));
+              }}
+              options={slugsList.map(item => ({ value: item.slug, label: `${item.name} (${item.slug}) — ${item.type}` }))}
+              placeholder="Select associated page or course slug..."
+              required
+            />
+          </div>
 
         {/* Image Selector */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -306,6 +329,7 @@ export const LocationAdminPanel: React.FC = () => {
         />
 
       </div>
+      </form>
 
       {/* Media Picker Modal */}
       {isMediaPickerOpen && (

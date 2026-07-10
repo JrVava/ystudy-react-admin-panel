@@ -123,6 +123,7 @@ body {
   height: 100vh;
   z-index: 100;
   transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
 }
 
 .sidebar-header {
@@ -572,6 +573,93 @@ select, .form-select, select option {
 
 select option {
   background-color: #0b0f19 !important;
+}
+
+/* Page Loader Overlay */
+.admin-page-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(8, 11, 19, 0.75);
+  backdrop-filter: blur(12px);
+  animation: fadeInLoader 0.25s ease-out;
+}
+
+.loader-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  z-index: 2;
+  margin-bottom: 24px;
+}
+
+/* Spinner border */
+.loader-spinner {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top-color: #6366f1; /* Admin Indigo */
+  border-bottom-color: #a855f7; /* Admin Purple */
+  animation: spinLoader 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  z-index: 1;
+}
+
+@keyframes spinLoader {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulseLoader {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+.animate-pulse {
+  animation: pulseLoader 1.8s ease-in-out infinite;
+}
+
+@keyframes fadeInLoader {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.sidebar-scrollable-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 0;
+  margin-bottom: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.05) transparent;
+}
+
+/* Custom thin scrollbar for sidebar nav */
+.sidebar-scrollable-content::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scrollable-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scrollable-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+.sidebar-scrollable-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 

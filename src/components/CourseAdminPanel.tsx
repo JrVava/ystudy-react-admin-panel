@@ -5,8 +5,13 @@ import { toast } from '../context/ToastContext';
 import { locationApi } from '../utils/locationApi';
 import { Save, ArrowLeft, Image, X, Plus, Search, GraduationCap, ChevronDown } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
+import config from '../config';
+import api from '../utils/api';
+import { decrypt } from '../utils/crypto';
+import { SearchableSelect } from './SearchableSelect';
+import { lookupApi } from '../utils/lookupApi';
 
-const Input = ({ label, value, onChange, placeholder, type = "text" }: { label: string; value: string | number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; type?: string }) => (
+const Input = ({ label, value, onChange, placeholder, type = "text", required = false }: { label: string; value: string | number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; type?: string; required?: boolean }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
     <input
@@ -15,11 +20,12 @@ const Input = ({ label, value, onChange, placeholder, type = "text" }: { label: 
       placeholder={placeholder}
       value={value === undefined || value === null ? '' : value}
       onChange={onChange}
+      required={required}
     />
   </div>
 );
 
-const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; placeholder?: string; minHeight?: string }) => (
+const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px", required = false }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; placeholder?: string; minHeight?: string; required?: boolean }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
     <textarea
@@ -28,6 +34,7 @@ const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px" }: 
       value={value || ''}
       onChange={onChange}
       style={{ minHeight }}
+      required={required}
     />
   </div>
 );
@@ -234,8 +241,14 @@ const CourseAdminPanel: React.FC = () => {
   const [isLoading, setIsLoading] = useState(!!id);
   const [allCoursesList, setAllCoursesList] = useState<any[]>([]);
   const [allLocationsList, setAllLocationsList] = useState<any[]>([]);
+  const [allSubjectsList, setAllSubjectsList] = useState<any[]>([]);
+  const [allQualificationsList, setAllQualificationsList] = useState<any[]>([]);
+  const [allModesList, setAllModesList] = useState<any[]>([]);
+  const [allDurationsList, setAllDurationsList] = useState<any[]>([]);
+  const [allFundingsList, setAllFundingsList] = useState<any[]>([]);
   const [newBadgeText, setNewBadgeText] = useState("");
   const [newEntryRequirementText, setNewEntryRequirementText] = useState("");
+  const [slugsList, setSlugsList] = useState<any[]>([]);
   
   // Normalized form state
   const [formData, setFormData] = useState<any>({
@@ -257,7 +270,11 @@ const CourseAdminPanel: React.FC = () => {
     locations: [],
     courseType: 'General',
     entryRequirement: [],
-    modeType: []
+    modeType: [],
+    subjects: [],
+    qualifications: [],
+    durations: [],
+    fundings: []
   });
 
   const [isSlugAutoSynced, setIsSlugAutoSynced] = useState(!id); // Auto-sync slug with title only if creating new
@@ -301,8 +318,75 @@ const CourseAdminPanel: React.FC = () => {
         console.error("Failed to load locations list", e);
       }
     };
+    const loadSubjectsList = async () => {
+      try {
+        const res = await lookupApi('subjects').getPaginated(1, 1000);
+        if (res && res.success) {
+          setAllSubjectsList(res.data || []);
+        }
+      } catch (e) {
+        console.error("Failed to load subjects list", e);
+      }
+    };
+    const loadQualificationsList = async () => {
+      try {
+        const res = await lookupApi('qualifications').getPaginated(1, 1000);
+        if (res && res.success) {
+          setAllQualificationsList(res.data || []);
+        }
+      } catch (e) {
+        console.error("Failed to load qualifications list", e);
+      }
+    };
+    const loadModesList = async () => {
+      try {
+        const res = await lookupApi('modes').getPaginated(1, 1000);
+        if (res && res.success) {
+          setAllModesList(res.data || []);
+        }
+      } catch (e) {
+        console.error("Failed to load modes list", e);
+      }
+    };
+    const loadDurationsList = async () => {
+      try {
+        const res = await lookupApi('durations').getPaginated(1, 1000);
+        if (res && res.success) {
+          setAllDurationsList(res.data || []);
+        }
+      } catch (e) {
+        console.error("Failed to load durations list", e);
+      }
+    };
+    const loadFundingsList = async () => {
+      try {
+        const res = await lookupApi('fundings').getPaginated(1, 1000);
+        if (res && res.success) {
+          setAllFundingsList(res.data || []);
+        }
+      } catch (e) {
+        console.error("Failed to load fundings list", e);
+      }
+    };
+    const loadSlugsList = async () => {
+      try {
+        const res = await api.get("/navigations/allInOne");
+        const decrypted = decrypt(res.data.data);
+        if (decrypted && decrypted.success && decrypted.data) {
+          setSlugsList(decrypted.data);
+        }
+      } catch (e) {
+        console.error("Failed to load slugs selection list", e);
+      }
+    };
     loadCoursesList();
     loadLocationsList();
+    loadSubjectsList();
+    loadQualificationsList();
+    loadModesList();
+    loadDurationsList();
+    loadFundingsList();
+    loadSlugsList();
 
     if (id) {
       const fetchCourse = async () => {
@@ -327,7 +411,11 @@ const CourseAdminPanel: React.FC = () => {
             locations: normalizeIdArray(course.locations),
             courseType: course.courseType || 'General',
             entryRequirement: Array.isArray(course.entryRequirement) ? course.entryRequirement : [],
-            modeType: Array.isArray(course.modeType) ? course.modeType : []
+            modeType: normalizeIdArray(course.modeType),
+            subjects: normalizeIdArray(course.subjects),
+            qualifications: normalizeIdArray(course.qualifications),
+            durations: normalizeIdArray(course.durations),
+            fundings: normalizeIdArray(course.fundings)
           });
         } catch (e) {
           console.error("Failed to fetch course", e);
@@ -362,11 +450,7 @@ const CourseAdminPanel: React.FC = () => {
     });
   };
 
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const customSlug = e.target.value;
-    setIsSlugAutoSynced(false); // Stop auto-syncing if manually typed
-    setFormData((prev: any) => ({ ...prev, slug: customSlug }));
-  };
+
 
   const handleAddBadge = () => {
     const badge = newBadgeText.trim();
@@ -404,7 +488,7 @@ const CourseAdminPanel: React.FC = () => {
     }));
   };
 
-  const handleRelationToggle = (field: 'availableCourses' | 'relatedCourses' | 'locations', courseId: string) => {
+  const handleRelationToggle = (field: 'availableCourses' | 'relatedCourses' | 'locations' | 'modeType' | 'subjects' | 'qualifications' | 'durations' | 'fundings', courseId: string) => {
     setFormData((prev: any) => {
       const currentRelations = [...prev[field]];
       const index = currentRelations.indexOf(courseId);
@@ -417,13 +501,18 @@ const CourseAdminPanel: React.FC = () => {
     });
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!formData.title.trim()) {
       toast.warning("Title is required!");
       return;
     }
     if (!formData.slug.trim()) {
       toast.warning("Slug is required!");
+      return;
+    }
+    if (!formData.courseType) {
+      toast.warning("Course Type is required!");
       return;
     }
 
@@ -479,7 +568,7 @@ const CourseAdminPanel: React.FC = () => {
       if (path.startsWith('http') || path.startsWith('blob:')) {
         return path;
       }
-      const apiUrl = (import.meta.env.VITE_API_URL as string) || "http://localhost:4000/api";
+      const apiUrl = config.apiUrl;
       const hostUrl = apiUrl.replace(/\/api$/, "");
       const cleanPath = path.replace(/^\/+/, "");
       if (cleanPath.startsWith('uploads/') || cleanPath.startsWith('media/')) {
@@ -494,8 +583,11 @@ const CourseAdminPanel: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-        <span>Loading Course Details...</span>
+      <div className="admin-page-loader">
+        <div className="loader-content">
+          <img src="/ystudy-logo.png" alt="YStudy Logo" className="loader-logo animate-pulse" />
+          <div className="loader-spinner"></div>
+        </div>
       </div>
     );
   }
@@ -504,99 +596,104 @@ const CourseAdminPanel: React.FC = () => {
 
   return (
     <div className="animate-fade-in" style={{ width: '100%' }}>
-      <div className="page-header" style={{ marginBottom: '1.5rem' }}>
-        <div>
-          <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <GraduationCap size={28} style={{ color: 'var(--primary)' }} />
-            {id ? 'Edit Course' : 'Create Course'}
-          </h1>
-          <p className="page-subtitle">{id ? `Update credentials, structure, and attributes for the course.` : 'Add a new course curriculum path to the catalog.'}</p>
-        </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={() => navigate('/courses')}
-            className="btn-secondary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem' }}
-          >
-            <ArrowLeft size={16} />
-            Back
-          </button>
-          <button
-            onClick={handleSave}
-            className="btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1.25rem' }}
-          >
-            <Save size={16} />
-            Save Course
-          </button>
-        </div>
-      </div>
-
-      <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        
-        {/* Navigation Tabs */}
-        <div className="tabs" style={{ width: '100%', maxWidth: '500px', alignSelf: 'flex-start' }}>
-          <button
-            onClick={() => setActiveTab('general')}
-            className={`tab-btn ${activeTab === 'general' ? 'active' : ''}`}
-            style={{ border: 0 }}
-          >
-            General Info
-          </button>
-          <button
-            onClick={() => setActiveTab('badges')}
-            className={`tab-btn ${activeTab === 'badges' ? 'active' : ''}`}
-            style={{ border: 0 }}
-          >
-            Badges & Salary
-          </button>
-          <button
-            onClick={() => setActiveTab('relations')}
-            className={`tab-btn ${activeTab === 'relations' ? 'active' : ''}`}
-            style={{ border: 0 }}
-          >
-            Relations
-          </button>
+      <form onSubmit={handleSave} id="course-form">
+        <div className="page-header" style={{ marginBottom: '1.5rem' }}>
+          <div>
+            <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <GraduationCap size={28} style={{ color: 'var(--primary)' }} />
+              {id ? 'Edit Course' : 'Create Course'}
+            </h1>
+            <p className="page-subtitle">{id ? `Update credentials, structure, and attributes for the course.` : 'Add a new course curriculum path to the catalog.'}</p>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/courses')}
+              className="btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem' }}
+            >
+              <ArrowLeft size={16} />
+              Back
+            </button>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1.25rem' }}
+            >
+              <Save size={16} />
+              Save Course
+            </button>
+          </div>
         </div>
 
-        {/* Tab 1: General Info */}
-        {activeTab === 'general' && (
-          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            
-            <div className="responsive-form-grid">
-              <Input
-                label="Course Title *"
-                placeholder="e.g. Master of Business Administration (MBA)"
-                value={formData.title}
-                onChange={handleTitleChange}
-              />
-              <div className="form-group">
-                <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Slug *</span>
-                  {isSlugAutoSynced && <span style={{ fontSize: '0.7rem', color: 'var(--success)' }}>Auto-synced</span>}
-                </label>
-                <input
-                  type="text"
-                  className="form-input"
-                  placeholder="e.g. master-of-business-administration-mba"
+        <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          {/* Navigation Tabs */}
+          <div className="tabs" style={{ width: '100%', maxWidth: '500px', alignSelf: 'flex-start' }}>
+            <button
+              type="button"
+              onClick={() => setActiveTab('general')}
+              className={`tab-btn ${activeTab === 'general' ? 'active' : ''}`}
+              style={{ border: 0 }}
+            >
+              General Info
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('badges')}
+              className={`tab-btn ${activeTab === 'badges' ? 'active' : ''}`}
+              style={{ border: 0 }}
+            >
+              Badges & Salary
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('relations')}
+              className={`tab-btn ${activeTab === 'relations' ? 'active' : ''}`}
+              style={{ border: 0 }}
+            >
+              Relations
+            </button>
+          </div>
+
+          {/* Tab 1: General Info */}
+          {activeTab === 'general' && (
+            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              
+              <div className="responsive-form-grid">
+                <Input
+                  label="Course Title *"
+                  placeholder="e.g. Master of Business Administration (MBA)"
+                  value={formData.title}
+                  onChange={handleTitleChange}
+                  required
+                />
+                <SearchableSelect
+                  label="Course Slug *"
                   value={formData.slug}
-                  onChange={handleSlugChange}
+                  onChange={(selectedSlug) => {
+                    setIsSlugAutoSynced(false);
+                    setFormData((prev: any) => ({ ...prev, slug: selectedSlug }));
+                  }}
+                  options={slugsList.map(item => ({ value: item.slug, label: `${item.name} (${item.slug}) — ${item.type}` }))}
+                  placeholder="Select associated page or course slug..."
+                  required
                 />
               </div>
-            </div>
 
-            <div className="form-group">
-              <label className="form-label">Course Type *</label>
-              <select
-                className="form-input"
-                value={formData.courseType || 'General'}
-                onChange={e => setFormData({ ...formData, courseType: e.target.value })}
-                style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-              >
-                <option value="General" style={{ background: '#0b0f19' }}>General</option>
-                <option value="Social" style={{ background: '#0b0f19' }}>Social</option>
-              </select>
-            </div>
+              <div className="form-group">
+                <label className="form-label">Course Type *</label>
+                <select
+                  className="form-input"
+                  value={formData.courseType || 'General'}
+                  onChange={e => setFormData({ ...formData, courseType: e.target.value })}
+                  style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
+                  required
+                >
+                  <option value="General" style={{ background: '#0b0f19' }}>General</option>
+                  <option value="Social" style={{ background: '#0b0f19' }}>Social</option>
+                </select>
+              </div>
 
             {/* Image Selector */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
@@ -724,30 +821,7 @@ const CourseAdminPanel: React.FC = () => {
               </div>
             </div>
 
-            {/* Study Mode Type */}
-            <MultiSelectDropdown
-              label="Study Mode Type"
-              description="Select available learning patterns/modes."
-              placeholder="Choose mode types..."
-              options={[
-                { _id: 'Full-time', title: 'Full-time' },
-                { _id: 'Part-time', title: 'Part-time' },
-                { _id: 'Blended', title: 'Blended' },
-                { _id: 'Online', title: 'Online' },
-                { _id: 'Distance Learning', title: 'Distance Learning' }
-              ]}
-              selectedIds={formData.modeType || []}
-              onChange={(mode) => {
-                const currentModes = [...(formData.modeType || [])];
-                const index = currentModes.indexOf(mode);
-                if (index > -1) {
-                  currentModes.splice(index, 1);
-                } else {
-                  currentModes.push(mode);
-                }
-                setFormData({ ...formData, modeType: currentModes });
-              }}
-            />
+
 
             {/* Entry Requirements Input */}
             <div className="form-group">
@@ -878,20 +952,64 @@ const CourseAdminPanel: React.FC = () => {
               onChange={(courseId) => handleRelationToggle('relatedCourses', courseId)}
             />
 
-            <div style={{ gridColumn: 'span 2' }}>
-              <MultiSelectDropdown
-                label="Locations Availability"
-                description="Select locations where this course study path is active."
-                placeholder="Choose locations..."
-                options={allLocationsList}
-                selectedIds={formData.locations}
-                onChange={(locationId) => handleRelationToggle('locations', locationId)}
-              />
-            </div>
+            <MultiSelectDropdown
+              label="Locations Availability"
+              description="Select locations where this course study path is active."
+              placeholder="Choose locations..."
+              options={allLocationsList}
+              selectedIds={formData.locations}
+              onChange={(locationId) => handleRelationToggle('locations', locationId)}
+            />
+
+            <MultiSelectDropdown
+              label="Subjects Association"
+              description="Select subjects linked to this course."
+              placeholder="Choose subjects..."
+              options={allSubjectsList}
+              selectedIds={formData.subjects || []}
+              onChange={(subjectId) => handleRelationToggle('subjects', subjectId)}
+            />
+
+            <MultiSelectDropdown
+              label="Qualifications Link"
+              description="Select qualifications linked to this course."
+              placeholder="Choose qualifications..."
+              options={allQualificationsList}
+              selectedIds={formData.qualifications || []}
+              onChange={(qualificationId) => handleRelationToggle('qualifications', qualificationId)}
+            />
+
+            <MultiSelectDropdown
+              label="Study Modes Link"
+              description="Select learning modes linked to this course."
+              placeholder="Choose study modes..."
+              options={allModesList}
+              selectedIds={formData.modeType || []}
+              onChange={(modeId) => handleRelationToggle('modeType', modeId)}
+            />
+
+            <MultiSelectDropdown
+              label="Durations Link"
+              description="Select durations linked to this course."
+              placeholder="Choose durations..."
+              options={allDurationsList}
+              selectedIds={formData.durations || []}
+              onChange={(durationId) => handleRelationToggle('durations', durationId)}
+            />
+
+            <MultiSelectDropdown
+              label="Fundings Link"
+              description="Select fundings linked to this course."
+              placeholder="Choose fundings..."
+              options={allFundingsList}
+              selectedIds={formData.fundings || []}
+              onChange={(fundingId) => handleRelationToggle('fundings', fundingId)}
+            />
           </div>
         )}
 
       </div>
+      </form>
 
       {/* Media Picker Modal Overlay */}
       {isMediaPickerOpen && (

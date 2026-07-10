@@ -1,11 +1,22 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
-import { Image, Layers, LayoutTemplate, LogOut, FileText, User, Menu, X, GraduationCap, HelpCircle, MapPin, Clock, Trash2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
+import { Image, Layers, LayoutTemplate, LogOut, FileText, User, Menu, X, GraduationCap, HelpCircle, Clock, Trash2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
+  const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isCoursesExpanded, setIsCoursesExpanded] = useState(
+    location.pathname.startsWith('/courses') || location.pathname.startsWith('/locations')
+  );
+
+  // Sync expanded state if location changes from outside
+  useEffect(() => {
+    if (location.pathname.startsWith('/courses') || location.pathname.startsWith('/locations')) {
+      setIsCoursesExpanded(true);
+    }
+  }, [location.pathname]);
 
   const toggleMobileSidebar = () => {
     setIsMobileOpen(!isMobileOpen);
@@ -39,7 +50,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
       {/* Sidebar Panel */}
       <aside className={`sidebar ${isMobileOpen ? 'sidebar-mobile-open' : ''}`}>
-        <div>
+        <div className="sidebar-scrollable-content">
           <div className="sidebar-header" style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
               <h1 style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', margin: 0 }}>
@@ -97,22 +108,83 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               <FileText size={20} />
               CMS Pages
             </NavLink>
-            <NavLink 
-              to="/courses" 
-              className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
-              onClick={closeMobileSidebar}
-            >
-              <GraduationCap size={20} />
-              Courses
-            </NavLink>
-            <NavLink 
-              to="/locations" 
-              className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
-              onClick={closeMobileSidebar}
-            >
-              <MapPin size={20} />
-              Locations
-            </NavLink>
+            {/* Collapsible Courses Group */}
+            <div>
+              <div 
+                className={`nav-item ${location.pathname.startsWith('/courses') || location.pathname.startsWith('/locations') ? 'nav-item-active' : ''}`}
+                onClick={() => setIsCoursesExpanded(!isCoursesExpanded)}
+                style={{ cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', userSelect: 'none' }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <GraduationCap size={20} />
+                  Courses Group
+                </div>
+                <span style={{ fontSize: '0.65rem', transition: 'transform 0.2s', transform: isCoursesExpanded ? 'rotate(180deg)' : 'none' }}>▼</span>
+              </div>
+              
+              {isCoursesExpanded && (
+                <div style={{ paddingLeft: '1.25rem', display: 'flex', flexDirection: 'column', gap: '4px', marginTop: '4px', borderLeft: '1px solid rgba(255,255,255,0.05)', marginLeft: '12px' }}>
+                  <NavLink 
+                    to="/courses" 
+                    end
+                    className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                  >
+                    Curriculum Courses
+                  </NavLink>
+                  <NavLink 
+                    to="/courses/subjects" 
+                    className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                  >
+                    Subjects
+                  </NavLink>
+                  <NavLink 
+                    to="/courses/qualifications" 
+                    className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                  >
+                    Qualifications
+                  </NavLink>
+                  <NavLink 
+                    to="/courses/modes" 
+                    className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                  >
+                    Study Modes
+                  </NavLink>
+                  <NavLink 
+                    to="/courses/durations" 
+                    className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                  >
+                    Durations
+                  </NavLink>
+                  <NavLink 
+                    to="/courses/fundings" 
+                    className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                  >
+                    Fundings
+                  </NavLink>
+                  <NavLink 
+                    to="/courses/locations" 
+                    className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: '0.85rem', padding: '8px 12px' }}
+                  >
+                    Campus Locations
+                  </NavLink>
+                </div>
+              )}
+            </div>
+
             <NavLink 
               to="/faqs" 
               className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}

@@ -1,7 +1,8 @@
 import CryptoJS from "crypto-js";
+import config from "../config";
 
 // Uses VITE_CRYPTO_SECRET_KEY from .env or fallback
-const keyStr = import.meta.env.VITE_CRYPTO_SECRET_KEY;
+const keyStr = config.cryptoKey;
 if (!keyStr) {
   throw new Error("Critical Configuration Error: VITE_CRYPTO_SECRET_KEY is undefined in environment variables.");
 }

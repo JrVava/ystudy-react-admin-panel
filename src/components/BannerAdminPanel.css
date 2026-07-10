@@ -436,3 +436,55 @@
   color: #f9b45b;
   text-align: right;
 }
+
+/* Card Item Configuration Form Styles */
+.card-item-container {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.card-item-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.card-item-label-muted {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.card-item-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.card-item-field {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  margin-bottom: 2px;
+  color: var(--text-muted);
+}
+
+.card-item-input {
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.card-item-textarea {
+  padding: 6px 10px;
+  min-height: 50px;
+  font-size: 0.85rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+

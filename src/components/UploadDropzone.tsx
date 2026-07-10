@@ -1,5 +1,6 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { UploadCloud } from "lucide-react";
+import { SearchableSelect } from "./SearchableSelect";
 
 interface UploadDropzoneProps {
   onFilesAdded: (files: File[], folderName?: string) => void;
@@ -39,7 +40,7 @@ export const UploadDropzone = ({ onFilesAdded, folders = [], initialFolderName =
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "1.25rem", marginBottom: "1.5rem" }}>
-      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+      <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "flex-end" }}>
         <div className="form-group" style={{ marginBottom: 0, flex: 1, minWidth: "200px" }}>
           <label className="form-label" style={{ textAlign: "left" }}>Target Folder Name</label>
           <input 
@@ -52,23 +53,21 @@ export const UploadDropzone = ({ onFilesAdded, folders = [], initialFolderName =
           />
         </div>
         {folders && folders.filter(f => f.name && f.name !== "uploads").length > 0 && (
-          <div className="form-group" style={{ marginBottom: 0, minWidth: "200px" }}>
-            <label className="form-label" style={{ textAlign: "left" }}>Or Select Existing Folder</label>
-            <select 
+          <div style={{ flex: 1, minWidth: "200px" }}>
+            <SearchableSelect 
+              label="Or Select Existing Folder"
               value={folders.some(f => f.name === folderName) ? folderName : ""}
-              onChange={(e) => {
-                if (e.target.value) {
-                  setFolderName(e.target.value);
+              onChange={(val) => {
+                if (val) {
+                  setFolderName(val);
                 }
               }}
-              className="form-select"
-              style={{ width: "100%", height: "42px" }}
-            >
-              <option value="">-- Choose Folder --</option>
-              {folders.filter(f => f.name && f.name !== "uploads").map(folder => (
-                <option key={folder._id} value={folder.name}>{folder.name}</option>
-              ))}
-            </select>
+              options={folders.filter(f => f.name && f.name !== "uploads").map(folder => ({
+                value: folder.name,
+                label: folder.name
+              }))}
+              placeholder="-- Choose Folder --"
+            />
           </div>
         )}
       </div>

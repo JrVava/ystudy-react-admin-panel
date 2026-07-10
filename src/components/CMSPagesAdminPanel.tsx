@@ -6,6 +6,8 @@ import {
   CheckCircle, Info, ChevronDown, ChevronUp, Search, Image, ArrowLeft
 } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
+import config from '../config';
+import { SearchableSelect } from './SearchableSelect';
 
 interface CMSPage {
   _id: string;
@@ -168,7 +170,7 @@ export const CMSPagesAdminPanel: React.FC = () => {
       const getImageUrl = (pathStr: string) => {
         if (!pathStr) return '';
         if (pathStr.startsWith('http') || pathStr.startsWith('blob:')) return pathStr;
-        const apiUrl = (import.meta.env.VITE_API_URL as string) || "http://localhost:4000/api";
+        const apiUrl = config.apiUrl;
         const hostUrl = apiUrl.replace(/\/api$/, "");
         const cleanPath = pathStr.replace(/^\/+/, "");
         if (cleanPath.startsWith('uploads/') || cleanPath.startsWith('media/')) {
@@ -551,21 +553,18 @@ export const CMSPagesAdminPanel: React.FC = () => {
               </div>
               
               <form onSubmit={e => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div className="form-group" style={{ padding: '0 0.5rem 1.25rem 0.5rem', borderBottom: '1px solid var(--panel-border)', marginBottom: '1rem' }}>
-                  <label className="form-label" style={{ fontSize: '0.85rem', fontWeight: 600 }}>Page Slug / Name *</label>
-                  <select
-                    className="form-input"
+                <div style={{ padding: '0 0.5rem 1.25rem 0.5rem', borderBottom: '1px solid var(--panel-border)', marginBottom: '1rem' }}>
+                  <SearchableSelect
+                    label="Page Slug / Name *"
                     value={pageData.page || ''}
-                    onChange={(e) => setPageData({ ...pageData, page: e.target.value })}
-                    style={{ background: 'rgba(255,255,255,0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)', fontSize: '0.9rem' }}
-                  >
-                    <option value="" style={{ background: '#0b0f19' }}>Select a page slug...</option>
-                    {navItems.map((nav: any) => (
-                      <option key={nav._id} value={nav.slug} style={{ background: '#0b0f19' }}>
-                        {nav.pageName} ({nav.slug})
-                      </option>
-                    ))}
-                  </select>
+                    onChange={(val) => setPageData({ ...pageData, page: val })}
+                    options={navItems.map((nav: any) => ({
+                      value: nav.slug,
+                      label: `${nav.pageName} (${nav.slug})`
+                    }))}
+                    placeholder="Select a page slug..."
+                    required
+                  />
                   <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
                     Warning: Changing this links this CMS layout configuration to a different frontend route/slug.
                   </span>

@@ -4,8 +4,9 @@ import { timeTableApi } from '../utils/timeTableApi';
 import { courseApi } from '../utils/courseApi';
 import { Save, ArrowLeft, Clock, Plus, Trash2 } from 'lucide-react';
 import { toast } from '../context/ToastContext';
+import { SearchableSelect } from './SearchableSelect';
 
-const Input = ({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string }) => (
+const Input = ({ label, value, onChange, placeholder, required = false }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; required?: boolean }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
     <input
@@ -14,11 +15,12 @@ const Input = ({ label, value, onChange, placeholder }: { label: string; value: 
       placeholder={placeholder}
       value={value || ''}
       onChange={onChange}
+      required={required}
     />
   </div>
 );
 
-const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px" }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; placeholder?: string; minHeight?: string }) => (
+const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px", required = false }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; placeholder?: string; minHeight?: string; required?: boolean }) => (
   <div className="form-group">
     <label className="form-label">{label}</label>
     <textarea
@@ -27,6 +29,7 @@ const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px" }: 
       value={value || ''}
       onChange={onChange}
       style={{ minHeight }}
+      required={required}
     />
   </div>
 );
@@ -51,8 +54,10 @@ export const TimeTableAdminPanel: React.FC = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const list = await courseApi.getList();
-        setCoursesList(list || []);
+        const res = await courseApi.getPaginated(1, 1000);
+        if (res && res.success) {
+          setCoursesList(res.data || []);
+        }
       } catch (e) {
         console.error("Failed to load courses list", e);
       }
@@ -128,7 +133,8 @@ export const TimeTableAdminPanel: React.FC = () => {
     }));
   };
 
-  const handleSave = async () => {
+  const handleSave = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!formData.title.trim()) {
       toast.warning("Title is required!");
       return;
@@ -169,73 +175,73 @@ export const TimeTableAdminPanel: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-        <span>Loading Timetable Details...</span>
+      <div className="admin-page-loader">
+        <div className="loader-content">
+          <img src="/ystudy-logo.png" alt="YStudy Logo" className="loader-logo animate-pulse" />
+          <div className="loader-spinner"></div>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="animate-fade-in" style={{ width: '100%' }}>
-      <div className="page-header" style={{ marginBottom: '1.5rem' }}>
-        <div>
-          <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Clock size={28} style={{ color: 'var(--primary)' }} />
-            {id ? 'Edit Time Table' : 'Create Time Table'}
-          </h1>
-          <p className="page-subtitle">{id ? `Update scheduling configuration, study options, and status.` : 'Add a new timetable course option to the portal.'}</p>
+      <form onSubmit={handleSave} id="timetable-form">
+        <div className="page-header" style={{ marginBottom: '1.5rem' }}>
+          <div>
+            <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <Clock size={28} style={{ color: 'var(--primary)' }} />
+              {id ? 'Edit Time Table' : 'Create Time Table'}
+            </h1>
+            <p className="page-subtitle">{id ? `Update scheduling configuration, study options, and status.` : 'Add a new timetable course option to the portal.'}</p>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/time-tables')}
+              className="btn-secondary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem' }}
+            >
+              <ArrowLeft size={16} />
+              Back
+            </button>
+            <button
+              type="submit"
+              className="btn-primary"
+              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1.25rem' }}
+            >
+              <Save size={16} />
+              Save Time Table
+            </button>
+          </div>
         </div>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button
-            onClick={() => navigate('/time-tables')}
-            className="btn-secondary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem' }}
-          >
-            <ArrowLeft size={16} />
-            Back
-          </button>
-          <button
-            onClick={handleSave}
-            className="btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1.25rem' }}
-          >
-            <Save size={16} />
-            Save Time Table
-          </button>
-        </div>
-      </div>
 
-      <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-        
-        {/* Title and Slug */}
-        <div className="responsive-form-grid">
-          <Input
-            label="Timetable Title *"
-            placeholder="e.g. Health & Social Care Blended Schedule"
-            value={formData.title}
-            onChange={handleTitleChange}
-          />
-          <div className="form-group">
-            <label className="form-label">Associated Course Slug *</label>
-            <select
-              className="form-input"
+        <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+          
+          {/* Title and Slug */}
+          <div className="responsive-form-grid">
+            <Input
+              label="Timetable Title *"
+              placeholder="e.g. Health & Social Care Blended Schedule"
+              value={formData.title}
+              onChange={handleTitleChange}
+              required
+            />
+            <SearchableSelect
+              label="Associated Course Slug *"
               value={formData.slug}
-              onChange={(e) => {
-                const selectedSlug = e.target.value;
+              onChange={(selectedSlug) => {
                 setIsSlugAutoSynced(false);
                 setFormData((prev: any) => ({ ...prev, slug: selectedSlug }));
               }}
-              style={{ background: 'rgba(255,255,255,0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-            >
-              <option value="" style={{ background: '#0b0f19' }}>Select a course...</option>
-              {coursesList.map((course) => (
-                <option key={course._id} value={course.slug} style={{ background: '#0b0f19' }}>
-                  {course.title} ({course.slug})
-                </option>
-              ))}
-            </select>
+              options={coursesList.map((course) => ({
+                value: course.slug,
+                label: `${course.title} (${course.slug})`
+              }))}
+              placeholder="Select a course..."
+              required
+            />
           </div>
-        </div>
 
         {/* Badge & Status */}
         <div className="responsive-form-grid">
@@ -367,6 +373,7 @@ export const TimeTableAdminPanel: React.FC = () => {
         </div>
 
       </div>
+      </form>
     </div>
   );
 };

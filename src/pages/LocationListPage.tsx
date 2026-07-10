@@ -96,7 +96,7 @@ export const LocationListPage: React.FC = () => {
           </div>
 
           <button 
-            onClick={() => navigate('/locations/new')}
+            onClick={() => navigate('/courses/locations/new')}
             className="btn-primary"
             style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', height: "40px" }}
           >
@@ -114,8 +114,11 @@ export const LocationListPage: React.FC = () => {
       )}
 
       {loading && locations.length === 0 ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: "3rem", color: "var(--text-secondary)" }}>
-          <span>Loading locations...</span>
+        <div className="admin-page-loader">
+          <div className="loader-content">
+            <img src="/ystudy-logo.png" alt="YStudy Logo" className="loader-logo animate-pulse" />
+            <div className="loader-spinner"></div>
+          </div>
         </div>
       ) : (
         <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
@@ -160,7 +163,7 @@ export const LocationListPage: React.FC = () => {
                       <td>{loc.updatedAt ? new Date(loc.updatedAt).toLocaleString() : 'N/A'}</td>
                       <td style={{ textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', padding: '1rem 1.25rem' }}>
                         <button 
-                          onClick={() => navigate(`/locations/edit/${loc._id}`)}
+                          onClick={() => navigate(`/courses/locations/edit/${loc._id}`)}
                           className="btn-secondary"
                           style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
                         >

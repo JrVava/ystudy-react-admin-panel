@@ -148,8 +148,11 @@ export const FAQAdminPanel: React.FC = () => {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: 'var(--text-secondary)' }}>
-        <span>Loading FAQ Details...</span>
+      <div className="admin-page-loader">
+        <div className="loader-content">
+          <img src="/ystudy-logo.png" alt="YStudy Logo" className="loader-logo animate-pulse" />
+          <div className="loader-spinner"></div>
+        </div>
       </div>
     );
   }

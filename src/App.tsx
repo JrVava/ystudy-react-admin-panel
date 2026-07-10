@@ -12,6 +12,8 @@ import { CourseListPage } from "./pages/CourseListPage";
 import CourseAdminPanel from "./components/CourseAdminPanel";
 import { LocationListPage } from "./pages/LocationListPage";
 import LocationAdminPanel from "./components/LocationAdminPanel";
+import { LookupListPage } from "./pages/LookupListPage";
+import { LookupAdminPanel } from "./components/LookupAdminPanel";
 import { FAQListPage } from "./pages/FAQListPage";
 import { FAQAdminPanel } from "./components/FAQAdminPanel";
 import { TimeTableListPage } from "./pages/TimeTableListPage";
@@ -107,21 +109,103 @@ function App() {
             </ProtectedRoute>
           } />
 
-          <Route path="/locations" element={
+          {/* Nested / courses sub-routes */}
+          <Route path="/courses/locations" element={
             <ProtectedRoute>
               <LocationListPage />
             </ProtectedRoute>
           } />
 
-          <Route path="/locations/new" element={
+          <Route path="/courses/locations/new" element={
             <ProtectedRoute>
               <LocationAdminPanel />
             </ProtectedRoute>
           } />
 
-          <Route path="/locations/edit/:id" element={
+          <Route path="/courses/locations/edit/:id" element={
             <ProtectedRoute>
               <LocationAdminPanel />
+            </ProtectedRoute>
+          } />
+
+          {/* Dynamic lookup routes */}
+          <Route path="/courses/subjects" element={
+            <ProtectedRoute>
+              <LookupListPage type="subjects" />
+            </ProtectedRoute>
+          } />
+          <Route path="/courses/subjects/new" element={
+            <ProtectedRoute>
+              <LookupAdminPanel type="subjects" />
+            </ProtectedRoute>
+          } />
+          <Route path="/courses/subjects/edit/:id" element={
+            <ProtectedRoute>
+              <LookupAdminPanel type="subjects" />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/courses/qualifications" element={
+            <ProtectedRoute>
+              <LookupListPage type="qualifications" />
+            </ProtectedRoute>
+          } />
+          <Route path="/courses/qualifications/new" element={
+            <ProtectedRoute>
+              <LookupAdminPanel type="qualifications" />
+            </ProtectedRoute>
+          } />
+          <Route path="/courses/qualifications/edit/:id" element={
+            <ProtectedRoute>
+              <LookupAdminPanel type="qualifications" />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/courses/modes" element={
+            <ProtectedRoute>
+              <LookupListPage type="modes" />
+            </ProtectedRoute>
+          } />
+          <Route path="/courses/modes/new" element={
+            <ProtectedRoute>
+              <LookupAdminPanel type="modes" />
+            </ProtectedRoute>
+          } />
+          <Route path="/courses/modes/edit/:id" element={
+            <ProtectedRoute>
+              <LookupAdminPanel type="modes" />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/courses/durations" element={
+            <ProtectedRoute>
+              <LookupListPage type="durations" />
+            </ProtectedRoute>
+          } />
+          <Route path="/courses/durations/new" element={
+            <ProtectedRoute>
+              <LookupAdminPanel type="durations" />
+            </ProtectedRoute>
+          } />
+          <Route path="/courses/durations/edit/:id" element={
+            <ProtectedRoute>
+              <LookupAdminPanel type="durations" />
+            </ProtectedRoute>
+          } />
+
+          <Route path="/courses/fundings" element={
+            <ProtectedRoute>
+              <LookupListPage type="fundings" />
+            </ProtectedRoute>
+          } />
+          <Route path="/courses/fundings/new" element={
+            <ProtectedRoute>
+              <LookupAdminPanel type="fundings" />
+            </ProtectedRoute>
+          } />
+          <Route path="/courses/fundings/edit/:id" element={
+            <ProtectedRoute>
+              <LookupAdminPanel type="fundings" />
             </ProtectedRoute>
           } />
 

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { recycleBinApi } from '../utils/recycleBinApi';
 import { Trash2, RotateCcw, AlertTriangle, Info, Calendar, FileText, LayoutTemplate, HelpCircle, MapPin, Layers, Image, FolderOpen, RefreshCw, Search, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from '../context/ToastContext';
+import config from '../config';
 
 const collectionsList = [
   { value: 'courses', label: 'Courses', icon: FileText },
@@ -107,7 +108,7 @@ export const RecycleBinPage: React.FC = () => {
     if (filePath.startsWith('http') || filePath.startsWith('blob:')) {
       return filePath;
     }
-    const apiUrl = (import.meta.env.VITE_API_URL as string) || "http://localhost:4000/api";
+    const apiUrl = config.apiUrl;
     const hostUrl = apiUrl.replace(/\/api$/, "");
     const cleanPath = filePath.replace(/^\/+/, "");
     if (cleanPath.startsWith('uploads/') || cleanPath.startsWith('media/')) {

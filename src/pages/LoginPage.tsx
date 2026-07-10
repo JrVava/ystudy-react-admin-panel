@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { ShieldAlert } from "lucide-react";
+import config from "../config";
 
 export const LoginPage: React.FC = () => {
   const { login } = useAuth();
@@ -29,7 +30,7 @@ export const LoginPage: React.FC = () => {
       if (err.message === "UNAUTHORIZED_ROLE") {
         setRedirecting(true);
         setError("Access Denied. You are not an administrator. Redirecting...");
-        const publicDomain = (import.meta.env.VITE_PUBLIC_DOMAIN as string) || "https://y-study.co.uk";
+        const publicDomain = config.publicDomain;
         setTimeout(() => {
           window.location.href = publicDomain;
         }, 2000);
