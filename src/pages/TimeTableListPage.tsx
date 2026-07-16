@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { timeTableApi } from '../utils/timeTableApi';
 import { Edit2, Plus, Clock, AlertCircle, Search, X, Trash2 } from 'lucide-react';
 import { toast } from '../context/ToastContext';
+import { Table } from '../components/Table';
 
 export const TimeTableListPage: React.FC = () => {
   const [timeTables, setTimeTables] = useState<any[]>([]);
@@ -11,17 +12,36 @@ export const TimeTableListPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchTimeTables();
-  }, []);
+  // Pagination & Sorting states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [sortField, setSortField] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
-  const fetchTimeTables = async () => {
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Fetch timetables on changes
+  useEffect(() => {
+    fetchTimeTables(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
+  }, [currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery]);
+
+  const fetchTimeTables = async (page: number, limit: number, field: string = 'createdAt', sort: string = 'desc', search: string = '') => {
     try {
       setLoading(true);
       setError(null);
-      const res = await timeTableApi.getPaginated(1, 50); // Get first 50 timetables
+      const res = await timeTableApi.getPaginated(page, limit, field, sort, search);
       if (res.success) {
         setTimeTables(res.data || []);
+        setTotalRows(res.total || 0);
+        setCurrentPage(res.page || page);
       } else {
         setError('Failed to fetch timetables');
       }
@@ -42,7 +62,7 @@ export const TimeTableListPage: React.FC = () => {
       const res = await timeTableApi.delete(id);
       if (res.success || res.data?.success) {
         toast.success("Timetable deleted successfully");
-        await fetchTimeTables();
+        await fetchTimeTables(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
       } else {
         toast.error("Failed to delete timetable: " + (res.message || "Unknown error"));
       }
@@ -54,15 +74,78 @@ export const TimeTableListPage: React.FC = () => {
     }
   };
 
-  // Client-side filtering
-  const filteredTimeTables = timeTables.filter(t => {
-    const query = searchQuery.toLowerCase();
-    return (
-      (t.title && t.title.toLowerCase().includes(query)) ||
-      (t.slug && t.slug.toLowerCase().includes(query)) ||
-      (t._id && t._id.toLowerCase().includes(query))
-    );
-  });
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage: number, page: number) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(page);
+  };
+
+  const handleSort = (column: any, sortDirection: 'asc' | 'desc') => {
+    setSortField(column.sortField || 'createdAt');
+    setSortOrder(sortDirection);
+    setCurrentPage(1);
+  };
+
+  const columns = [
+    {
+      name: 'Title',
+      selector: (row: any) => row.title || 'Unnamed Timetable',
+      sortable: true,
+      sortField: 'title'
+    },
+    {
+      name: 'Slug',
+      selector: (row: any) => row.slug,
+      sortable: true,
+      sortField: 'slug',
+      cell: (row: any) => (
+        <span style={{ fontSize: '0.8rem', background: 'rgba(255,255,255,0.04)', padding: '4px 8px', borderRadius: '6px' }}>
+          {row.slug || 'N/A'}
+        </span>
+      )
+    },
+    {
+      name: 'Created At',
+      selector: (row: any) => row.createdAt,
+      sortable: true,
+      sortField: 'createdAt',
+      cell: (row: any) => row.createdAt ? new Date(row.createdAt).toLocaleString() : 'N/A'
+    },
+    {
+      name: 'Updated At',
+      selector: (row: any) => row.updatedAt,
+      sortable: true,
+      sortField: 'updatedAt',
+      cell: (row: any) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : 'N/A'
+    },
+    {
+      name: 'Actions',
+      right: true,
+      cell: (row: any) => (
+        <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
+          <button 
+            onClick={() => navigate(`/time-tables/edit/${row._id}`)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+          >
+            <Edit2 size={12} />
+            Edit
+          </button>
+          <button 
+            onClick={() => handleDelete(row._id, row.title)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--error)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
+          >
+            <Trash2 size={12} />
+            Delete
+          </button>
+        </div>
+      )
+    }
+  ];
 
   return (
     <div className="animate-fade-in" style={{ width: '100%' }}>
@@ -83,13 +166,19 @@ export const TimeTableListPage: React.FC = () => {
               type="text" 
               placeholder="Search timetables..." 
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="form-input"
               style={{ width: "100%", paddingLeft: "34px", paddingRight: "30px", height: "40px", fontSize: "0.85rem" }}
             />
             {searchQuery && (
               <button 
-                onClick={() => setSearchQuery("")} 
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }} 
                 style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center" }}
               >
                 <X size={14} />
@@ -115,70 +204,20 @@ export const TimeTableListPage: React.FC = () => {
         </div>
       )}
 
-      {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: "3rem", color: "var(--text-secondary)" }}>
-          <span>Loading timetables...</span>
-        </div>
-      ) : (
-        <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
-          <div className="table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Slug</th>
-                  <th>Created At</th>
-                  <th>Updated At</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredTimeTables.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                      <Clock size={36} style={{ margin: "0 auto 0.5rem", opacity: 0.2, display: "block" }} />
-                      No timetables found matching search criteria.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredTimeTables.map((t) => (
-                    <tr key={t._id}>
-                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{t.title || 'Unnamed Timetable'}</td>
-                      <td>
-                        <span style={{ fontSize: '0.8rem', background: 'rgba(255,255,255,0.04)', padding: '4px 8px', borderRadius: '6px' }}>
-                          {t.slug || 'N/A'}
-                        </span>
-                      </td>
-                      <td>{t.createdAt ? new Date(t.createdAt).toLocaleString() : 'N/A'}</td>
-                      <td>{t.updatedAt ? new Date(t.updatedAt).toLocaleString() : 'N/A'}</td>
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: '0.5rem' }}>
-                          <button 
-                            onClick={() => navigate(`/time-tables/edit/${t._id}`)}
-                            className="btn-secondary"
-                            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                          >
-                            <Edit2 size={12} />
-                            Edit
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(t._id, t.title)}
-                            className="btn-secondary"
-                            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--error)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
-                          >
-                            <Trash2 size={12} />
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
+        <Table 
+          columns={columns}
+          data={timeTables}
+          loading={loading}
+          totalRows={totalRows}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePerRowsChange}
+          onSort={handleSort}
+          noDataText="No timetables found matching search criteria."
+        />
+      </div>
     </div>
   );
 };

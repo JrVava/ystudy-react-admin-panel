@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { faqApi } from '../utils/faqApi';
 import { Edit2, Plus, HelpCircle, AlertCircle, Search, X, Trash2 } from 'lucide-react';
 import { toast } from '../context/ToastContext';
+import { Table } from '../components/Table';
 
 interface GroupedFAQ {
   slug: string;
@@ -104,11 +105,63 @@ export const FAQListPage: React.FC = () => {
     }
   };
 
+  const columns = [
+    {
+      name: 'FAQ Group Slug',
+      selector: (row: any) => row.slug,
+      sortable: true,
+      style: { fontWeight: 600 }
+    },
+    {
+      name: 'Questions Count',
+      selector: (row: any) => row.count,
+      sortable: true,
+      cell: (row: any) => (
+        <span style={{ fontSize: '0.8rem', background: 'rgba(99, 102, 241, 0.12)', color: '#818cf8', padding: '4px 10px', borderRadius: '12px', fontWeight: 600 }}>
+          {row.count} Q&As
+        </span>
+      )
+    },
+    {
+      name: 'Last Updated',
+      selector: (row: any) => row.updatedAt,
+      sortable: true,
+      cell: (row: any) => formatDate(row.updatedAt)
+    },
+    {
+      name: 'Actions',
+      right: true,
+      cell: (row: any) => (
+        <div style={{ display: 'inline-flex', gap: '8px' }}>
+          <button 
+            onClick={() => navigate(`/faqs/edit/${row.slug}`)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+          >
+            <Edit2 size={12} />
+            Edit Group
+          </button>
+          <button 
+            onClick={() => handleDelete(row.slug)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'rgba(239, 68, 68, 0.8)', border: '1px solid rgba(239, 68, 68, 0.15)', background: 'rgba(239, 68, 68, 0.02)' }}
+          >
+            <Trash2 size={12} />
+            Delete
+          </button>
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="animate-fade-in" style={{ width: '100%' }}>
       <div className="page-header">
         <div>
-          <h1 className="page-title">FAQs (Frequently Asked Questions)</h1>
+          <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <HelpCircle size={28} style={{ color: 'var(--primary)' }} />
+            FAQs (Frequently Asked Questions)
+          </h1>
           <p className="page-subtitle">Manage dynamic question and answer blocks grouped by slugs.</p>
         </div>
         
@@ -152,70 +205,15 @@ export const FAQListPage: React.FC = () => {
         </div>
       )}
 
-      {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: "3rem", color: "var(--text-secondary)" }}>
-          <span>Loading FAQs...</span>
-        </div>
-      ) : (
-        <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
-          <div className="table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>FAQ Group Slug</th>
-                  <th>Questions Count</th>
-                  <th>Last Updated</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredGroups.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                      <HelpCircle size={36} style={{ margin: "0 auto 0.5rem", opacity: 0.2, display: "block" }} />
-                      No FAQ groups found. Click "Create FAQ Group" to add one.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredGroups.map((group) => (
-                    <tr key={group.slug}>
-                      <td style={{ fontWeight: 600 }}>{group.slug}</td>
-                      <td>
-                        <span style={{ fontSize: '0.8rem', background: 'rgba(99, 102, 241, 0.12)', color: '#818cf8', padding: '4px 10px', borderRadius: '12px', fontWeight: 600 }}>
-                          {group.count} Q&As
-                        </span>
-                      </td>
-                      <td style={{ color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
-                        {formatDate(group.updatedAt)}
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', gap: '8px' }}>
-                          <button 
-                            onClick={() => navigate(`/faqs/edit/${group.slug}`)}
-                            className="btn-secondary"
-                            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                          >
-                            <Edit2 size={12} />
-                            Edit Group
-                          </button>
-                          <button 
-                            onClick={() => handleDelete(group.slug)}
-                            className="btn-secondary hover:text-error"
-                            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'rgba(239, 68, 68, 0.8)', border: '1px solid rgba(239, 68, 68, 0.15)', background: 'rgba(239, 68, 68, 0.02)' }}
-                          >
-                            <Trash2 size={12} />
-                            Delete
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
+        <Table 
+          columns={columns}
+          data={filteredGroups}
+          loading={loading}
+          serverSide={false}
+          noDataText="No FAQ groups found. Click 'Create FAQ Group' to add one."
+        />
+      </div>
     </div>
   );
 };

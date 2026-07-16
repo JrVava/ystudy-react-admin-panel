@@ -4,9 +4,15 @@ import { encrypt, decrypt } from "./crypto";
 export const lookupApi = (type: string) => {
   const prefix = `/${type}`;
   return {
-    getPaginated: async (page: number = 1, limit: number = 50) => {
+    getPaginated: async (
+      page: number = 1,
+      limit: number = 10,
+      field: string = "createdAt",
+      sort: string = "desc",
+      search: string = ""
+    ) => {
       const { data } = await api.get(`${prefix}/pagination`, {
-        params: { page, limit }
+        params: { page, limit, field, sort, search }
       });
       const decrypted = decrypt(data.data);
       return decrypted;

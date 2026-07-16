@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { lookupApi } from '../utils/lookupApi';
 import { Edit2, Plus, AlertCircle, Search, X, Trash2, BookOpen, Award, Layers, Clock, Coins } from 'lucide-react';
 import { toast } from '../context/ToastContext';
+import { Table } from '../components/Table';
 
 interface LookupListPageProps {
   type: 'subjects' | 'qualifications' | 'modes' | 'durations' | 'fundings';
@@ -27,17 +28,44 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
   const Icon = config.icon;
   const api = lookupApi(type);
 
+  // Pagination & Sorting states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [sortField, setSortField] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  // Debounce search query
   useEffect(() => {
-    fetchItems();
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Reset page and queries when lookup type changes
+  useEffect(() => {
+    setSearchQuery("");
+    setSortField("createdAt");
+    setSortOrder("desc");
+    setCurrentPage(1);
   }, [type]);
 
-  const fetchItems = async () => {
+  // Fetch items on changes
+  useEffect(() => {
+    fetchItems(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
+  }, [type, currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery]);
+
+  const fetchItems = async (page: number, limit: number, field: string = 'createdAt', sort: string = 'desc', search: string = '') => {
     try {
       setLoading(true);
       setError(null);
-      const res = await api.getPaginated(1, 100);
+      const res = await api.getPaginated(page, limit, field, sort, search);
       if (res.success) {
         setItems(res.data || []);
+        setTotalRows(res.total || 0);
+        setCurrentPage(res.page || page);
       } else {
         setError(`Failed to fetch ${config.label.toLowerCase()}`);
       }
@@ -57,7 +85,7 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
       const res = await api.delete(id);
       if (res.success) {
         toast.success(`Deleted successfully`);
-        fetchItems();
+        fetchItems(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
       } else {
         toast.error("Failed to delete: " + res.message);
       }
@@ -69,24 +97,87 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
     }
   };
 
-  const filteredItems = items.filter(item => {
-    const query = searchQuery.toLowerCase();
-    return (
-      (item.title && item.title.toLowerCase().includes(query)) ||
-      (item._id && item._id.toLowerCase().includes(query))
-    );
-  });
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
-  if (loading && items.length === 0) {
-    return (
-      <div className="admin-page-loader">
-        <div className="loader-content">
-          <img src="/ystudy-logo.png" alt="YStudy Logo" className="loader-logo animate-pulse" />
-          <div className="loader-spinner"></div>
+  const handlePerRowsChange = (newPerPage: number, page: number) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(page);
+  };
+
+  const handleSort = (column: any, sortDirection: 'asc' | 'desc') => {
+    setSortField(column.sortField || 'createdAt');
+    setSortOrder(sortDirection);
+    setCurrentPage(1);
+  };
+
+  const columns = [
+    {
+      name: 'Title',
+      selector: (row: any) => row.title || 'Unnamed Item',
+      sortable: true,
+      sortField: 'title'
+    },
+    {
+      name: 'Status',
+      selector: (row: any) => row.status,
+      sortable: true,
+      sortField: 'status',
+      cell: (row: any) => (
+        <span
+          style={{
+            fontSize: '0.75rem',
+            padding: '3px 8px',
+            borderRadius: '6px',
+            fontWeight: 600,
+            background: row.status !== false ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
+            color: row.status !== false ? 'var(--success)' : 'var(--error)'
+          }}
+        >
+          {row.status !== false ? 'Active' : 'Inactive'}
+        </span>
+      )
+    },
+    {
+      name: 'Created At',
+      selector: (row: any) => row.createdAt,
+      sortable: true,
+      sortField: 'createdAt',
+      cell: (row: any) => row.createdAt ? new Date(row.createdAt).toLocaleString() : 'N/A'
+    },
+    {
+      name: 'Updated At',
+      selector: (row: any) => row.updatedAt,
+      sortable: true,
+      sortField: 'updatedAt',
+      cell: (row: any) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : 'N/A'
+    },
+    {
+      name: 'Actions',
+      right: true,
+      cell: (row: any) => (
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            onClick={() => navigate(`${config.path}/edit/${row._id}`)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+          >
+            <Edit2 size={12} />
+            Edit
+          </button>
+          <button
+            onClick={() => handleDelete(row._id, row.title)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--error)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
+          >
+            <Trash2 size={12} />
+            Delete
+          </button>
         </div>
-      </div>
-    );
-  }
+      )
+    }
+  ];
 
   return (
     <div className="animate-fade-in" style={{ width: '100%' }}>
@@ -106,13 +197,19 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
               type="text"
               placeholder={`Search ${config.label.toLowerCase()}...`}
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="form-input"
               style={{ width: "100%", paddingLeft: "34px", paddingRight: "30px", height: "40px", fontSize: "0.85rem" }}
             />
             {searchQuery && (
               <button
-                onClick={() => setSearchQuery("")}
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }}
                 style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center" }}
               >
                 <X size={14} />
@@ -139,71 +236,21 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
       )}
 
       <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
-        <div className="table-container">
-          <table className="admin-table">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Status</th>
-                <th>Created At</th>
-                <th>Updated At</th>
-                <th style={{ textAlign: "right" }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredItems.length === 0 ? (
-                <tr>
-                  <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                    <Icon size={36} style={{ margin: "0 auto 0.5rem", opacity: 0.2, display: "block" }} />
-                    No records found matching search criteria.
-                  </td>
-                </tr>
-              ) : (
-                filteredItems.map((item) => (
-                  <tr key={item._id}>
-                    <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{item.title || 'Unnamed Item'}</td>
-                    <td>
-                      <span
-                        style={{
-                          fontSize: '0.75rem',
-                          padding: '3px 8px',
-                          borderRadius: '6px',
-                          fontWeight: 600,
-                          background: item.status !== false ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-                          color: item.status !== false ? 'var(--success)' : 'var(--error)'
-                        }}
-                      >
-                        {item.status !== false ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td>{item.createdAt ? new Date(item.createdAt).toLocaleString() : 'N/A'}</td>
-                    <td>{item.updatedAt ? new Date(item.updatedAt).toLocaleString() : 'N/A'}</td>
-                    <td style={{ textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', padding: '1rem 1.25rem' }}>
-                      <button
-                        onClick={() => navigate(`${config.path}/edit/${item._id}`)}
-                        className="btn-secondary"
-                        style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                      >
-                        <Edit2 size={12} />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => handleDelete(item._id, item.title)}
-                        className="btn-secondary"
-                        style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--error)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
-                      >
-                        <Trash2 size={12} />
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+        <Table 
+          columns={columns}
+          data={items}
+          loading={loading}
+          totalRows={totalRows}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePerRowsChange}
+          onSort={handleSort}
+          noDataText={`No records found matching search criteria.`}
+        />
       </div>
     </div>
   );
 };
+
 export default LookupListPage;

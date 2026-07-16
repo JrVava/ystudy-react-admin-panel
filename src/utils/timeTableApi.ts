@@ -2,9 +2,15 @@ import api from "./api";
 import { encrypt, decrypt } from "./crypto";
 
 export const timeTableApi = {
-  getPaginated: async (page: number = 1, limit: number = 10) => {
+  getPaginated: async (
+    page: number = 1,
+    limit: number = 10,
+    field: string = "createdAt",
+    sort: string = "desc",
+    search: string = ""
+  ) => {
     const { data } = await api.get("/time-tables/pagination", {
-      params: { page, limit }
+      params: { page, limit, field, sort, search }
     });
     return data;
   },

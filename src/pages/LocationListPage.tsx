@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { locationApi } from '../utils/locationApi';
 import { Edit2, Plus, MapPin, AlertCircle, Search, X, Trash2 } from 'lucide-react';
 import { toast } from '../context/ToastContext';
+import { Table } from '../components/Table';
 
 export const LocationListPage: React.FC = () => {
   const [locations, setLocations] = useState<any[]>([]);
@@ -11,17 +12,36 @@ export const LocationListPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchLocations();
-  }, []);
+  // Pagination & Sorting states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [sortField, setSortField] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
-  const fetchLocations = async () => {
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Fetch locations on changes
+  useEffect(() => {
+    fetchLocations(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
+  }, [currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery]);
+
+  const fetchLocations = async (page: number, limit: number, field: string = 'createdAt', sort: string = 'desc', search: string = '') => {
     try {
       setLoading(true);
       setError(null);
-      const res = await locationApi.getPaginated(1, 50); // Get first 50 locations
+      const res = await locationApi.getPaginated(page, limit, field, sort, search);
       if (res.success) {
         setLocations(res.data || []);
+        setTotalRows(res.total || 0);
+        setCurrentPage(res.page || page);
       } else {
         setError('Failed to fetch locations');
       }
@@ -41,7 +61,7 @@ export const LocationListPage: React.FC = () => {
       const res = await locationApi.delete(id);
       if (res.success) {
         toast.success("Location deleted successfully");
-        fetchLocations();
+        fetchLocations(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
       } else {
         toast.error("Failed to delete location: " + res.message);
       }
@@ -53,14 +73,87 @@ export const LocationListPage: React.FC = () => {
     }
   };
 
-  // Client-side filtering
-  const filteredLocations = locations.filter(loc => {
-    const query = searchQuery.toLowerCase();
-    return (
-      (loc.title && loc.title.toLowerCase().includes(query)) ||
-      (loc._id && loc._id.toLowerCase().includes(query))
-    );
-  });
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage: number, page: number) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(page);
+  };
+
+  const handleSort = (column: any, sortDirection: 'asc' | 'desc') => {
+    setSortField(column.sortField || 'createdAt');
+    setSortOrder(sortDirection);
+    setCurrentPage(1);
+  };
+
+  const columns = [
+    {
+      name: 'Location Title',
+      selector: (row: any) => row.title || 'Unnamed Location',
+      sortable: true,
+      sortField: 'title'
+    },
+    {
+      name: 'Status',
+      selector: (row: any) => row.status,
+      sortable: true,
+      sortField: 'status',
+      cell: (row: any) => (
+        <span 
+          style={{ 
+            fontSize: '0.75rem', 
+            padding: '3px 8px', 
+            borderRadius: '6px', 
+            fontWeight: 600,
+            background: row.status ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
+            color: row.status ? 'var(--success)' : 'var(--error)'
+          }}
+        >
+          {row.status ? 'Active' : 'Inactive'}
+        </span>
+      )
+    },
+    {
+      name: 'Created At',
+      selector: (row: any) => row.createdAt,
+      sortable: true,
+      sortField: 'createdAt',
+      cell: (row: any) => row.createdAt ? new Date(row.createdAt).toLocaleString() : 'N/A'
+    },
+    {
+      name: 'Updated At',
+      selector: (row: any) => row.updatedAt,
+      sortable: true,
+      sortField: 'updatedAt',
+      cell: (row: any) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : 'N/A'
+    },
+    {
+      name: 'Actions',
+      right: true,
+      cell: (row: any) => (
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button 
+            onClick={() => navigate(`/courses/locations/edit/${row._id}`)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+          >
+            <Edit2 size={12} />
+            Edit
+          </button>
+          <button 
+            onClick={() => handleDelete(row._id, row.title)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--error)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
+          >
+            <Trash2 size={12} />
+            Delete
+          </button>
+        </div>
+      )
+    }
+  ];
 
   return (
     <div className="animate-fade-in" style={{ width: '100%' }}>
@@ -81,13 +174,19 @@ export const LocationListPage: React.FC = () => {
               type="text" 
               placeholder="Search locations..." 
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="form-input"
               style={{ width: "100%", paddingLeft: "34px", paddingRight: "30px", height: "40px", fontSize: "0.85rem" }}
             />
             {searchQuery && (
               <button 
-                onClick={() => setSearchQuery("")} 
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }} 
                 style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center" }}
               >
                 <X size={14} />
@@ -113,80 +212,20 @@ export const LocationListPage: React.FC = () => {
         </div>
       )}
 
-      {loading && locations.length === 0 ? (
-        <div className="admin-page-loader">
-          <div className="loader-content">
-            <img src="/ystudy-logo.png" alt="YStudy Logo" className="loader-logo animate-pulse" />
-            <div className="loader-spinner"></div>
-          </div>
-        </div>
-      ) : (
-        <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
-          <div className="table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Location Title</th>
-                  <th>Status</th>
-                  <th>Created At</th>
-                  <th>Updated At</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLocations.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                      <MapPin size={36} style={{ margin: "0 auto 0.5rem", opacity: 0.2, display: "block" }} />
-                      No locations found matching search criteria.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredLocations.map((loc) => (
-                    <tr key={loc._id}>
-                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{loc.title || 'Unnamed Location'}</td>
-                      <td>
-                        <span 
-                          style={{ 
-                            fontSize: '0.75rem', 
-                            padding: '3px 8px', 
-                            borderRadius: '6px', 
-                            fontWeight: 600,
-                            background: loc.status ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-                            color: loc.status ? 'var(--success)' : 'var(--error)'
-                          }}
-                        >
-                          {loc.status ? 'Active' : 'Inactive'}
-                        </span>
-                      </td>
-                      <td>{loc.createdAt ? new Date(loc.createdAt).toLocaleString() : 'N/A'}</td>
-                      <td>{loc.updatedAt ? new Date(loc.updatedAt).toLocaleString() : 'N/A'}</td>
-                      <td style={{ textAlign: 'right', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', padding: '1rem 1.25rem' }}>
-                        <button 
-                          onClick={() => navigate(`/courses/locations/edit/${loc._id}`)}
-                          className="btn-secondary"
-                          style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                        >
-                          <Edit2 size={12} />
-                          Edit
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(loc._id, loc.title)}
-                          className="btn-secondary"
-                          style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--error)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
-                        >
-                          <Trash2 size={12} />
-                          Delete
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
+        <Table 
+          columns={columns}
+          data={locations}
+          loading={loading}
+          totalRows={totalRows}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePerRowsChange}
+          onSort={handleSort}
+          noDataText="No locations found matching search criteria."
+        />
+      </div>
     </div>
   );
 };

@@ -2,8 +2,16 @@ import api from "./api";
 import { encrypt, decrypt } from "./crypto";
 
 export const faqApi = {
-  getPaginated: async (page: number = 1, limit: number = 100) => {
-    const { data } = await api.get(`/faqs/pagination?page=${page}&limit=${limit}`);
+  getPaginated: async (
+    page: number = 1,
+    limit: number = 100,
+    field: string = "createdAt",
+    sort: string = "desc",
+    search: string = ""
+  ) => {
+    const { data } = await api.get(`/faqs/pagination`, {
+      params: { page, limit, field, sort, search }
+    });
     return data; // Returns unencrypted JSON: { success: true, data: [...] }
   },
   getBySlug: async (slug: string) => {

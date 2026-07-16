@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { bannerApi } from '../utils/bannerApi';
-import { Edit2, Plus, LayoutTemplate, AlertCircle, Search, X } from 'lucide-react';
+import { Edit2, Plus, AlertCircle, Search, X } from 'lucide-react';
+import { Table } from '../components/Table';
 
 export const BannerListPage: React.FC = () => {
   const [banners, setBanners] = useState<any[]>([]);
@@ -10,17 +11,36 @@ export const BannerListPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchBanners();
-  }, []);
+  // Pagination & Sorting states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [sortField, setSortField] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
-  const fetchBanners = async () => {
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Fetch banners on changes
+  useEffect(() => {
+    fetchBanners(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
+  }, [currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery]);
+
+  const fetchBanners = async (page: number, limit: number, field: string = 'createdAt', sort: string = 'desc', search: string = '') => {
     try {
       setLoading(true);
       setError(null);
-      const res = await bannerApi.getPaginated(1, 50); // Get first 50 banners
+      const res = await bannerApi.getPaginated(page, limit, field, sort, search);
       if (res.success) {
-        setBanners(res.data);
+        setBanners(res.data || []);
+        setTotalRows(res.total || 0);
+        setCurrentPage(res.page || page);
       } else {
         setError('Failed to fetch banners');
       }
@@ -31,15 +51,63 @@ export const BannerListPage: React.FC = () => {
     }
   };
 
-  // Client-side filtering
-  const filteredBanners = banners.filter(banner => {
-    const query = searchQuery.toLowerCase();
-    return (
-      (banner.internalName && banner.internalName.toLowerCase().includes(query)) ||
-      (banner.leftContent?.title && banner.leftContent.title.toLowerCase().includes(query)) ||
-      (banner.rightCard?.layoutType && banner.rightCard.layoutType.toLowerCase().includes(query))
-    );
-  });
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage: number, page: number) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(page);
+  };
+
+  const handleSort = (column: any, sortDirection: 'asc' | 'desc') => {
+    setSortField(column.sortField || 'createdAt');
+    setSortOrder(sortDirection);
+    setCurrentPage(1);
+  };
+
+  const columns = [
+    {
+      name: 'Banner Name',
+      selector: (row: any) => row.internalName || 'Unnamed Banner',
+      sortable: true,
+      sortField: 'internalName',
+      style: { fontWeight: 600 }
+    },
+    {
+      name: 'Main Headline',
+      selector: (row: any) => row.leftContent?.title || 'No Headline',
+      sortable: true,
+      sortField: 'leftContent.title'
+    },
+    {
+      name: 'Layout Style',
+      selector: (row: any) => row.rightCard?.layoutType,
+      sortable: true,
+      sortField: 'rightCard.layoutType',
+      cell: (row: any) => (
+        <span style={{ fontSize: '0.8rem', background: 'rgba(255,255,255,0.04)', padding: '4px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          {row.rightCard?.layoutType || 'default'}
+        </span>
+      )
+    },
+    {
+      name: 'Actions',
+      right: true,
+      cell: (row: any) => (
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button 
+            onClick={() => navigate(`/banners/edit/${row._id}`)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+          >
+            <Edit2 size={12} />
+            Edit
+          </button>
+        </div>
+      )
+    }
+  ];
 
   return (
     <div className="animate-fade-in" style={{ width: '100%' }}>
@@ -57,13 +125,19 @@ export const BannerListPage: React.FC = () => {
               type="text" 
               placeholder="Search banners..." 
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="form-input"
               style={{ width: "100%", paddingLeft: "34px", paddingRight: "30px", height: "40px", fontSize: "0.85rem" }}
             />
             {searchQuery && (
               <button 
-                onClick={() => setSearchQuery("")} 
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }} 
                 style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center" }}
               >
                 <X size={14} />
@@ -89,58 +163,20 @@ export const BannerListPage: React.FC = () => {
         </div>
       )}
 
-      {loading ? (
-        <div style={{ display: "flex", justifyContent: "center", padding: "3rem", color: "var(--text-secondary)" }}>
-          <span>Loading banners...</span>
-        </div>
-      ) : (
-        <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
-          <div className="table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Banner Name</th>
-                  <th>Main Headline</th>
-                  <th>Layout Style</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredBanners.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                      <LayoutTemplate size={36} style={{ margin: "0 auto 0.5rem", opacity: 0.2, display: "block" }} />
-                      No banners found matching search criteria.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredBanners.map((banner) => (
-                    <tr key={banner._id}>
-                      <td style={{ fontWeight: 600 }}>{banner.internalName || 'Unnamed Banner'}</td>
-                      <td>{banner.leftContent?.title || 'No Headline'}</td>
-                      <td>
-                        <span style={{ fontSize: '0.8rem', background: 'rgba(255,255,255,0.04)', padding: '4px 8px', borderRadius: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                          {banner.rightCard?.layoutType || 'default'}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'right' }}>
-                        <button 
-                          onClick={() => navigate(`/banners/edit/${banner._id}`)}
-                          className="btn-secondary"
-                          style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                        >
-                          <Edit2 size={12} />
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
+        <Table 
+          columns={columns}
+          data={banners}
+          loading={loading}
+          totalRows={totalRows}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePerRowsChange}
+          onSort={handleSort}
+          noDataText="No banners found matching search criteria."
+        />
+      </div>
     </div>
   );
 };

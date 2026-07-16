@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { courseApi } from '../utils/courseApi';
 import { Edit2, Plus, GraduationCap, AlertCircle, Search, X } from 'lucide-react';
+import { Table } from '../components/Table';
 
 export const CourseListPage: React.FC = () => {
   const [courses, setCourses] = useState<any[]>([]);
@@ -10,17 +11,36 @@ export const CourseListPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchCourses();
-  }, []);
+  // Pagination & Sorting states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [sortField, setSortField] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
-  const fetchCourses = async () => {
+  // Debounce search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // Fetch courses on changes
+  useEffect(() => {
+    fetchCourses(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
+  }, [currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery]);
+
+  const fetchCourses = async (page: number, limit: number, field: string = 'createdAt', sort: string = 'desc', search: string = '') => {
     try {
       setLoading(true);
       setError(null);
-      const res = await courseApi.getPaginated(1, 50); // Get first 50 courses
+      const res = await courseApi.getPaginated(page, limit, field, sort, search);
       if (res.success) {
         setCourses(res.data || []);
+        setTotalRows(res.total || 0);
+        setCurrentPage(res.page || page);
       } else {
         setError('Failed to fetch courses');
       }
@@ -31,14 +51,59 @@ export const CourseListPage: React.FC = () => {
     }
   };
 
-  // Client-side filtering
-  const filteredCourses = courses.filter(course => {
-    const query = searchQuery.toLowerCase();
-    return (
-      (course.title && course.title.toLowerCase().includes(query)) ||
-      (course._id && course._id.toLowerCase().includes(query))
-    );
-  });
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePerRowsChange = (newPerPage: number, page: number) => {
+    setRowsPerPage(newPerPage);
+    setCurrentPage(page);
+  };
+
+  const handleSort = (column: any, sortDirection: 'asc' | 'desc') => {
+    setSortField(column.sortField || 'createdAt');
+    setSortOrder(sortDirection);
+    setCurrentPage(1);
+  };
+
+  const columns = [
+    {
+      name: 'Course Title',
+      selector: (row: any) => row.title || 'Unnamed Course',
+      sortable: true,
+      sortField: 'title'
+    },
+    {
+      name: 'Created At',
+      selector: (row: any) => row.createdAt,
+      sortable: true,
+      sortField: 'createdAt',
+      cell: (row: any) => row.createdAt ? new Date(row.createdAt).toLocaleString() : 'N/A'
+    },
+    {
+      name: 'Updated At',
+      selector: (row: any) => row.updatedAt,
+      sortable: true,
+      sortField: 'updatedAt',
+      cell: (row: any) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : 'N/A'
+    },
+    {
+      name: 'Actions',
+      right: true,
+      cell: (row: any) => (
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button 
+            onClick={() => navigate(`/courses/edit/${row._id}`)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+          >
+            <Edit2 size={12} />
+            Edit
+          </button>
+        </div>
+      )
+    }
+  ];
 
   return (
     <div className="animate-fade-in" style={{ width: '100%' }}>
@@ -59,13 +124,19 @@ export const CourseListPage: React.FC = () => {
               type="text" 
               placeholder="Search courses..." 
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="form-input"
               style={{ width: "100%", paddingLeft: "34px", paddingRight: "30px", height: "40px", fontSize: "0.85rem" }}
             />
             {searchQuery && (
               <button 
-                onClick={() => setSearchQuery("")} 
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }} 
                 style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center" }}
               >
                 <X size={14} />
@@ -91,57 +162,20 @@ export const CourseListPage: React.FC = () => {
         </div>
       )}
 
-      {loading && courses.length === 0 ? (
-        <div className="admin-page-loader">
-          <div className="loader-content">
-            <img src="/ystudy-logo.png" alt="YStudy Logo" className="loader-logo animate-pulse" />
-            <div className="loader-spinner"></div>
-          </div>
-        </div>
-      ) : (
-        <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
-          <div className="table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Course Title</th>
-                  <th>Created At</th>
-                  <th>Updated At</th>
-                  <th style={{ textAlign: "right" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredCourses.length === 0 ? (
-                  <tr>
-                    <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                      <GraduationCap size={36} style={{ margin: "0 auto 0.5rem", opacity: 0.2, display: "block" }} />
-                      No courses found matching search criteria.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredCourses.map((course) => (
-                    <tr key={course._id}>
-                      <td style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{course.title || 'Unnamed Course'}</td>
-                      <td>{course.createdAt ? new Date(course.createdAt).toLocaleString() : 'N/A'}</td>
-                      <td>{course.updatedAt ? new Date(course.updatedAt).toLocaleString() : 'N/A'}</td>
-                      <td style={{ textAlign: 'right' }}>
-                        <button 
-                          onClick={() => navigate(`/courses/edit/${course._id}`)}
-                          className="btn-secondary"
-                          style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                        >
-                          <Edit2 size={12} />
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
+        <Table 
+          columns={columns}
+          data={courses}
+          loading={loading}
+          totalRows={totalRows}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          onChangePage={handlePageChange}
+          onChangeRowsPerPage={handlePerRowsChange}
+          onSort={handleSort}
+          noDataText="No courses found matching search criteria."
+        />
+      </div>
     </div>
   );
 };

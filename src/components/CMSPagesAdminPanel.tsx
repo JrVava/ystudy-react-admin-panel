@@ -8,6 +8,7 @@ import {
 import { MediaPickerModal } from './MediaPickerModal';
 import config from '../config';
 import { SearchableSelect } from './SearchableSelect';
+import Table from './Table';
 
 interface CMSPage {
   _id: string;
@@ -384,6 +385,40 @@ export const CMSPagesAdminPanel: React.FC = () => {
     const query = searchQuery.toLowerCase();
     return displayName.includes(query) || slugName.includes(query);
   });
+  const pageColumns = [
+    {
+      name: 'Page Name',
+      selector: (row: any) => getPageDisplayName(row.page),
+      sortable: true,
+      style: { fontWeight: 700, color: 'var(--text-primary)' }
+    },
+    {
+      name: 'Created At',
+      selector: (row: any) => row.created_at || '',
+      sortable: true,
+      cell: (row: any) => row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'
+    },
+    {
+      name: 'Updated At',
+      selector: (row: any) => row.updated_at || '',
+      sortable: true,
+      cell: (row: any) => row.updated_at ? new Date(row.updated_at).toLocaleString() : 'N/A'
+    },
+    {
+      name: 'Actions',
+      right: true,
+      cell: (row: any) => (
+        <button 
+          onClick={() => handleEditClick(row)}
+          className="btn-secondary"
+          style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+        >
+          <Edit2 size={12} />
+          Edit Page
+        </button>
+      )
+    }
+  ];
 
   if (loading && pages.length === 0) {
     return (
@@ -439,44 +474,13 @@ export const CMSPagesAdminPanel: React.FC = () => {
       {/* Pages list table vs Editor layout */}
       {!editingPage ? (
         <div className="panel-glass" style={{ padding: 0, overflow: 'hidden' }}>
-          <div className="table-container">
-            <table className="admin-table">
-              <thead>
-                <tr>
-                  <th>Page Name</th>
-                  <th>Created At</th>
-                  <th>Updated At</th>
-                  <th style={{ textAlign: 'right' }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredPages.map((page) => (
-                  <tr key={page._id}>
-                    <td style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{getPageDisplayName(page.page)}</td>
-                    <td>{page.created_at ? new Date(page.created_at).toLocaleString() : 'N/A'}</td>
-                    <td>{page.updated_at ? new Date(page.updated_at).toLocaleString() : 'N/A'}</td>
-                    <td style={{ textAlign: 'right' }}>
-                      <button 
-                        onClick={() => handleEditClick(page)}
-                        className="btn-secondary"
-                        style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
-                      >
-                        <Edit2 size={12} />
-                        Edit Page
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                {filteredPages.length === 0 && (
-                  <tr>
-                    <td colSpan={4} style={{ padding: '2rem', textAlign: 'center', color: 'var(--text-secondary)' }}>
-                      No CMS pages matched your search query.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <Table 
+            columns={pageColumns}
+            data={filteredPages}
+            loading={loading}
+            serverSide={false}
+            noDataText="No CMS pages matched your search query."
+          />
         </div>
       ) : (
         /* Edit dynamic form view */
