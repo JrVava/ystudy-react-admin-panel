@@ -2,8 +2,10 @@ import api from "./api";
 import { encrypt, decrypt } from "./crypto";
 
 export const cmsApi = {
-  getAll: async () => {
-    const { data } = await api.get("/cms-pages");
+  getAll: async (page: number = 1, limit: number = 10, field: string = "createdAt", sort: string = "desc", search: string = "") => {
+    const { data } = await api.get("/cms-pages", {
+      params: { page, limit, field, sort, search }
+    });
     let result;
     if (data && data.data) {
       result = decrypt(data.data);

@@ -24,6 +24,14 @@ export const CMSPagesAdminPanel: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
+  // Pagination & Sorting states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [sortField, setSortField] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
   // Editor states
   const [editingPage, setEditingPage] = useState<any | null>(null);
   const [pageData, setPageData] = useState<any | null>(null);
@@ -38,17 +46,32 @@ export const CMSPagesAdminPanel: React.FC = () => {
   const [activeMediaPickerPath, setActiveMediaPickerPath] = useState<string[] | null>(null);
   const [mediaPreviews, setMediaPreviews] = useState<Record<string, string>>({});
 
+  // Debounce search query
   useEffect(() => {
-    fetchPages();
-  }, []);
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 400);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
 
-  const fetchPages = async () => {
+  // Fetch CMS pages when pagination/sort/search query changes
+  useEffect(() => {
+    fetchPages(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
+  }, [currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery]);
+
+  const fetchPages = async (
+    page: number = currentPage,
+    limit: number = rowsPerPage,
+    field: string = sortField,
+    sort: string = sortOrder,
+    search: string = debouncedSearchQuery
+  ) => {
     try {
       setLoading(true);
       setError(null);
       
       const [cmsRes, navData] = await Promise.all([
-        cmsApi.getAll(),
+        cmsApi.getAll(page, limit, field, sort, search),
         navigationApi.getFlat().catch(err => {
           console.error("Failed to load navigations", err);
           return [];
@@ -60,7 +83,9 @@ export const CMSPagesAdminPanel: React.FC = () => {
       }
 
       if (cmsRes && cmsRes.success) {
-        setPages(cmsRes.data);
+        setPages(cmsRes.data || []);
+        setTotalRows(cmsRes.total || 0);
+        setCurrentPage(cmsRes.page || page);
       } else {
         setError('Failed to fetch pages');
       }
@@ -377,31 +402,26 @@ export const CMSPagesAdminPanel: React.FC = () => {
       .replace(/\b\w/g, c => c.toUpperCase());
   };
 
-  // Client-side search filter for pages
-  const filteredPages = pages.filter(p => {
-    if (!p.page) return false;
-    const displayName = getPageDisplayName(p.page).toLowerCase();
-    const slugName = p.page.toLowerCase();
-    const query = searchQuery.toLowerCase();
-    return displayName.includes(query) || slugName.includes(query);
-  });
   const pageColumns = [
     {
       name: 'Page Name',
       selector: (row: any) => getPageDisplayName(row.page),
       sortable: true,
+      sortField: 'page',
       style: { fontWeight: 700, color: 'var(--text-primary)' }
     },
     {
       name: 'Created At',
       selector: (row: any) => row.created_at || '',
       sortable: true,
+      sortField: 'createdAt',
       cell: (row: any) => row.created_at ? new Date(row.created_at).toLocaleString() : 'N/A'
     },
     {
       name: 'Updated At',
       selector: (row: any) => row.updated_at || '',
       sortable: true,
+      sortField: 'updatedAt',
       cell: (row: any) => row.updated_at ? new Date(row.updated_at).toLocaleString() : 'N/A'
     },
     {
@@ -448,13 +468,19 @@ export const CMSPagesAdminPanel: React.FC = () => {
               type="text" 
               placeholder="Search CMS pages..." 
               value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
+              onChange={e => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               className="form-input"
               style={{ width: "100%", paddingLeft: "34px", paddingRight: "30px", height: "40px", fontSize: "0.85rem" }}
             />
             {searchQuery && (
               <button 
-                onClick={() => setSearchQuery("")} 
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }} 
                 style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center" }}
               >
                 <X size={14} />
@@ -476,9 +502,21 @@ export const CMSPagesAdminPanel: React.FC = () => {
         <div className="panel-glass" style={{ padding: 0, overflow: 'hidden' }}>
           <Table 
             columns={pageColumns}
-            data={filteredPages}
+            data={pages}
             loading={loading}
-            serverSide={false}
+            totalRows={totalRows}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+            onChangePage={(page) => setCurrentPage(page)}
+            onChangeRowsPerPage={(currentRowsPerPage, currentPage) => {
+              setRowsPerPage(currentRowsPerPage);
+              setCurrentPage(currentPage);
+            }}
+            onSort={(column, sortDirection) => {
+              setSortField(column.sortField || 'createdAt');
+              setSortOrder(sortDirection);
+              setCurrentPage(1);
+            }}
             noDataText="No CMS pages matched your search query."
           />
         </div>

@@ -6,9 +6,8 @@ import { locationApi } from '../utils/locationApi';
 import { Save, ArrowLeft, Image, X, Plus, Search, GraduationCap, ChevronDown } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
 import config from '../config';
-import api from '../utils/api';
-import { decrypt } from '../utils/crypto';
-import { SearchableSelect } from './SearchableSelect';
+
+
 import { lookupApi } from '../utils/lookupApi';
 
 const Input = ({ label, value, onChange, placeholder, type = "text", required = false }: { label: string; value: string | number; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; type?: string; required?: boolean }) => (
@@ -248,7 +247,7 @@ const CourseAdminPanel: React.FC = () => {
   const [allFundingsList, setAllFundingsList] = useState<any[]>([]);
   const [newBadgeText, setNewBadgeText] = useState("");
   const [newEntryRequirementText, setNewEntryRequirementText] = useState("");
-  const [slugsList, setSlugsList] = useState<any[]>([]);
+
   
   // Normalized form state
   const [formData, setFormData] = useState<any>({
@@ -277,7 +276,7 @@ const CourseAdminPanel: React.FC = () => {
     fundings: []
   });
 
-  const [isSlugAutoSynced, setIsSlugAutoSynced] = useState(!id); // Auto-sync slug with title only if creating new
+
 
   // Normalize ObjectId values into string representations
   const normalizeId = (val: any): string => {
@@ -368,17 +367,6 @@ const CourseAdminPanel: React.FC = () => {
         console.error("Failed to load fundings list", e);
       }
     };
-    const loadSlugsList = async () => {
-      try {
-        const res = await api.get("/navigations/allInOne");
-        const decrypted = decrypt(res.data.data);
-        if (decrypted && decrypted.success && decrypted.data) {
-          setSlugsList(decrypted.data);
-        }
-      } catch (e) {
-        console.error("Failed to load slugs selection list", e);
-      }
-    };
     loadCoursesList();
     loadLocationsList();
     loadSubjectsList();
@@ -386,7 +374,6 @@ const CourseAdminPanel: React.FC = () => {
     loadModesList();
     loadDurationsList();
     loadFundingsList();
-    loadSlugsList();
 
     if (id) {
       const fetchCourse = async () => {
@@ -440,14 +427,12 @@ const CourseAdminPanel: React.FC = () => {
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newTitle = e.target.value;
-    setFormData((prev: any) => {
-      const updated = { ...prev, title: newTitle };
-      if (isSlugAutoSynced) {
-        updated.slug = slugify(newTitle);
-      }
-      return updated;
-    });
+    const val = e.target.value;
+    setFormData((prev: any) => ({
+      ...prev,
+      title: val,
+      slug: slugify(val)
+    }));
   };
 
 
@@ -532,7 +517,11 @@ const CourseAdminPanel: React.FC = () => {
         locations: formData.locations,
         courseType: formData.courseType,
         entryRequirement: formData.entryRequirement,
-        modeType: formData.modeType
+        modeType: formData.modeType,
+        subjects: formData.subjects || [],
+        qualifications: formData.qualifications || [],
+        durations: formData.durations || [],
+        fundings: formData.fundings || []
       };
 
       let res;
@@ -668,15 +657,13 @@ const CourseAdminPanel: React.FC = () => {
                   onChange={handleTitleChange}
                   required
                 />
-                <SearchableSelect
+                <Input
                   label="Course Slug *"
+                  placeholder="e.g. master-of-business-administration"
                   value={formData.slug}
-                  onChange={(selectedSlug) => {
-                    setIsSlugAutoSynced(false);
-                    setFormData((prev: any) => ({ ...prev, slug: selectedSlug }));
+                  onChange={(e) => {
+                    setFormData((prev: any) => ({ ...prev, slug: e.target.value }));
                   }}
-                  options={slugsList.map(item => ({ value: item.slug, label: `${item.name} (${item.slug}) — ${item.type}` }))}
-                  placeholder="Select associated page or course slug..."
                   required
                 />
               </div>
