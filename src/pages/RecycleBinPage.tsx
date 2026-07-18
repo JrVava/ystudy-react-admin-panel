@@ -1,39 +1,95 @@
 import React, { useEffect, useState } from 'react';
 import { recycleBinApi } from '../utils/recycleBinApi';
-import { Trash2, RotateCcw, AlertTriangle, Info, Calendar, FileText, LayoutTemplate, HelpCircle, MapPin, Layers, Image as ImageIcon, FolderOpen, RefreshCw, Search, X } from 'lucide-react';
+import {
+  Trash2,
+  RotateCcw,
+  AlertTriangle,
+  Info,
+  Calendar,
+  FileText,
+  LayoutTemplate,
+  HelpCircle,
+  MapPin,
+  Layers,
+  Image as ImageIcon,
+  FolderOpen,
+  RefreshCw,
+  Search,
+  X,
+  Book,
+  GraduationCap,
+  Clock,
+  DollarSign
+} from 'lucide-react';
 import { toast } from '../context/ToastContext';
 import config from '../config';
 import { Table } from '../components/Table';
 
-const collectionsList = [
-  { value: 'courses', label: 'Courses', icon: FileText },
-  { value: 'time_tables', label: 'Time Tables', icon: Calendar },
-  { value: 'banners', label: 'Banners', icon: LayoutTemplate },
-  { value: 'faqs', label: 'FAQs', icon: HelpCircle },
-  { value: 'locations', label: 'Locations', icon: MapPin },
-  { value: 'navigations', label: 'Navigations', icon: Layers },
-  { value: 'media', label: 'Media Assets', icon: ImageIcon },
-  { value: 'folders', label: 'Media Folders', icon: FolderOpen }
-];
+const iconMap: Record<string, React.ComponentType<any>> = {
+  courses: FileText,
+  time_tables: Calendar,
+  banners: LayoutTemplate,
+  faqs: HelpCircle,
+  locations: MapPin,
+  navigations: Layers,
+  media: ImageIcon,
+  folders: FolderOpen,
+  subjects: Book,
+  qualifications: GraduationCap,
+  modes: Clock,
+  durations: Clock,
+  fundings: DollarSign
+};
 
 export const RecycleBinPage: React.FC = () => {
+  const [collections, setCollections] = useState<{ key: string; value: string }[]>([]);
   const [selectedCollection, setSelectedCollection] = useState('courses');
   const [items, setItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  useEffect(() => {
-    fetchDeletedItems();
-  }, [selectedCollection]);
+  // Pagination & Sorting states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [totalRows, setTotalRows] = useState(0);
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
-  const fetchDeletedItems = async () => {
+  // Load collections dynamically on mount
+  useEffect(() => {
+    const loadCollections = async () => {
+      try {
+        const res = await recycleBinApi.getCollections();
+        if (res.success && Array.isArray(res.data)) {
+          setCollections(res.data);
+          // If the current selected collection is not in the fetched list, set it to the first collection's key
+          const exists = res.data.some((c: any) => c.key === selectedCollection);
+          if (!exists && res.data.length > 0) {
+            setSelectedCollection(res.data[0].key);
+          }
+        }
+      } catch (err: any) {
+        console.error("Failed to load recycle bin collections:", err);
+        setError(err.message || "Failed to load collection list.");
+      }
+    };
+    loadCollections();
+  }, []);
+
+  // Fetch deleted items when selection, pagination, or sorting changes
+  useEffect(() => {
+    fetchDeletedItems(currentPage, rowsPerPage, sortOrder);
+  }, [selectedCollection, currentPage, rowsPerPage, sortOrder]);
+
+  const fetchDeletedItems = async (page: number = currentPage, limit: number = rowsPerPage, order: 'asc' | 'desc' = sortOrder) => {
     try {
       setLoading(true);
       setError(null);
-      const res = await recycleBinApi.list(selectedCollection, 1, 100);
+      const res = await recycleBinApi.list(selectedCollection, page, limit, order);
       if (res.success) {
         setItems(res.data || []);
+        setTotalRows(res.total || 0);
+        setCurrentPage(res.page || page);
       } else {
         setError('Failed to load deleted records.');
       }
@@ -55,7 +111,7 @@ export const RecycleBinPage: React.FC = () => {
       const res = await recycleBinApi.restore(id, selectedCollection);
       if (res.success || res.data?.success) {
         toast.success(`"${name}" has been successfully restored.`);
-        fetchDeletedItems();
+        fetchDeletedItems(currentPage, rowsPerPage, sortOrder);
       } else {
         toast.error("Failed to restore: " + (res.message || "Unknown error"));
       }
@@ -82,7 +138,7 @@ export const RecycleBinPage: React.FC = () => {
       const res = await recycleBinApi.delete(id, selectedCollection);
       if (res.success || res.data?.success) {
         toast.success(`"${name}" was permanently deleted.`);
-        fetchDeletedItems();
+        fetchDeletedItems(currentPage, rowsPerPage, sortOrder);
       } else {
         toast.error("Failed to delete record: " + (res.message || "Unknown error"));
       }
@@ -120,7 +176,7 @@ export const RecycleBinPage: React.FC = () => {
     return name.includes(query) || id.includes(query);
   });
 
-  const CurrentIcon = collectionsList.find(c => c.value === selectedCollection)?.icon || FileText;
+  const CurrentIcon = iconMap[selectedCollection] || FileText;
 
   const columns = [
     {
@@ -239,7 +295,7 @@ export const RecycleBinPage: React.FC = () => {
           </div>
 
           <button
-            onClick={fetchDeletedItems}
+            onClick={() => fetchDeletedItems()}
             className="btn-secondary"
             style={{ height: '40px', padding: '0 12px', display: 'grid', placeItems: 'center' }}
             title="Refresh list"
@@ -250,13 +306,21 @@ export const RecycleBinPage: React.FC = () => {
 
           <select
             value={selectedCollection}
-            onChange={(e) => setSelectedCollection(e.target.value)}
+            onChange={(e) => {
+              setSelectedCollection(e.target.value);
+              setCurrentPage(1);
+            }}
             className="form-select"
             style={{ minWidth: '180px', fontWeight: 600 }}
+            disabled={collections.length === 0}
           >
-            {collectionsList.map(c => (
-              <option key={c.value} value={c.value}>{c.label}</option>
-            ))}
+            {collections.length === 0 ? (
+              <option value="courses">Loading...</option>
+            ) : (
+              collections.map(c => (
+                <option key={c.key} value={c.key}>{c.value}</option>
+              ))
+            )}
           </select>
         </div>
       </div>
@@ -280,7 +344,19 @@ export const RecycleBinPage: React.FC = () => {
           columns={columns}
           data={filteredItems}
           loading={loading}
-          serverSide={false}
+          totalRows={totalRows}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          onChangePage={(page) => setCurrentPage(page)}
+          onChangeRowsPerPage={(newPerPage, page) => {
+            setRowsPerPage(newPerPage);
+            setCurrentPage(page);
+          }}
+          onSort={(_, sortDirection) => {
+            setSortOrder(sortDirection);
+            setCurrentPage(1);
+          }}
+          serverSide={true}
           noDataText="No deleted records found matching criteria."
         />
       </div>

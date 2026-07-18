@@ -1,13 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { cmsApi } from '../utils/cmsApi';
-import { navigationApi } from '../utils/navigationApi';
 import { 
   FileText, Edit2, X, Save, AlertCircle, 
   CheckCircle, Info, ChevronDown, ChevronUp, Search, Image, ArrowLeft
 } from 'lucide-react';
 import { MediaPickerModal } from './MediaPickerModal';
 import config from '../config';
-import { SearchableSelect } from './SearchableSelect';
 import Table from './Table';
 
 interface CMSPage {
@@ -19,7 +17,6 @@ interface CMSPage {
 
 export const CMSPagesAdminPanel: React.FC = () => {
   const [pages, setPages] = useState<CMSPage[]>([]);
-  const [navItems, setNavItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -70,17 +67,7 @@ export const CMSPagesAdminPanel: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      const [cmsRes, navData] = await Promise.all([
-        cmsApi.getAll(page, limit, field, sort, search),
-        navigationApi.getFlat().catch(err => {
-          console.error("Failed to load navigations", err);
-          return [];
-        })
-      ]);
-
-      if (navData) {
-        setNavItems(navData);
-      }
+      const cmsRes = await cmsApi.getAll(page, limit, field, sort, search);
 
       if (cmsRes && cmsRes.success) {
         setPages(cmsRes.data || []);
@@ -393,10 +380,6 @@ export const CMSPagesAdminPanel: React.FC = () => {
   };
 
   const getPageDisplayName = (slug: string) => {
-    const navItem = navItems.find(n => n.slug === slug);
-    if (navItem && navItem.pageName) {
-      return navItem.pageName;
-    }
     return slug
       .replace(/-/g, ' ')
       .replace(/\b\w/g, c => c.toUpperCase());
@@ -596,20 +579,20 @@ export const CMSPagesAdminPanel: React.FC = () => {
               
               <form onSubmit={e => e.preventDefault()} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ padding: '0 0.5rem 1.25rem 0.5rem', borderBottom: '1px solid var(--panel-border)', marginBottom: '1rem' }}>
-                  <SearchableSelect
-                    label="Page Slug / Name *"
-                    value={pageData.page || ''}
-                    onChange={(val) => setPageData({ ...pageData, page: val })}
-                    options={navItems.map((nav: any) => ({
-                      value: nav.slug,
-                      label: `${nav.pageName} (${nav.slug})`
-                    }))}
-                    placeholder="Select a page slug..."
-                    required
-                  />
-                  <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                    Warning: Changing this links this CMS layout configuration to a different frontend route/slug.
-                  </span>
+                  <div className="form-group">
+                    <label className="form-label" style={{ fontSize: '0.8rem' }}>Page Slug / Name *</label>
+                    <input
+                      type="text"
+                      value={pageData.page || ''}
+                      onChange={e => setPageData({ ...pageData, page: e.target.value })}
+                      className="form-input"
+                      style={{ fontSize: '0.9rem' }}
+                      required
+                    />
+                    <span style={{ display: 'block', fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
+                      Warning: Changing this links this CMS layout configuration to a different frontend route/slug.
+                    </span>
+                  </div>
                 </div>
 
                 {Object.keys(pageData)
