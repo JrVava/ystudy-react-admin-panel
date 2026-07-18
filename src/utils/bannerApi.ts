@@ -12,7 +12,8 @@ export const bannerApi = {
     const { data } = await api.get("/banners/pagination", {
       params: { page, limit, field, sort, search }
     });
-    return data;
+    const decrypted = decrypt(data.data);
+    return decrypted;
   },
   getById: async (id: string) => {
     const { data } = await api.get(`/banners/edit/${id}`);

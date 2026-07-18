@@ -21,6 +21,7 @@ export const cmsApi = {
   },
   update: async (id: string, payload: any) => {
     const { data } = await api.put(`/cms-pages/update/${id}`, { data: encrypt(payload) });
-    return data;
+    const decrypted = decrypt(data.data);
+    return decrypted;
   }
 };

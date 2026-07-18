@@ -12,7 +12,8 @@ export const faqApi = {
     const { data } = await api.get(`/faqs/pagination`, {
       params: { page, limit, field, sort, search }
     });
-    return data; // Returns unencrypted JSON: { success: true, data: [...] }
+    const decrypted = decrypt(data.data);
+    return decrypted;
   },
   getBySlug: async (slug: string) => {
     const { data } = await api.get(`/faqs/edit/${slug}`);

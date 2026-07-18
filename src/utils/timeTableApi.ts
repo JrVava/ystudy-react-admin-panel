@@ -12,7 +12,8 @@ export const timeTableApi = {
     const { data } = await api.get("/time-tables/pagination", {
       params: { page, limit, field, sort, search }
     });
-    return data;
+    const decrypted = decrypt(data.data);
+    return decrypted;
   },
   getList: async () => {
     const { data } = await api.get("/time-tables/listing");
