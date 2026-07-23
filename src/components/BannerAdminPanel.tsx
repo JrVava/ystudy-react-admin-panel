@@ -51,9 +51,9 @@ const Select = ({ label, options, value, onChange }: { label: string; options: {
 const parseColorAndOpacity = (colorStr: string) => {
   const defaultVal = { hex: '#000000', opacity: 0.5 };
   if (!colorStr) return defaultVal;
-  
+
   const trimmed = colorStr.trim().toLowerCase();
-  
+
   // Try to match rgba(r, g, b, a)
   const rgbaMatch = trimmed.match(/rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+)\s*\)/);
   if (rgbaMatch) {
@@ -64,7 +64,7 @@ const parseColorAndOpacity = (colorStr: string) => {
     const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
     return { hex, opacity: a };
   }
-  
+
   // Try to match rgb(r, g, b)
   const rgbMatch = trimmed.match(/rgb\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)/);
   if (rgbMatch) {
@@ -74,7 +74,7 @@ const parseColorAndOpacity = (colorStr: string) => {
     const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
     return { hex, opacity: 1.0 };
   }
-  
+
   // Try to match hex colors: #rgb, #rgba, #rrggbb, #rrggbbaa
   if (trimmed.startsWith('#')) {
     const hexOnly = trimmed.substring(1);
@@ -101,7 +101,7 @@ const parseColorAndOpacity = (colorStr: string) => {
       return { hex, opacity: parseFloat(alphaVal.toFixed(2)) };
     }
   }
-  
+
   return defaultVal;
 };
 
@@ -172,8 +172,8 @@ const BannerAdminPanel: React.FC = () => {
           const banner = await bannerApi.getById(id);
           setFormData({
             internalName: banner.internalName || '',
-            background: { 
-              imageUrl: banner.background?.imageUrl || '', 
+            background: {
+              imageUrl: banner.background?.imageUrl || '',
               fullImageUrl: banner.fullImageUrl || banner.background?.fullImageUrl || '',
               bgColor: banner.background?.bgColor || ''
             },
@@ -405,7 +405,7 @@ const BannerAdminPanel: React.FC = () => {
                   <label className="form-label" style={{ display: 'block', marginBottom: '8px' }}>
                     Background Overlay Color
                   </label>
-                  
+
                   <div style={{ display: 'flex', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
                     <div style={{ display: 'flex', alignItems: 'center' }}>
                       <input
@@ -526,7 +526,7 @@ const BannerAdminPanel: React.FC = () => {
                   options={[
                     { label: 'None (No Right Card)', value: 'none' },
                     { label: 'Stacked Cards (Headline & Description)', value: 'stacked-cards' },
-                    { label: 'List Rows (Items & Mini Value)', value: 'list-items' },
+                    { label: 'Match Result Card (Score & Match Stats)', value: 'list-items' },
                     { label: 'Highlight Stat Card (Huge Text & Sub Stats)', value: 'stats-highlight' },
                     { label: 'Grid 2x2 Layout', value: 'grid-2x2' }
                   ]}
@@ -559,10 +559,10 @@ const BannerAdminPanel: React.FC = () => {
                       onChange={e => updateRightCard('description', e.target.value)}
                     />
 
-                    {formData.rightCard.layoutType === 'stats-highlight' && (
+                    {(formData.rightCard.layoutType === 'stats-highlight' || formData.rightCard.layoutType === 'list-items') && (
                       <Input
                         label="Stat Highlight Value"
-                        placeholder="e.g., ~£23,925"
+                        placeholder="e.g., ~£23,925 or 96% match"
                         value={formData.rightCard.mainValue || ''}
                         onChange={e => updateRightCard('mainValue', e.target.value)}
                       />
@@ -595,10 +595,12 @@ const BannerAdminPanel: React.FC = () => {
                               <label className="card-item-field">Title</label>
                               <input type="text" value={item.title} onChange={e => updateItem(index, 'title', e.target.value)} className="form-input card-item-input" />
                             </div>
-                            <div>
-                              <label className="card-item-field">Subtitle</label>
-                              <input type="text" value={item.subtitle || ''} onChange={e => updateItem(index, 'subtitle', e.target.value)} className="form-input card-item-input" />
-                            </div>
+                            {(formData.rightCard.layoutType !== 'list-items') && (
+                              <div>
+                                <label className="card-item-field">Subtitle</label>
+                                <input type="text" value={item.subtitle || ''} onChange={e => updateItem(index, 'subtitle', e.target.value)} className="form-input card-item-input" />
+                              </div>
+                            )}
                           </div>
 
                           {['stats-highlight', 'grid-2x2'].includes(formData.rightCard.layoutType) && (
@@ -690,18 +692,19 @@ const BannerAdminPanel: React.FC = () => {
               {hasRight && (
                 <div className="banner-right">
                   {formData.rightCard.layoutType === 'list-items' && formData.rightCard.items ? (
-                    <aside className="loc-glass">
-                      <h3>{formData.rightCard.title || 'Built for mature students'}</h3>
-                      {formData.rightCard.description && <p>{formData.rightCard.description}</p>}
-                      <div className="loc-mini-list">
+                    <div className="tlpanel">
+                      <div className="tph">{formData.rightCard.title || 'Sample result'}</div>
+                      <div className="big">{formData.rightCard.mainValue || '96% match'}</div>
+                      <div className="sub">{formData.rightCard.description || 'BA Business Management · SFE eligible'}</div>
+                      <div className="tlgrid">
                         {formData.rightCard.items.map((item, idx) => (
-                          <div className="loc-mini" key={idx}>
-                            <span>{item.title}</span>
-                            <span>{item.description || ''}</span>
+                          <div className="c" key={idx}>
+                            <b>{item.value || item.title || '0%'}</b>
+                            <span>{item.description || item.subtitle || item.title || ''}</span>
                           </div>
                         ))}
                       </div>
-                    </aside>
+                    </div>
                   ) : (
                     <div className="banner-card">
                       {/* Card Title rendered ONCE at the absolute top of the card for all layouts */}
