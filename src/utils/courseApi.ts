@@ -34,5 +34,10 @@ export const courseApi = {
     const { data } = await api.post(`/courses/update/${id}`, { data: encrypt(payload) });
     const decrypted = decrypt(data.data);
     return decrypted;
+  },
+  delete: async (id: string) => {
+    const { data } = await api.delete(`/courses/delete/${id}`);
+    const decrypted = decrypt(data.data);
+    return decrypted;
   }
 };

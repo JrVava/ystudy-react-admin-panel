@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { courseApi } from '../utils/courseApi';
-import { Edit2, Plus, GraduationCap, AlertCircle, Search, X } from 'lucide-react';
+import { Edit2, Plus, GraduationCap, AlertCircle, Search, X, Trash2 } from 'lucide-react';
+import { toast } from '../context/ToastContext';
 import { Table } from '../components/Table';
 
 export const CourseListPage: React.FC = () => {
@@ -51,6 +52,27 @@ export const CourseListPage: React.FC = () => {
     }
   };
 
+  const handleDelete = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete "${name}"?`)) {
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await courseApi.delete(id);
+      if (res.success) {
+        toast.success(`Deleted successfully`);
+        fetchCourses(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
+      } else {
+        toast.error("Failed to delete: " + res.message);
+      }
+    } catch (e: any) {
+      console.error(e);
+      toast.error("Error deleting item: " + (e.message || "Unknown error"));
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -72,6 +94,26 @@ export const CourseListPage: React.FC = () => {
       selector: (row: any) => row.title || 'Unnamed Course',
       sortable: true,
       sortField: 'title'
+    },
+    {
+      name: 'Status',
+      selector: (row: any) => row.status,
+      sortable: true,
+      sortField: 'status',
+      cell: (row: any) => (
+        <span
+          style={{
+            fontSize: '0.75rem',
+            padding: '3px 8px',
+            borderRadius: '6px',
+            fontWeight: 600,
+            background: row.status !== false ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
+            color: row.status !== false ? 'var(--success)' : 'var(--error)'
+          }}
+        >
+          {row.status !== false ? 'Active' : 'Inactive'}
+        </span>
+      )
     },
     {
       name: 'Created At',
@@ -99,6 +141,14 @@ export const CourseListPage: React.FC = () => {
           >
             <Edit2 size={12} />
             Edit
+          </button>
+          <button
+            onClick={() => handleDelete(row._id, row.title)}
+            className="btn-secondary"
+            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--error)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
+          >
+            <Trash2 size={12} />
+            Delete
           </button>
         </div>
       )
