@@ -1,25 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { courseApi } from '../utils/courseApi';
-import { toast } from '../context/ToastContext';
-import { locationApi } from '../utils/locationApi';
-import { Save, ArrowLeft, Image, X, Plus, GraduationCap } from 'lucide-react';
-import { MediaPickerModal } from './MediaPickerModal';
-import config from '../config';
-import { lookupApi } from '../utils/lookupApi';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { courseApi } from "../utils/courseApi";
+import { toast } from "../context/ToastContext";
+import { locationApi } from "../utils/locationApi";
+import { Save, ArrowLeft, Image, X, Plus, GraduationCap } from "lucide-react";
+import { MediaPickerModal } from "./MediaPickerModal";
+import config from "../config";
+import { lookupApi } from "../utils/lookupApi";
 
-import Input from './Input';
-import Textarea from './Textarea';
-import MultiSelectDropdown from './MultiSelectDropdown';
-
+import Input from "./Input";
+import Textarea from "./Textarea";
+import MultiSelectDropdown from "./MultiSelectDropdown";
+import { CmsOverviewSection } from "./course-cms/CmsOverviewSection";
+import { CmsSalarySection } from "./course-cms/CmsSalarySection";
+import { CmsFundingSection } from "./course-cms/CmsFundingSection";
+import { CmsStudySection } from "./course-cms/CmsStudySection";
+import { CmsReviewsSection } from "./course-cms/CmsReviewsSection";
+import { CmsEntrySection } from "./course-cms/CmsEntrySection";
+import { CmsFaqSection } from "./course-cms/CmsFaqSection";
 
 const CourseAdminPanel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'general' | 'badges' | 'relations' | 'cms'>('general');
+  const [activeTab, setActiveTab] = useState<"general" | "badges" | "relations" | "cms">("general");
+  const [socialCmsTab, setSocialCmsTab] = useState<
+    "overview" | "salary" | "funding" | "study" | "reviews" | "entry" | "faq"
+  >("overview");
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
-  const [cmsMediaPickerTarget, setCmsMediaPickerTarget] = useState<{ section: string; arrayField: string; index: number; key: string } | null>(null);
+  const [cmsMediaPickerTarget, setCmsMediaPickerTarget] = useState<{
+    section: string;
+    arrayField: string;
+    index: number;
+    key: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(!!id);
   const [allCoursesList, setAllCoursesList] = useState<any[]>([]);
   const [allLocationsList, setAllLocationsList] = useState<any[]>([]);
@@ -31,26 +45,25 @@ const CourseAdminPanel: React.FC = () => {
   const [newBadgeText, setNewBadgeText] = useState("");
   const [newEntryRequirementText, setNewEntryRequirementText] = useState("");
 
-
   // Normalized form state
   const [formData, setFormData] = useState<any>({
-    title: '',
-    slug: '',
-    shortDescription: '',
-    longDescription: '',
-    image: '', // MongoDB ID
-    imageUrl: '', // File path (for preview)
-    fullImageUrl: '', // Backend absolute URL
+    title: "",
+    slug: "",
+    shortDescription: "",
+    longDescription: "",
+    image: "", // MongoDB ID
+    imageUrl: "", // File path (for preview)
+    fullImageUrl: "", // Backend absolute URL
     badges: [],
     salaryRange: {
       from: 0,
       to: 0
     },
-    careerOutcomeBadge: '',
+    careerOutcomeBadge: "",
     availableCourses: [],
     relatedCourses: [],
     locations: [],
-    courseType: 'General',
+    courseType: "General",
     entryRequirement: [],
     modeType: [],
     subjects: [],
@@ -61,13 +74,11 @@ const CourseAdminPanel: React.FC = () => {
     courseCms: null
   });
 
-
-
   // Normalize ObjectId values into string representations
   const normalizeId = (val: any): string => {
-    if (!val) return '';
-    if (typeof val === 'string') return val;
-    if (typeof val === 'object') {
+    if (!val) return "";
+    if (typeof val === "string") return val;
+    if (typeof val === "object") {
       if (val.$oid) return val.$oid;
       if (val.toString) return val.toString();
     }
@@ -76,7 +87,7 @@ const CourseAdminPanel: React.FC = () => {
 
   const normalizeIdArray = (arr: any): string[] => {
     if (!Array.isArray(arr)) return [];
-    return arr.map(item => normalizeId(item)).filter(Boolean);
+    return arr.map((item) => normalizeId(item)).filter(Boolean);
   };
 
   useEffect(() => {
@@ -104,7 +115,7 @@ const CourseAdminPanel: React.FC = () => {
     };
     const loadSubjectsList = async () => {
       try {
-        const res = await lookupApi('subjects').getPaginated(1, 1000);
+        const res = await lookupApi("subjects").getPaginated(1, 1000);
         if (res && res.success) {
           setAllSubjectsList(res.data || []);
         }
@@ -114,7 +125,7 @@ const CourseAdminPanel: React.FC = () => {
     };
     const loadQualificationsList = async () => {
       try {
-        const res = await lookupApi('qualifications').getPaginated(1, 1000);
+        const res = await lookupApi("qualifications").getPaginated(1, 1000);
         if (res && res.success) {
           setAllQualificationsList(res.data || []);
         }
@@ -124,7 +135,7 @@ const CourseAdminPanel: React.FC = () => {
     };
     const loadModesList = async () => {
       try {
-        const res = await lookupApi('modes').getPaginated(1, 1000);
+        const res = await lookupApi("modes").getPaginated(1, 1000);
         if (res && res.success) {
           setAllModesList(res.data || []);
         }
@@ -134,7 +145,7 @@ const CourseAdminPanel: React.FC = () => {
     };
     const loadDurationsList = async () => {
       try {
-        const res = await lookupApi('durations').getPaginated(1, 1000);
+        const res = await lookupApi("durations").getPaginated(1, 1000);
         if (res && res.success) {
           setAllDurationsList(res.data || []);
         }
@@ -144,7 +155,7 @@ const CourseAdminPanel: React.FC = () => {
     };
     const loadFundingsList = async () => {
       try {
-        const res = await lookupApi('fundings').getPaginated(1, 1000);
+        const res = await lookupApi("fundings").getPaginated(1, 1000);
         if (res && res.success) {
           setAllFundingsList(res.data || []);
         }
@@ -165,23 +176,24 @@ const CourseAdminPanel: React.FC = () => {
         try {
           const course = await courseApi.getById(id);
           setFormData({
-            title: course.title || '',
-            slug: course.slug || '',
-            shortDescription: course.shortDescription || '',
-            longDescription: course.longDescription || '',
+            title: course.title || "",
+            slug: course.slug || "",
+            shortDescription: course.shortDescription || "",
+            longDescription: course.longDescription || "",
             image: normalizeId(course.image),
-            imageUrl: course.image && typeof course.image === 'object' && course.image.filePath ? course.image.filePath : '',
-            fullImageUrl: course.fullImageUrl || '',
+            imageUrl:
+              course.image && typeof course.image === "object" && course.image.filePath ? course.image.filePath : "",
+            fullImageUrl: course.fullImageUrl || "",
             badges: Array.isArray(course.badges) ? course.badges : [],
             salaryRange: {
               from: course.salaryRange?.from || 0,
               to: course.salaryRange?.to || 0
             },
-            careerOutcomeBadge: course.careerOutcomeBadge || '',
+            careerOutcomeBadge: course.careerOutcomeBadge || "",
             availableCourses: normalizeIdArray(course.availableCourses),
             relatedCourses: normalizeIdArray(course.relatedCourses),
             locations: normalizeIdArray(course.locations),
-            courseType: course.courseType || 'General',
+            courseType: course.courseType || "General",
             entryRequirement: Array.isArray(course.entryRequirement) ? course.entryRequirement : [],
             modeType: normalizeIdArray(course.modeType),
             subjects: normalizeIdArray(course.subjects),
@@ -208,9 +220,9 @@ const CourseAdminPanel: React.FC = () => {
       .toString()
       .toLowerCase()
       .trim()
-      .replace(/\s+/g, '-') // Replace spaces with -
-      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-      .replace(/\-\-+/g, '-'); // Replace multiple - with single -
+      .replace(/\s+/g, "-") // Replace spaces with -
+      .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+      .replace(/\-\-+/g, "-"); // Replace multiple - with single -
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -222,60 +234,187 @@ const CourseAdminPanel: React.FC = () => {
     }));
   };
 
-  const handleCmsTextChange = (section: string, key: string, value: string | boolean | null) => {
+  const DEFAULT_GENERAL_CMS = {
+    section_2: { badge: "", title: "", description: "" },
+    section_3: { badge: "", title: "", description: "", cards: [], tiles: [], status: true },
+    section_4: { badge: "", title: "", description: "", cards: [], status: true },
+    section_5: { badge: "", title: "", description: "", cards: [], status: true },
+    section_6: { badge: "", title: "", description: "", status: true },
+    section_7: { badge: "", title: "", description: "", year1: [], year2: [], year3: [], status: true },
+    section_8: { badge: "", title: "", cards: [], status: true },
+    section_9: { badge: "", title: "", description: "", cards: [], status: true },
+    section_10: { badge: "", title: "", description: "", featured_course: "", status: true },
+    section_11: { cards: [], status: true },
+    section_12: { title: "", description: "", cards: [], status: true }
+  };
+
+  const DEFAULT_SOCIAL_CMS = {
+    overview: {
+      badge: "Course overview",
+      title: "A practical degree, built around your life.",
+      description: "",
+      cards: [],
+      statsCards: []
+    },
+    salary: { badge: "", title: "", description: "", cards: [] },
+    funding: {
+      section_1: { title: "", subtitle: "", description: "", image: "", totalSupport: "", cards: [] },
+      section_2: { title: "", description: "", points: [] }
+    },
+    study: {
+      section_1: { title: "", subtitle: "", description: "", image: "", cards: [] },
+      section_2: { title: "", description: "", cards: [] }
+    },
+    reviews: { title: "", subtitle: "", description: "" },
+    Entry: {
+      section_1: { title: "", description: "", rows: [] },
+      section_2: { title: "", score: "", description: "" },
+      section_3: { title: "", description: "", image: "" },
+      section_4: { title: "", description: "", cards: [] },
+      section_5: { title: "", link: "", description: "" }
+    },
+    FAQ: {
+      section_1: { title: "", subtitle: "", description: "" },
+      section_2: { title: "", description: "" },
+      section_3: { title: "", description: "", cards: [] },
+      section_4: { title: "", subtitle: "", description: "", cards: [] }
+    }
+  };
+
+  const getPath = (obj: any, path: string) => {
+    if (!path) return obj;
+    const parts = path.split(".");
+    let current = obj;
+    for (const part of parts) {
+      if (current == null) return undefined;
+      current = current[part];
+    }
+    return current;
+  };
+
+  const setPath = (obj: any, path: string, value: any) => {
+    if (!path) return value;
+    const parts = path.split(".");
+    let current = obj;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i];
+      const nextPart = parts[i + 1];
+      const isNextArray = !isNaN(Number(nextPart));
+      if (!current[part]) {
+        current[part] = isNextArray ? [] : {};
+      }
+      current = current[part];
+    }
+    const lastPart = parts[parts.length - 1];
+    current[lastPart] = value;
+    return obj;
+  };
+
+  const handleCmsTextChange = (path: string, key: string, value: any) => {
     setFormData((prev: any) => {
-      const updatedCms = { ...(prev.courseCms || {}) };
-      if (section) {
-        updatedCms[section] = {
-          ...(updatedCms[section] || {}),
-          [key]: value
-        };
-      } else {
-        updatedCms[key] = value;
+      const updatedCms = JSON.parse(JSON.stringify(prev.courseCms || {}));
+      const fullPath = path ? `${path}.${key}` : key;
+      setPath(updatedCms, fullPath, value);
+      return { ...prev, courseCms: updatedCms };
+    });
+  };
+
+  const handleAddCmsArrayItem = (path: string, arrayField: string, defaultObj: any) => {
+    setFormData((prev: any) => {
+      const updatedCms = JSON.parse(JSON.stringify(prev.courseCms || {}));
+      const arrayPath = path ? `${path}.${arrayField}` : arrayField;
+      let arr = getPath(updatedCms, arrayPath);
+      if (!Array.isArray(arr)) {
+        arr = [];
+      }
+      arr.push(defaultObj);
+      setPath(updatedCms, arrayPath, arr);
+      return { ...prev, courseCms: updatedCms };
+    });
+  };
+
+  const handleRemoveCmsArrayItem = (path: string, arrayField: string, index: number) => {
+    setFormData((prev: any) => {
+      const updatedCms = JSON.parse(JSON.stringify(prev.courseCms || {}));
+      const arrayPath = path ? `${path}.${arrayField}` : arrayField;
+      const arr = getPath(updatedCms, arrayPath);
+      if (Array.isArray(arr)) {
+        arr.splice(index, 1);
+        setPath(updatedCms, arrayPath, arr);
       }
       return { ...prev, courseCms: updatedCms };
     });
   };
 
-  const handleAddCmsArrayItem = (section: string, arrayField: string, defaultObj: any) => {
+  const handleCmsArrayItemChange = (path: string, arrayField: string, index: number, key: string, value: any) => {
     setFormData((prev: any) => {
-      const updatedCms = { ...(prev.courseCms || {}) };
-      const sectionData = { ...(updatedCms[section] || {}) };
-      const currentList = Array.isArray(sectionData[arrayField]) ? [...sectionData[arrayField]] : [];
-      currentList.push(defaultObj);
-      sectionData[arrayField] = currentList;
-      updatedCms[section] = sectionData;
-      return { ...prev, courseCms: updatedCms };
-    });
-  };
-
-  const handleRemoveCmsArrayItem = (section: string, arrayField: string, index: number) => {
-    setFormData((prev: any) => {
-      const updatedCms = { ...(prev.courseCms || {}) };
-      const sectionData = { ...(updatedCms[section] || {}) };
-      const currentList = Array.isArray(sectionData[arrayField]) ? [...sectionData[arrayField]] : [];
-      currentList.splice(index, 1);
-      sectionData[arrayField] = currentList;
-      updatedCms[section] = sectionData;
-      return { ...prev, courseCms: updatedCms };
-    });
-  };
-
-  const handleCmsArrayItemChange = (section: string, arrayField: string, index: number, key: string, value: any) => {
-    setFormData((prev: any) => {
-      const updatedCms = { ...(prev.courseCms || {}) };
-      const sectionData = { ...(updatedCms[section] || {}) };
-      const currentList = Array.isArray(sectionData[arrayField]) ? [...sectionData[arrayField]] : [];
-      if (currentList[index]) {
-        currentList[index] = { ...currentList[index], [key]: value };
+      const updatedCms = JSON.parse(JSON.stringify(prev.courseCms || {}));
+      const arrayPath = path ? `${path}.${arrayField}` : arrayField;
+      let arr = getPath(updatedCms, arrayPath);
+      if (!Array.isArray(arr)) {
+        arr = [];
       }
-      sectionData[arrayField] = currentList;
-      updatedCms[section] = sectionData;
+      if (!arr[index]) {
+        arr[index] = {};
+      }
+      arr[index] = { ...arr[index], [key]: value };
+      setPath(updatedCms, arrayPath, arr);
       return { ...prev, courseCms: updatedCms };
     });
   };
 
+  const handleAddStudyPoint = (path: string, key: string) => {
+    setFormData((prev: any) => {
+      const updatedCms = JSON.parse(JSON.stringify(prev.courseCms || {}));
+      const arrayPath = path ? `${path}.${key}` : key;
+      let arr = getPath(updatedCms, arrayPath);
+      if (!Array.isArray(arr)) {
+        arr = [];
+      }
+      arr.push("");
+      setPath(updatedCms, arrayPath, arr);
+      return { ...prev, courseCms: updatedCms };
+    });
+  };
 
+  const handleRemoveStudyPoint = (path: string, key: string, index: number) => {
+    setFormData((prev: any) => {
+      const updatedCms = JSON.parse(JSON.stringify(prev.courseCms || {}));
+      const arrayPath = path ? `${path}.${key}` : key;
+      const arr = getPath(updatedCms, arrayPath);
+      if (Array.isArray(arr)) {
+        arr.splice(index, 1);
+        setPath(updatedCms, arrayPath, arr);
+      }
+      return { ...prev, courseCms: updatedCms };
+    });
+  };
+
+  const handleStudyPointChange = (path: string, key: string, index: number, value: string) => {
+    setFormData((prev: any) => {
+      const updatedCms = JSON.parse(JSON.stringify(prev.courseCms || {}));
+      const arrayPath = path ? `${path}.${key}` : key;
+      let arr = getPath(updatedCms, arrayPath);
+      if (!Array.isArray(arr)) {
+        arr = [];
+      }
+      arr[index] = value;
+      setPath(updatedCms, arrayPath, arr);
+      return { ...prev, courseCms: updatedCms };
+    });
+  };
+
+  const handleCourseTypeChange = (val: string) => {
+    setFormData((prev: any) => {
+      const isSocial = val === "Social";
+      const hasCms = prev.courseCms && Object.keys(prev.courseCms).length > 0;
+      return {
+        ...prev,
+        courseType: val,
+        courseCms: hasCms ? prev.courseCms : isSocial ? DEFAULT_SOCIAL_CMS : DEFAULT_GENERAL_CMS
+      };
+    });
+  };
 
   const handleAddBadge = () => {
     const badge = newBadgeText.trim();
@@ -313,7 +452,18 @@ const CourseAdminPanel: React.FC = () => {
     }));
   };
 
-  const handleRelationToggle = (field: 'availableCourses' | 'relatedCourses' | 'locations' | 'modeType' | 'subjects' | 'qualifications' | 'durations' | 'fundings', courseId: string) => {
+  const handleRelationToggle = (
+    field:
+      | "availableCourses"
+      | "relatedCourses"
+      | "locations"
+      | "modeType"
+      | "subjects"
+      | "qualifications"
+      | "durations"
+      | "fundings",
+    courseId: string
+  ) => {
     setFormData((prev: any) => {
       const currentRelations = [...prev[field]];
       const index = currentRelations.indexOf(courseId);
@@ -380,7 +530,7 @@ const CourseAdminPanel: React.FC = () => {
 
       if (res.success || res.data?.success) {
         toast.success(id ? "Course updated successfully!" : "Course created successfully!");
-        navigate('/courses');
+        navigate("/courses");
       } else {
         toast.error("Failed to save course: " + (res.message || "Unknown error"));
       }
@@ -396,18 +546,18 @@ const CourseAdminPanel: React.FC = () => {
     }
     const path = formData.imageUrl;
     if (path) {
-      if (path.startsWith('http') || path.startsWith('blob:')) {
+      if (path.startsWith("http") || path.startsWith("blob:")) {
         return path;
       }
       const apiUrl = config.apiUrl;
       const hostUrl = apiUrl.replace(/\/api$/, "");
       const cleanPath = path.replace(/^\/+/, "");
-      if (cleanPath.startsWith('uploads/') || cleanPath.startsWith('media/')) {
+      if (cleanPath.startsWith("uploads/") || cleanPath.startsWith("media/")) {
         return `${hostUrl}/${cleanPath}`;
       }
       return `${hostUrl}/media/uploads/${cleanPath}`;
     }
-    return '';
+    return "";
   };
 
   const currentPreviewUrl = getPreviewImageUrl();
@@ -426,22 +576,26 @@ const CourseAdminPanel: React.FC = () => {
   // Empty space or clean placeholder for unused filters
 
   return (
-    <div className="animate-fade-in" style={{ width: '100%' }}>
+    <div className="animate-fade-in" style={{ width: "100%" }}>
       <form onSubmit={handleSave} id="course-form">
-        <div className="page-header" style={{ marginBottom: '1.5rem' }}>
+        <div className="page-header" style={{ marginBottom: "1.5rem" }}>
           <div>
-            <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <GraduationCap size={28} style={{ color: 'var(--primary)' }} />
-              {id ? 'Edit Course' : 'Create Course'}
+            <h1 className="page-title" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <GraduationCap size={28} style={{ color: "var(--primary)" }} />
+              {id ? "Edit Course" : "Create Course"}
             </h1>
-            <p className="page-subtitle">{id ? `Update credentials, structure, and attributes for the course.` : 'Add a new course curriculum path to the catalog.'}</p>
+            <p className="page-subtitle">
+              {id
+                ? `Update credentials, structure, and attributes for the course.`
+                : "Add a new course curriculum path to the catalog."}
+            </p>
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: "flex", gap: "8px" }}>
             <button
               type="button"
-              onClick={() => navigate('/courses')}
+              onClick={() => navigate("/courses")}
               className="btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem' }}
+              style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 1rem" }}
             >
               <ArrowLeft size={16} />
               Back
@@ -449,7 +603,7 @@ const CourseAdminPanel: React.FC = () => {
             <button
               type="submit"
               className="btn-primary"
-              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1.25rem' }}
+              style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 1.25rem" }}
             >
               <Save size={16} />
               Save Course
@@ -457,38 +611,40 @@ const CourseAdminPanel: React.FC = () => {
           </div>
         </div>
 
-        <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-
+        <div
+          className="panel-glass"
+          style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}
+        >
           {/* Navigation Tabs */}
-          <div className="tabs" style={{ width: '100%', alignSelf: 'flex-start' }}>
+          <div className="tabs" style={{ width: "100%", alignSelf: "flex-start" }}>
             <button
               type="button"
-              onClick={() => setActiveTab('general')}
-              className={`tab-btn ${activeTab === 'general' ? 'active' : ''}`}
+              onClick={() => setActiveTab("general")}
+              className={`tab-btn ${activeTab === "general" ? "active" : ""}`}
               style={{ border: 0 }}
             >
               General Info
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('badges')}
-              className={`tab-btn ${activeTab === 'badges' ? 'active' : ''}`}
+              onClick={() => setActiveTab("badges")}
+              className={`tab-btn ${activeTab === "badges" ? "active" : ""}`}
               style={{ border: 0 }}
             >
               Badges & Salary
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('relations')}
-              className={`tab-btn ${activeTab === 'relations' ? 'active' : ''}`}
+              onClick={() => setActiveTab("relations")}
+              className={`tab-btn ${activeTab === "relations" ? "active" : ""}`}
               style={{ border: 0 }}
             >
               Relations
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab('cms')}
-              className={`tab-btn ${activeTab === 'cms' ? 'active' : ''}`}
+              onClick={() => setActiveTab("cms")}
+              className={`tab-btn ${activeTab === "cms" ? "active" : ""}`}
               style={{ border: 0 }}
             >
               CMS Page sections
@@ -496,22 +652,31 @@ const CourseAdminPanel: React.FC = () => {
           </div>
 
           {/* Tab 1: General Info */}
-          {activeTab === 'general' && (
-            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-
+          {activeTab === "general" && (
+            <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.25rem" }}>
               {/* Visibility Status */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '300px', marginTop: '0.5rem' }}>
-                <label className="form-label" style={{ margin: 0 }}>Visibility Status</label>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.5rem",
+                  maxWidth: "300px",
+                  marginTop: "0.5rem"
+                }}
+              >
+                <label className="form-label" style={{ margin: 0 }}>
+                  Visibility Status
+                </label>
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, status: !formData.status })}
                   className={formData.status ? "btn-primary" : "btn-secondary"}
                   style={{
-                    width: '100%',
-                    height: '42px',
-                    background: formData.status ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.05)',
-                    color: formData.status ? '#10b981' : '#f43f5e',
-                    border: formData.status ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(244, 63, 94, 0.15)',
+                    width: "100%",
+                    height: "42px",
+                    background: formData.status ? "rgba(16, 185, 129, 0.15)" : "rgba(244, 63, 94, 0.05)",
+                    color: formData.status ? "#10b981" : "#f43f5e",
+                    border: formData.status ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid rgba(244, 63, 94, 0.15)",
                     fontWeight: 600
                   }}
                 >
@@ -542,39 +707,74 @@ const CourseAdminPanel: React.FC = () => {
                 <label className="form-label">Course Type *</label>
                 <select
                   className="form-input"
-                  value={formData.courseType || 'General'}
-                  onChange={e => setFormData({ ...formData, courseType: e.target.value })}
-                  style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
+                  value={formData.courseType || "General"}
+                  onChange={(e) => handleCourseTypeChange(e.target.value)}
+                  style={{
+                    background: "rgba(255, 255, 255, 0.02)",
+                    color: "var(--text-primary)",
+                    border: "1px solid var(--panel-border)"
+                  }}
                   required
                 >
-                  <option value="General" style={{ background: '#0b0f19' }}>General</option>
-                  <option value="Social" style={{ background: '#0b0f19' }}>Social</option>
+                  <option value="General" style={{ background: "#0b0f19" }}>
+                    General
+                  </option>
+                  <option value="Social" style={{ background: "#0b0f19" }}>
+                    Social
+                  </option>
                 </select>
               </div>
 
               {/* Image Selector */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                 <label className="form-label">Course Cover Image</label>
                 {currentPreviewUrl ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', background: 'rgba(255, 255, 255, 0.02)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--panel-border)' }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "1.5rem",
+                      background: "rgba(255, 255, 255, 0.02)",
+                      padding: "1rem",
+                      borderRadius: "12px",
+                      border: "1px solid var(--panel-border)"
+                    }}
+                  >
                     <img
                       src={currentPreviewUrl}
                       alt="Course Cover"
-                      style={{ width: '120px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid var(--panel-border)' }}
+                      style={{
+                        width: "120px",
+                        height: "80px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        border: "1px solid var(--panel-border)"
+                      }}
                       onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300';
+                        (e.target as HTMLImageElement).src =
+                          "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=300";
                       }}
                     />
-                    <div style={{ flexGrow: 1, overflow: 'hidden' }}>
-                      <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {formData.imageUrl ? formData.imageUrl.split('/').pop() : 'Selected Image'}
+                    <div style={{ flexGrow: 1, overflow: "hidden" }}>
+                      <p
+                        style={{
+                          margin: 0,
+                          fontSize: "0.85rem",
+                          fontWeight: 600,
+                          color: "var(--text-primary)",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap"
+                        }}
+                      >
+                        {formData.imageUrl ? formData.imageUrl.split("/").pop() : "Selected Image"}
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={() => setIsMediaPickerOpen(true)}
                       className="btn-secondary"
-                      style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}
+                      style={{ padding: "0.5rem 1rem", fontSize: "0.85rem" }}
                     >
                       Change Cover
                     </button>
@@ -584,10 +784,23 @@ const CourseAdminPanel: React.FC = () => {
                     type="button"
                     onClick={() => setIsMediaPickerOpen(true)}
                     className="btn-secondary"
-                    style={{ width: '100%', padding: '2.5rem 1.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', border: '1px dashed var(--panel-border)', borderRadius: '12px', background: 'rgba(255,255,255,0.01)' }}
+                    style={{
+                      width: "100%",
+                      padding: "2.5rem 1.5rem",
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "0.75rem",
+                      border: "1px dashed var(--panel-border)",
+                      borderRadius: "12px",
+                      background: "rgba(255,255,255,0.01)"
+                    }}
                   >
-                    <Image size={32} style={{ color: 'var(--text-muted)' }} />
-                    <span style={{ fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Select Cover Image from Media Gallery</span>
+                    <Image size={32} style={{ color: "var(--text-muted)" }} />
+                    <span style={{ fontSize: "0.9rem", color: "var(--text-secondary)" }}>
+                      Select Cover Image from Media Gallery
+                    </span>
                   </button>
                 )}
               </div>
@@ -596,7 +809,7 @@ const CourseAdminPanel: React.FC = () => {
                 label="Short Description"
                 placeholder="Provide a concise 1-2 sentence overview of the course..."
                 value={formData.shortDescription}
-                onChange={e => setFormData({ ...formData, shortDescription: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, shortDescription: e.target.value })}
                 minHeight="80px"
               />
 
@@ -604,29 +817,27 @@ const CourseAdminPanel: React.FC = () => {
                 label="Long Description"
                 placeholder="Provide the full summary of structure, requirements, modules..."
                 value={formData.longDescription}
-                onChange={e => setFormData({ ...formData, longDescription: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, longDescription: e.target.value })}
                 minHeight="180px"
               />
-
             </div>
           )}
 
           {/* Tab 2: Badges & Salary */}
-          {activeTab === 'badges' && (
-            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-
+          {activeTab === "badges" && (
+            <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               {/* Badges Input */}
               <div className="form-group">
                 <label className="form-label">Key Badges / Tags</label>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
                   <input
                     type="text"
                     className="form-input"
                     placeholder="e.g. Free Financing, Online Learning"
                     value={newBadgeText}
-                    onChange={e => setNewBadgeText(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
+                    onChange={(e) => setNewBadgeText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
                         e.preventDefault();
                         handleAddBadge();
                       }
@@ -637,7 +848,7 @@ const CourseAdminPanel: React.FC = () => {
                     type="button"
                     onClick={handleAddBadge}
                     className="btn-secondary"
-                    style={{ display: 'flex', alignItems: 'center', justifySelf: 'center', padding: '0 1rem' }}
+                    style={{ display: "flex", alignItems: "center", justifySelf: "center", padding: "0 1rem" }}
                   >
                     <Plus size={16} />
                     Add
@@ -645,32 +856,54 @@ const CourseAdminPanel: React.FC = () => {
                 </div>
 
                 {/* Badges Display */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '10px', border: '1px solid var(--panel-border)', minHeight: '52px', alignItems: 'center' }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                    background: "rgba(0,0,0,0.15)",
+                    padding: "10px",
+                    borderRadius: "10px",
+                    border: "1px solid var(--panel-border)",
+                    minHeight: "52px",
+                    alignItems: "center"
+                  }}
+                >
                   {formData.badges.length === 0 ? (
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', paddingLeft: '4px' }}>No badges added. Type badge and click Add.</span>
+                    <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", paddingLeft: "4px" }}>
+                      No badges added. Type badge and click Add.
+                    </span>
                   ) : (
                     formData.badges.map((badge: string, i: number) => (
                       <span
                         key={i}
                         style={{
-                          background: 'rgba(99, 102, 241, 0.15)',
-                          border: '1px solid rgba(99, 102, 241, 0.3)',
-                          color: 'var(--text-primary)',
-                          padding: '4px 10px',
-                          borderRadius: '99px',
-                          fontSize: '0.8rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px'
+                          background: "rgba(99, 102, 241, 0.15)",
+                          border: "1px solid rgba(99, 102, 241, 0.3)",
+                          color: "var(--text-primary)",
+                          padding: "4px 10px",
+                          borderRadius: "99px",
+                          fontSize: "0.8rem",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px"
                         }}
                       >
                         {badge}
                         <button
                           type="button"
                           onClick={() => handleRemoveBadge(badge)}
-                          style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "var(--text-secondary)",
+                            cursor: "pointer",
+                            padding: 0,
+                            display: "flex",
+                            alignItems: "center"
+                          }}
                         >
-                          <X size={12} className="hover:text-error" style={{ color: 'var(--text-muted)' }} />
+                          <X size={12} className="hover:text-error" style={{ color: "var(--text-muted)" }} />
                         </button>
                       </span>
                     ))
@@ -678,20 +911,18 @@ const CourseAdminPanel: React.FC = () => {
                 </div>
               </div>
 
-
-
               {/* Entry Requirements Input */}
               <div className="form-group">
                 <label className="form-label">Entry Requirements</label>
-                <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                <div style={{ display: "flex", gap: "8px", marginBottom: "10px" }}>
                   <input
                     type="text"
                     className="form-input"
                     placeholder="e.g. 80 UCAS Points, IELTS 5.5"
                     value={newEntryRequirementText}
-                    onChange={e => setNewEntryRequirementText(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter') {
+                    onChange={(e) => setNewEntryRequirementText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
                         e.preventDefault();
                         handleAddEntryRequirement();
                       }
@@ -702,7 +933,7 @@ const CourseAdminPanel: React.FC = () => {
                     type="button"
                     onClick={handleAddEntryRequirement}
                     className="btn-secondary"
-                    style={{ display: 'flex', alignItems: 'center', justifySelf: 'center', padding: '0 1rem' }}
+                    style={{ display: "flex", alignItems: "center", justifySelf: "center", padding: "0 1rem" }}
                   >
                     <Plus size={16} />
                     Add
@@ -710,32 +941,54 @@ const CourseAdminPanel: React.FC = () => {
                 </div>
 
                 {/* Entry Requirements Display */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', background: 'rgba(0,0,0,0.15)', padding: '10px', borderRadius: '10px', border: '1px solid var(--panel-border)', minHeight: '52px', alignItems: 'center' }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    gap: "8px",
+                    background: "rgba(0,0,0,0.15)",
+                    padding: "10px",
+                    borderRadius: "10px",
+                    border: "1px solid var(--panel-border)",
+                    minHeight: "52px",
+                    alignItems: "center"
+                  }}
+                >
                   {(formData.entryRequirement || []).length === 0 ? (
-                    <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)', paddingLeft: '4px' }}>No entry requirements added. Type requirement and click Add.</span>
+                    <span style={{ fontSize: "0.8rem", color: "var(--text-muted)", paddingLeft: "4px" }}>
+                      No entry requirements added. Type requirement and click Add.
+                    </span>
                   ) : (
                     formData.entryRequirement.map((req: string, i: number) => (
                       <span
                         key={i}
                         style={{
-                          background: 'rgba(99, 102, 241, 0.15)',
-                          border: '1px solid rgba(99, 102, 241, 0.3)',
-                          color: 'var(--text-primary)',
-                          padding: '4px 10px',
-                          borderRadius: '99px',
-                          fontSize: '0.8rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '6px'
+                          background: "rgba(99, 102, 241, 0.15)",
+                          border: "1px solid rgba(99, 102, 241, 0.3)",
+                          color: "var(--text-primary)",
+                          padding: "4px 10px",
+                          borderRadius: "99px",
+                          fontSize: "0.8rem",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px"
                         }}
                       >
                         {req}
                         <button
                           type="button"
                           onClick={() => handleRemoveEntryRequirement(req)}
-                          style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center' }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "var(--text-secondary)",
+                            cursor: "pointer",
+                            padding: 0,
+                            display: "flex",
+                            alignItems: "center"
+                          }}
                         >
-                          <X size={12} style={{ color: 'var(--text-muted)' }} />
+                          <X size={12} style={{ color: "var(--text-muted)" }} />
                         </button>
                       </span>
                     ))
@@ -744,8 +997,24 @@ const CourseAdminPanel: React.FC = () => {
               </div>
 
               {/* Salary Range */}
-              <div style={{ background: 'rgba(0,0,0,0.1)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <h4 style={{ fontSize: '0.9rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)', marginBottom: '1rem', letterSpacing: '0.5px' }}>
+              <div
+                style={{
+                  background: "rgba(0,0,0,0.1)",
+                  border: "1px solid var(--panel-border)",
+                  padding: "1.25rem",
+                  borderRadius: "16px"
+                }}
+              >
+                <h4
+                  style={{
+                    fontSize: "0.9rem",
+                    fontWeight: 700,
+                    textTransform: "uppercase",
+                    color: "var(--text-secondary)",
+                    marginBottom: "1rem",
+                    letterSpacing: "0.5px"
+                  }}
+                >
                   Expected Graduate Salary Outcomes
                 </h4>
                 <div className="responsive-form-grid">
@@ -756,10 +1025,12 @@ const CourseAdminPanel: React.FC = () => {
                       className="form-input"
                       placeholder="e.g. 25000"
                       value={formData.salaryRange?.from || 0}
-                      onChange={e => setFormData({
-                        ...formData,
-                        salaryRange: { ...formData.salaryRange, from: Number(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          salaryRange: { ...formData.salaryRange, from: Number(e.target.value) }
+                        })
+                      }
                     />
                   </div>
                   <div className="form-group">
@@ -769,10 +1040,12 @@ const CourseAdminPanel: React.FC = () => {
                       className="form-input"
                       placeholder="e.g. 60000"
                       value={formData.salaryRange?.to || 0}
-                      onChange={e => setFormData({
-                        ...formData,
-                        salaryRange: { ...formData.salaryRange, to: Number(e.target.value) }
-                      })}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          salaryRange: { ...formData.salaryRange, to: Number(e.target.value) }
+                        })
+                      }
                     />
                   </div>
                 </div>
@@ -782,31 +1055,30 @@ const CourseAdminPanel: React.FC = () => {
                 label="Career Outcome Badge Text"
                 placeholder="e.g. High Demand Career path"
                 value={formData.careerOutcomeBadge}
-                onChange={e => setFormData({ ...formData, careerOutcomeBadge: e.target.value })}
+                onChange={(e) => setFormData({ ...formData, careerOutcomeBadge: e.target.value })}
               />
-
             </div>
           )}
 
           {/* Tab 3: Relationships */}
-          {activeTab === 'relations' && (
-            <div className="animate-fade-in responsive-form-grid" style={{ gap: '2rem' }}>
+          {activeTab === "relations" && (
+            <div className="animate-fade-in responsive-form-grid" style={{ gap: "2rem" }}>
               <MultiSelectDropdown
                 label="Available Courses Links"
                 description="Select courses available under this study program pathway."
                 placeholder="Choose available courses..."
-                options={allCoursesList.filter(c => c._id !== id)}
+                options={allCoursesList.filter((c) => c._id !== id)}
                 selectedIds={formData.availableCourses}
-                onChange={(courseId) => handleRelationToggle('availableCourses', courseId)}
+                onChange={(courseId) => handleRelationToggle("availableCourses", courseId)}
               />
 
               <MultiSelectDropdown
                 label="Related Courses Options"
                 description="Select courses to display as recommendations for this pathway."
                 placeholder="Choose related courses..."
-                options={allCoursesList.filter(c => c._id !== id)}
+                options={allCoursesList.filter((c) => c._id !== id)}
                 selectedIds={formData.relatedCourses}
-                onChange={(courseId) => handleRelationToggle('relatedCourses', courseId)}
+                onChange={(courseId) => handleRelationToggle("relatedCourses", courseId)}
               />
 
               <MultiSelectDropdown
@@ -815,7 +1087,7 @@ const CourseAdminPanel: React.FC = () => {
                 placeholder="Choose locations..."
                 options={allLocationsList}
                 selectedIds={formData.locations}
-                onChange={(locationId) => handleRelationToggle('locations', locationId)}
+                onChange={(locationId) => handleRelationToggle("locations", locationId)}
               />
 
               <MultiSelectDropdown
@@ -824,7 +1096,7 @@ const CourseAdminPanel: React.FC = () => {
                 placeholder="Choose subjects..."
                 options={allSubjectsList}
                 selectedIds={formData.subjects || []}
-                onChange={(subjectId) => handleRelationToggle('subjects', subjectId)}
+                onChange={(subjectId) => handleRelationToggle("subjects", subjectId)}
               />
 
               <MultiSelectDropdown
@@ -833,7 +1105,7 @@ const CourseAdminPanel: React.FC = () => {
                 placeholder="Choose qualifications..."
                 options={allQualificationsList}
                 selectedIds={formData.qualifications || []}
-                onChange={(qualificationId) => handleRelationToggle('qualifications', qualificationId)}
+                onChange={(qualificationId) => handleRelationToggle("qualifications", qualificationId)}
               />
 
               <MultiSelectDropdown
@@ -842,7 +1114,7 @@ const CourseAdminPanel: React.FC = () => {
                 placeholder="Choose study modes..."
                 options={allModesList}
                 selectedIds={formData.modeType || []}
-                onChange={(modeId) => handleRelationToggle('modeType', modeId)}
+                onChange={(modeId) => handleRelationToggle("modeType", modeId)}
               />
 
               <MultiSelectDropdown
@@ -851,7 +1123,7 @@ const CourseAdminPanel: React.FC = () => {
                 placeholder="Choose durations..."
                 options={allDurationsList}
                 selectedIds={formData.durations || []}
-                onChange={(durationId) => handleRelationToggle('durations', durationId)}
+                onChange={(durationId) => handleRelationToggle("durations", durationId)}
               />
 
               <MultiSelectDropdown
@@ -860,774 +1132,160 @@ const CourseAdminPanel: React.FC = () => {
                 placeholder="Choose fundings..."
                 options={allFundingsList}
                 selectedIds={formData.fundings || []}
-                onChange={(fundingId) => handleRelationToggle('fundings', fundingId)}
+                onChange={(fundingId) => handleRelationToggle("fundings", fundingId)}
               />
             </div>
           )}
 
           {/* Tab 4: CMS Page sections */}
-          {activeTab === 'cms' && (
-            <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, borderBottom: '1px solid var(--panel-border)', paddingBottom: '0.5rem', margin: 0 }}>
+          {activeTab === "cms" && (
+            <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <h3
+                style={{
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  borderBottom: "1px solid var(--panel-border)",
+                  paddingBottom: "0.5rem",
+                  margin: 0
+                }}
+              >
                 Course Page CMS Configuration
               </h3>
 
-              {/* kicker and bannerStyle */}
-              <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                <div className="form-group">
-                  <label className="form-label">Hero Badge / Kicker</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g. High Demand, Popular Course"
-                    value={formData.courseCms?.kicker || ''}
-                    onChange={(e) => handleCmsTextChange('', 'kicker', e.target.value)}
-                    style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Hero Banner Overlay Style</label>
-                  <select
-                    className="form-input"
-                    value={formData.courseCms?.bannerStyle || 'blue'}
-                    onChange={(e) => handleCmsTextChange('', 'bannerStyle', e.target.value)}
-                    style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
+              {/* Shared sub-tabs navigation */}
+              <div
+                className="tabs w-full self-start mb-4"
+                style={{
+                  display: "flex",
+                  gap: "8px",
+                  borderBottom: "1px solid var(--panel-border)",
+                  paddingBottom: "8px"
+                }}
+              >
+                {(formData.courseType === "Social"
+                  ? ["overview", "salary", "funding", "study", "reviews", "entry", "faq"]
+                  : ["overview", "salary", "funding", "study", "reviews", "entry"]
+                ).map((tab) => (
+                  <button
+                    key={tab}
+                    type="button"
+                    onClick={() => setSocialCmsTab(tab as any)}
+                    className={`tab-btn ${socialCmsTab === tab ? "active" : ""}`}
+                    style={{
+                      background: socialCmsTab === tab ? "rgba(99, 102, 241, 0.15)" : "transparent",
+                      border: 0,
+                      padding: "6px 12px",
+                      borderRadius: "8px",
+                      fontSize: "0.85rem",
+                      textTransform: "capitalize",
+                      cursor: "pointer",
+                      color: socialCmsTab === tab ? "var(--primary)" : "var(--text-secondary)"
+                    }}
                   >
-                    <option value="blue" style={{ background: '#0b0f19' }}>Blue Glass Overlay (Default)</option>
-                    <option value="black" style={{ background: '#0b0f19' }}>Black Glass Overlay</option>
-                    <option value="white" style={{ background: '#0b0f19' }}>White Layout (No glass/image overlay)</option>
-                  </select>
-                </div>
+                    {tab}
+                  </button>
+                ))}
               </div>
 
-              {/* Section 2: Introduction */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', marginBottom: '1rem' }}>
-                  Section 2: Hero Introduction Block
-                </h4>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Section Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="e.g. Introduction"
-                      value={formData.courseCms?.section_2?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_2', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Section Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="e.g. Flexible route..."
-                      value={formData.courseCms?.section_2?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_2', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Section Description</label>
-                  <textarea
-                    className="form-textarea"
-                    placeholder="Provide introduction description..."
-                    value={formData.courseCms?.section_2?.description || ''}
-                    onChange={(e) => handleCmsTextChange('section_2', 'description', e.target.value)}
-                    style={{ minHeight: '80px', width: '100%', background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)', borderRadius: '8px', padding: '0.6rem' }}
-                  />
-                </div>
-              </div>
+              {/* Tab Content: Overview */}
+              {socialCmsTab === "overview" && (
+                <CmsOverviewSection
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleCmsTextChange={handleCmsTextChange}
+                  handleAddCmsArrayItem={handleAddCmsArrayItem}
+                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                  handleCmsArrayItemChange={handleCmsArrayItemChange}
+                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                />
+              )}
 
-              {/* Section 3: Overview */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>
-                    Section 3: Course Overview Block
-                  </h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.courseCms?.section_3?.status !== false}
-                      onChange={(e) => handleCmsTextChange('section_3', 'status', e.target.checked)}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Enabled</span>
-                  </label>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_3?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_3', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_3?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_3', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Description</label>
-                  <textarea
-                    className="form-textarea"
-                    value={formData.courseCms?.section_3?.description || ''}
-                    onChange={(e) => handleCmsTextChange('section_3', 'description', e.target.value)}
-                    style={{ minHeight: '80px', width: '100%', background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)', borderRadius: '8px', padding: '0.6rem' }}
-                  />
-                </div>
+              {/* Tab Content: Salary */}
+              {socialCmsTab === "salary" && (
+                <CmsSalarySection
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleCmsTextChange={handleCmsTextChange}
+                  handleAddCmsArrayItem={handleAddCmsArrayItem}
+                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                  handleCmsArrayItemChange={handleCmsArrayItemChange}
+                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                />
+              )}
 
-                {/* Cards repeatable */}
-                <div style={{ borderTop: '1px solid var(--panel-border)', paddingTop: '1rem', marginBottom: '1.5rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>Overview Cards</h5>
-                    <button
-                      type="button"
-                      onClick={() => handleAddCmsArrayItem('section_3', 'cards', { icon: '🎯', title: '', description: '' })}
-                      className="btn-secondary"
-                      style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    >
-                      <Plus size={12} /> Add Card
-                    </button>
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    {(formData.courseCms?.section_3?.cards || []).map((card: any, idx: number) => (
-                      <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--panel-border)', padding: '1rem', borderRadius: '12px', position: 'relative' }}>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveCmsArrayItem('section_3', 'cards', idx)}
-                          style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer' }}
-                        >
-                          <X size={14} />
-                        </button>
-                        <div style={{ display: 'grid', gridTemplateColumns: '80px 1fr', gap: '1rem' }}>
-                          <div className="form-group">
-                            <label className="form-label" style={{ fontSize: '0.75rem' }}>Icon</label>
-                            <input
-                              type="text"
-                              className="form-input"
-                              value={card.icon || ''}
-                              onChange={(e) => handleCmsArrayItemChange('section_3', 'cards', idx, 'icon', e.target.value)}
-                            />
-                          </div>
-                          <div className="form-group">
-                            <label className="form-label" style={{ fontSize: '0.75rem' }}>Title</label>
-                            <input
-                              type="text"
-                              className="form-input"
-                              value={card.title || ''}
-                              onChange={(e) => handleCmsArrayItemChange('section_3', 'cards', idx, 'title', e.target.value)}
-                            />
-                          </div>
-                        </div>
-                        <div className="form-group" style={{ marginTop: '0.5rem', marginBottom: 0 }}>
-                          <label className="form-label" style={{ fontSize: '0.75rem' }}>Description</label>
-                          <textarea
-                            className="form-textarea"
-                            value={card.description || ''}
-                            onChange={(e) => handleCmsArrayItemChange('section_3', 'cards', idx, 'description', e.target.value)}
-                            style={{ minHeight: '60px' }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              {/* Tab Content: Funding */}
+              {socialCmsTab === "funding" && (
+                <CmsFundingSection
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleCmsTextChange={handleCmsTextChange}
+                  handleAddCmsArrayItem={handleAddCmsArrayItem}
+                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                  handleCmsArrayItemChange={handleCmsArrayItemChange}
+                  handleAddStudyPoint={handleAddStudyPoint}
+                  handleRemoveStudyPoint={handleRemoveStudyPoint}
+                  handleStudyPointChange={handleStudyPointChange}
+                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                />
+              )}
 
-                {/* Tiles repeatable */}
-                <div style={{ borderTop: '1px solid var(--panel-border)', paddingTop: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>Metric Tiles (Match score, flexibility, etc.)</h5>
-                    <button
-                      type="button"
-                      onClick={() => handleAddCmsArrayItem('section_3', 'tiles', { value: '', label: '' })}
-                      className="btn-secondary"
-                      style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    >
-                      <Plus size={12} /> Add Tile
-                    </button>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    {(formData.courseCms?.section_3?.tiles || []).map((tile: any, idx: number) => (
-                      <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--panel-border)', padding: '1rem', borderRadius: '12px', position: 'relative' }}>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveCmsArrayItem('section_3', 'tiles', idx)}
-                          style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer' }}
-                        >
-                          <X size={14} />
-                        </button>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '10px' }}>
-                          <div className="form-group">
-                            <label className="form-label" style={{ fontSize: '0.75rem' }}>Value</label>
-                            <input
-                              type="text"
-                              className="form-input"
-                              placeholder="e.g. 98%"
-                              value={tile.value || ''}
-                              onChange={(e) => handleCmsArrayItemChange('section_3', 'tiles', idx, 'value', e.target.value)}
-                            />
-                          </div>
-                          <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label className="form-label" style={{ fontSize: '0.75rem' }}>Label</label>
-                            <input
-                              type="text"
-                              className="form-input"
-                              placeholder="e.g. Match score"
-                              value={tile.label || ''}
-                              onChange={(e) => handleCmsArrayItemChange('section_3', 'tiles', idx, 'label', e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              {/* Tab Content: Study */}
+              {socialCmsTab === "study" && (
+                <CmsStudySection
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleCmsTextChange={handleCmsTextChange}
+                  handleAddCmsArrayItem={handleAddCmsArrayItem}
+                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                  handleCmsArrayItemChange={handleCmsArrayItemChange}
+                  handleAddStudyPoint={handleAddStudyPoint}
+                  handleRemoveStudyPoint={handleRemoveStudyPoint}
+                  handleStudyPointChange={handleStudyPointChange}
+                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                />
+              )}
 
-              {/* Section 4: Careers outcomes */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>
-                    Section 4: Career Outcomes Block
-                  </h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.courseCms?.section_4?.status !== false}
-                      onChange={(e) => handleCmsTextChange('section_4', 'status', e.target.checked)}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Enabled</span>
-                  </label>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_4?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_4', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_4?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_4', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Description</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={formData.courseCms?.section_4?.description || ''}
-                    onChange={(e) => handleCmsTextChange('section_4', 'description', e.target.value)}
-                    style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                  />
-                </div>
-              </div>
+              {/* Tab Content: Reviews */}
+              {socialCmsTab === "reviews" && (
+                <CmsReviewsSection
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleCmsTextChange={handleCmsTextChange}
+                  handleAddCmsArrayItem={handleAddCmsArrayItem}
+                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                  handleCmsArrayItemChange={handleCmsArrayItemChange}
+                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                />
+              )}
 
-              {/* Section 5: Student Finance */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>
-                    Section 5: Student Finance Block
-                  </h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.courseCms?.section_5?.status !== false}
-                      onChange={(e) => handleCmsTextChange('section_5', 'status', e.target.checked)}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Enabled</span>
-                  </label>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_5?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_5', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_5?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_5', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Total Support Amount (Large display)</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      placeholder="e.g. £23,925"
-                      value={formData.courseCms?.section_5?.totalSupport || ''}
-                      onChange={(e) => handleCmsTextChange('section_5', 'totalSupport', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Description</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_5?.description || ''}
-                      onChange={(e) => handleCmsTextChange('section_5', 'description', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
+              {/* Tab Content: Entry */}
+              {socialCmsTab === "entry" && (
+                <CmsEntrySection
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleCmsTextChange={handleCmsTextChange}
+                  handleAddCmsArrayItem={handleAddCmsArrayItem}
+                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                  handleCmsArrayItemChange={handleCmsArrayItemChange}
+                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  allCoursesList={allCoursesList}
+                />
+              )}
 
-                {/* Tiles repeatable */}
-                <div style={{ borderTop: '1px solid var(--panel-border)', paddingTop: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h5 style={{ fontSize: '0.85rem', fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>Finance Components</h5>
-                    <button
-                      type="button"
-                      onClick={() => handleAddCmsArrayItem('section_5', 'tiles', { value: '', label: '' })}
-                      className="btn-secondary"
-                      style={{ padding: '0.25rem 0.75rem', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px' }}
-                    >
-                      <Plus size={12} /> Add Tile
-                    </button>
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    {(formData.courseCms?.section_5?.tiles || []).map((tile: any, idx: number) => (
-                      <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid var(--panel-border)', padding: '1rem', borderRadius: '12px', position: 'relative' }}>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveCmsArrayItem('section_5', 'tiles', idx)}
-                          style={{ position: 'absolute', top: '10px', right: '10px', background: 'none', border: 'none', color: 'var(--error)', cursor: 'pointer' }}
-                        >
-                          <X size={14} />
-                        </button>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '10px' }}>
-                          <div className="form-group">
-                            <label className="form-label" style={{ fontSize: '0.75rem' }}>Value</label>
-                            <input
-                              type="text"
-                              className="form-input"
-                              value={tile.value || ''}
-                              onChange={(e) => handleCmsArrayItemChange('section_5', 'tiles', idx, 'value', e.target.value)}
-                            />
-                          </div>
-                          <div className="form-group" style={{ marginBottom: 0 }}>
-                            <label className="form-label" style={{ fontSize: '0.75rem' }}>Label</label>
-                            <input
-                              type="text"
-                              className="form-input"
-                              value={tile.label || ''}
-                              onChange={(e) => handleCmsArrayItemChange('section_5', 'tiles', idx, 'label', e.target.value)}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 6: Why Choose Course */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>
-                    Section 6: Why Choose Course Block
-                  </h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.courseCms?.section_6?.status !== false}
-                      onChange={(e) => handleCmsTextChange('section_6', 'status', e.target.checked)}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Enabled</span>
-                  </label>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_6?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_6', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_6?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_6', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Description</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={formData.courseCms?.section_6?.description || ''}
-                    onChange={(e) => handleCmsTextChange('section_6', 'description', e.target.value)}
-                    style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                  />
-                </div>
-              </div>
-
-              {/* Section 7: Study structure */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>
-                    Section 7: Study Structure Block
-                  </h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.courseCms?.section_7?.status !== false}
-                      onChange={(e) => handleCmsTextChange('section_7', 'status', e.target.checked)}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Enabled</span>
-                  </label>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_7?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_7', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_7?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_7', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Description</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={formData.courseCms?.section_7?.description || ''}
-                    onChange={(e) => handleCmsTextChange('section_7', 'description', e.target.value)}
-                    style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                  />
-                </div>
-
-              </div>
-
-              {/* Section 8: Study modes */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>
-                    Section 8: Study Modes Block
-                  </h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.courseCms?.section_8?.status !== false}
-                      onChange={(e) => handleCmsTextChange('section_8', 'status', e.target.checked)}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Enabled</span>
-                  </label>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_8?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_8', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_8?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_8', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Description</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={formData.courseCms?.section_8?.description || ''}
-                    onChange={(e) => handleCmsTextChange('section_8', 'description', e.target.value)}
-                    style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                  />
-                </div>
-              </div>
-
-              {/* Section 9: Student stories */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>
-                    Section 9: Student Stories Block
-                  </h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.courseCms?.section_9?.status !== false}
-                      onChange={(e) => handleCmsTextChange('section_9', 'status', e.target.checked)}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Enabled</span>
-                  </label>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_9?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_9', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_9?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_9', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Description</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={formData.courseCms?.section_9?.description || ''}
-                    onChange={(e) => handleCmsTextChange('section_9', 'description', e.target.value)}
-                    style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                  />
-                </div>
-              </div>
-
-              {/* Section 10: Entry requirements */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>
-                    Section 10: Entry Requirements Block
-                  </h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.courseCms?.section_10?.status !== false}
-                      onChange={(e) => handleCmsTextChange('section_10', 'status', e.target.checked)}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Enabled</span>
-                  </label>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_10?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_10', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_10?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_10', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Description</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_10?.description || ''}
-                      onChange={(e) => handleCmsTextChange('section_10', 'description', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Featured Comparison Course Link</label>
-                    <select
-                      className="form-input"
-                      value={formData.courseCms?.section_10?.featured_course || ''}
-                      onChange={(e) => handleCmsTextChange('section_10', 'featured_course', e.target.value || null)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    >
-                      <option value="">None / Select course...</option>
-                      {allCoursesList.map(c => (
-                        <option key={c._id} value={c._id}>{c.title}</option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Section 11: Upcoming intakes */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>
-                    Section 11: Upcoming Intakes Block
-                  </h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.courseCms?.section_11?.status !== false}
-                      onChange={(e) => handleCmsTextChange('section_11', 'status', e.target.checked)}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Enabled</span>
-                  </label>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_11?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_11', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_11?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_11', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-                <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-                  <label className="form-label">Description</label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={formData.courseCms?.section_11?.description || ''}
-                    onChange={(e) => handleCmsTextChange('section_11', 'description', e.target.value)}
-                    style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                  />
-                </div>
-              </div>
-
-              {/* Section 12: Application toolkit */}
-              <div style={{ background: 'rgba(255, 255, 255, 0.01)', border: '1px solid var(--panel-border)', padding: '1.25rem', borderRadius: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>
-                    Section 12: Application Toolkit Block
-                  </h4>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.courseCms?.section_12?.status !== false}
-                      onChange={(e) => handleCmsTextChange('section_12', 'status', e.target.checked)}
-                      style={{ accentColor: 'var(--primary)' }}
-                    />
-                    <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Enabled</span>
-                  </label>
-                </div>
-                <div className="responsive-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-                  <div className="form-group">
-                    <label className="form-label">Badge</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_12?.badge || ''}
-                      onChange={(e) => handleCmsTextChange('section_12', 'badge', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Title</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_12?.title || ''}
-                      onChange={(e) => handleCmsTextChange('section_12', 'title', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Description</label>
-                    <input
-                      type="text"
-                      className="form-input"
-                      value={formData.courseCms?.section_12?.description || ''}
-                      onChange={(e) => handleCmsTextChange('section_12', 'description', e.target.value)}
-                      style={{ background: 'rgba(255, 255, 255, 0.02)', color: 'var(--text-primary)', border: '1px solid var(--panel-border)' }}
-                    />
-                  </div>
-                </div>
-              </div>
+              {/* Tab Content: FAQ */}
+              {socialCmsTab === "faq" && (
+                <CmsFaqSection
+                  formData={formData}
+                  setFormData={setFormData}
+                  handleCmsTextChange={handleCmsTextChange}
+                  handleAddCmsArrayItem={handleAddCmsArrayItem}
+                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                  handleCmsArrayItemChange={handleCmsArrayItemChange}
+                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                />
+              )}
             </div>
           )}
-
         </div>
       </form>
 
@@ -1648,7 +1306,7 @@ const CourseAdminPanel: React.FC = () => {
                 ...prev,
                 image: mediaId,
                 imageUrl: filePath,
-                fullImageUrl: '' // Clear fullUrl so custom path resolves
+                fullImageUrl: "" // Clear fullUrl so custom path resolves
               }));
               setIsMediaPickerOpen(false);
             }

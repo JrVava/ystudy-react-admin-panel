@@ -26,7 +26,7 @@ export const loadQueueFromStorage = (): UploadItem[] => {
   if (!stored) return [];
   try {
     return JSON.parse(stored);
-  } catch (e) {
+  } catch {
     return [];
   }
 };

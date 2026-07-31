@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, ChevronDown } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { Search, ChevronDown } from "lucide-react";
 
 interface SearchableSelectProps {
   label: string;
@@ -32,23 +32,29 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
     return () => document.removeEventListener("mousedown", handleOutsideClick);
   }, []);
 
-  const filteredOptions = options.filter(opt =>
-    (opt.label || "").toLowerCase().includes(search.toLowerCase()) ||
-    (opt.value || "").toLowerCase().includes(search.toLowerCase())
+  const filteredOptions = options.filter(
+    (opt) =>
+      (opt.label || "").toLowerCase().includes(search.toLowerCase()) ||
+      (opt.value || "").toLowerCase().includes(search.toLowerCase())
   );
 
-  const selectedOption = options.find(opt => opt.value === value);
+  const selectedOption = options.find((opt) => opt.value === value);
+  const hasAsterisk = label.trim().endsWith("*");
+  const cleanLabel = hasAsterisk ? label.trim().slice(0, -1).trim() : label;
 
   return (
     <div className="form-group" style={{ position: "relative" }} ref={dropdownRef}>
-      <label className="form-label">{label}</label>
-      
+      <label className="form-label">
+        {cleanLabel}
+        {(required || hasAsterisk) && <span className="text-red-500 font-bold ml-1">*</span>}
+      </label>
+
       {/* Hidden input to hold value for native HTML form validation */}
-      <input 
-        type="text" 
-        value={value || ""} 
-        onChange={() => {}} 
-        required={required} 
+      <input
+        type="text"
+        value={value || ""}
+        onChange={() => {}}
+        required={required}
         style={{
           position: "absolute",
           width: "100%",
@@ -76,11 +82,22 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           color: value ? "var(--text-primary)" : "var(--text-muted)",
           transition: "all 0.2s"
         }}
-        onMouseEnter={(e) => { if (!isOpen) e.currentTarget.style.borderColor = "var(--primary)"; }}
-        onMouseLeave={(e) => { if (!isOpen) e.currentTarget.style.borderColor = "var(--panel-border)"; }}
+        onMouseEnter={(e) => {
+          if (!isOpen) e.currentTarget.style.borderColor = "var(--primary)";
+        }}
+        onMouseLeave={(e) => {
+          if (!isOpen) e.currentTarget.style.borderColor = "var(--panel-border)";
+        }}
       >
         <span>{selectedOption ? selectedOption.label : placeholder}</span>
-        <ChevronDown size={16} style={{ transform: isOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', color: 'var(--text-muted)' }} />
+        <ChevronDown
+          size={16}
+          style={{
+            transform: isOpen ? "rotate(180deg)" : "none",
+            transition: "transform 0.2s",
+            color: "var(--text-muted)"
+          }}
+        />
       </div>
 
       {isOpen && (
@@ -101,7 +118,16 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           }}
         >
           <div style={{ position: "relative", marginBottom: "6px" }}>
-            <Search size={14} style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+            <Search
+              size={14}
+              style={{
+                position: "absolute",
+                left: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-muted)"
+              }}
+            />
             <input
               type="text"
               placeholder="Search..."
@@ -119,7 +145,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
               autoFocus
             />
           </div>
-          
+
           <div style={{ maxHeight: "180px", overflowY: "auto" }}>
             {filteredOptions.length === 0 ? (
               <div style={{ padding: "10px", color: "var(--text-muted)", fontSize: "0.8rem", textAlign: "center" }}>
@@ -146,8 +172,14 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                       border: isSelected ? "1px solid rgba(99, 102, 241, 0.3)" : "1px solid transparent",
                       transition: "all 0.1s"
                     }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = isSelected ? "rgba(99, 102, 241, 0.2)" : "rgba(255, 255, 255, 0.03)"; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = isSelected ? "rgba(99, 102, 241, 0.15)" : "transparent"; }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = isSelected
+                        ? "rgba(99, 102, 241, 0.2)"
+                        : "rgba(255, 255, 255, 0.03)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = isSelected ? "rgba(99, 102, 241, 0.15)" : "transparent";
+                    }}
                   >
                     {opt.label}
                   </div>

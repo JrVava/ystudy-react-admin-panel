@@ -14,8 +14,17 @@ export const UploadList = ({ queue, onPause, onResume, onCancel, onAttachFile }:
 
   return (
     <div className="upload-list animate-fade-in" style={{ marginBottom: "2rem" }}>
-      <h3 style={{ fontSize: "1.1rem", fontWeight: 700, marginBottom: "1rem", color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-        Active Upload Queue ({queue.filter(q => q.status !== "completed").length} remaining)
+      <h3
+        style={{
+          fontSize: "1.1rem",
+          fontWeight: 700,
+          marginBottom: "1rem",
+          color: "var(--text-secondary)",
+          textTransform: "uppercase",
+          letterSpacing: "0.5px"
+        }}
+      >
+        Active Upload Queue ({queue.filter((q) => q.status !== "completed").length} remaining)
       </h3>
       <div className="list-container" style={{ display: "grid", gridTemplateColumns: "1fr", gap: "0.75rem" }}>
         {queue.map((item) => (

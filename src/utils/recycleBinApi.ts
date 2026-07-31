@@ -7,7 +7,7 @@ export const recycleBinApi = {
     const decrypted = decrypt(data.data);
     return decrypted;
   },
-  list: async (collectionName: string, page: number = 1, limit: number = 10, sort: string = 'desc') => {
+  list: async (collectionName: string, page: number = 1, limit: number = 10, sort: string = "desc") => {
     const { data } = await api.get("/recycle-bin/list", {
       params: { collection: collectionName, page, limit, sort }
     });
@@ -29,4 +29,3 @@ export const recycleBinApi = {
     return decrypted;
   }
 };
-

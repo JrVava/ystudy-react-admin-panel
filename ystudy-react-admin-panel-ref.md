@@ -34,7 +34,7 @@ Communication with the backend endpoints (hosted under `http://localhost:4000/ap
 - **Encryption Workflow**:
   - Request: Payload body is wrapped as `{ data: encrypt(payload) }`.
   - Response: Handled as `decrypt(response.data)`.
-  - *Exception*: Certain simple listings or Next.js public consumption points do not require encryption.
+  - _Exception_: Certain simple listings or Next.js public consumption points do not require encryption.
 
 ---
 
@@ -42,21 +42,21 @@ Communication with the backend endpoints (hosted under `http://localhost:4000/ap
 
 Defined inside [App.tsx](file:///E:/projects/y-study/git/ystudy-react-admin-panel/src/App.tsx), all routes except `/login` are wrapped inside the `ProtectedRoute` and `DashboardLayout` elements:
 
-| Path | Component | Description |
-|---|---|---|
-| `/login` | `LoginPage` | Credentials validation, saves Bearer token. |
-| `/media` | `MediaPage` / `MediaGallery` | Uploading assets and browsing folders. |
-| `/banners` | `BannerListPage` | List available website homepage banners. |
-| `/banners/new` / `/banners/edit/:id` | `BannerAdminPanel` | Live visual builder for banner blocks. |
-| `/courses` | `CourseListPage` | List curriculum degree programs. |
-| `/courses/new` / `/courses/edit/:id` | `CourseAdminPanel` | Edit degree details and links. |
-| `/locations` | `LocationListPage` | List campuses. |
-| `/locations/new` / `/locations/edit/:id` | `LocationAdminPanel` | Form for campus details & cover image. |
-| `/faqs` | `FAQListPage` | List FAQ categories. |
-| `/faqs/new` / `/faqs/edit/:slug` | `FAQAdminPanel` | Categories/questions dynamic list editor. |
-| `/time-tables` | `TimeTableListPage` | List time tables. |
-| `/time-tables/new` / `/time-tables/edit/:id` | `TimeTableAdminPanel` | Timetable study-pattern row builder. |
-| `/recycle-bin` | `RecycleBinPage` | View deleted documents and restore/wipe them. |
+| Path                                         | Component                    | Description                                   |
+| -------------------------------------------- | ---------------------------- | --------------------------------------------- |
+| `/login`                                     | `LoginPage`                  | Credentials validation, saves Bearer token.   |
+| `/media`                                     | `MediaPage` / `MediaGallery` | Uploading assets and browsing folders.        |
+| `/banners`                                   | `BannerListPage`             | List available website homepage banners.      |
+| `/banners/new` / `/banners/edit/:id`         | `BannerAdminPanel`           | Live visual builder for banner blocks.        |
+| `/courses`                                   | `CourseListPage`             | List curriculum degree programs.              |
+| `/courses/new` / `/courses/edit/:id`         | `CourseAdminPanel`           | Edit degree details and links.                |
+| `/locations`                                 | `LocationListPage`           | List campuses.                                |
+| `/locations/new` / `/locations/edit/:id`     | `LocationAdminPanel`         | Form for campus details & cover image.        |
+| `/faqs`                                      | `FAQListPage`                | List FAQ categories.                          |
+| `/faqs/new` / `/faqs/edit/:slug`             | `FAQAdminPanel`              | Categories/questions dynamic list editor.     |
+| `/time-tables`                               | `TimeTableListPage`          | List time tables.                             |
+| `/time-tables/new` / `/time-tables/edit/:id` | `TimeTableAdminPanel`        | Timetable study-pattern row builder.          |
+| `/recycle-bin`                               | `RecycleBinPage`             | View deleted documents and restore/wipe them. |
 
 ---
 

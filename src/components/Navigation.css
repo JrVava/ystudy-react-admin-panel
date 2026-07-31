@@ -12,7 +12,8 @@
   }
 }
 
-.tree-panel, .form-panel {
+.tree-panel,
+.form-panel {
   background: var(--panel-bg);
   border: 1px solid var(--panel-border);
   border-radius: 20px;

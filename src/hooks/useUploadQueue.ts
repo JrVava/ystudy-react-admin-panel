@@ -35,17 +35,15 @@ export const useUploadQueue = () => {
   }, [queue]);
 
   const updateItem = useCallback((id: string, updates: Partial<UploadItem>) => {
-    setQueue((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
-    );
+    setQueue((prev) => prev.map((item) => (item.id === id ? { ...item, ...updates } : item)));
   }, []);
 
   const uploadChunks = async (item: UploadItem, backendUploadId: string) => {
     if (!item.file) return;
 
     let uploadedBytes = item.uploadedBytes;
-    let startTime = Date.now();
-    let initialUploadedBytes = uploadedBytes;
+    const startTime = Date.now();
+    const initialUploadedBytes = uploadedBytes;
 
     try {
       while (uploadedBytes < item.totalSize) {
@@ -66,9 +64,9 @@ export const useUploadQueue = () => {
           const speed = Math.max((currentUploadedBytes - initialUploadedBytes) / elapsed, 0);
           const remainingBytes = Math.max(item.totalSize - currentUploadedBytes, 0);
           const eta = speed > 0 ? remainingBytes / speed : Infinity;
-          
-          updateItem(item.id, { 
-            speed, 
+
+          updateItem(item.id, {
+            speed,
             eta,
             uploadedBytes: currentUploadedBytes
           });
@@ -84,7 +82,7 @@ export const useUploadQueue = () => {
 
         clearInterval(progressInterval);
         uploadedBytes = endByte;
-        
+
         // Final update for this chunk
         const elapsed = Math.max((Date.now() - startTime) / 1000, 0.001);
         const speed = Math.max((uploadedBytes - initialUploadedBytes) / elapsed, 0);
@@ -109,49 +107,36 @@ export const useUploadQueue = () => {
     }
   };
 
-  const startPollingStatus = useCallback((itemId: string, backendUploadId: string) => {
-    const poll = async () => {
-      if (!activeUploads.current[itemId]) return; // Stop polling if paused/cancelled
+  const startPollingStatus = useCallback(
+    (itemId: string, backendUploadId: string) => {
+      const poll = async () => {
+        if (!activeUploads.current[itemId]) return; // Stop polling if paused/cancelled
 
-      try {
-        const { data } = await api.get(`/upload/status/${backendUploadId}`);
-        if (!activeUploads.current[itemId]) return; // Check again after await
+        try {
+          const { data } = await api.get(`/upload/status/${backendUploadId}`);
+          if (!activeUploads.current[itemId]) return; // Check again after await
 
-        if (data.status === "completed") {
-          updateItem(itemId, { status: "completed", eta: 0, speed: 0 });
-          const timer = setTimeout(() => {
-            setQueue((prev) => prev.filter((item) => item.id !== itemId));
-            delete pollTimeouts.current[itemId];
-          }, 1000);
-          pollTimeouts.current[itemId] = timer;
-        } else {
-          const timer = setTimeout(poll, 2000);
-          pollTimeouts.current[itemId] = timer;
+          if (data.status === "completed") {
+            updateItem(itemId, { status: "completed", eta: 0, speed: 0 });
+            const timer = setTimeout(() => {
+              setQueue((prev) => prev.filter((item) => item.id !== itemId));
+              delete pollTimeouts.current[itemId];
+            }, 1000);
+            pollTimeouts.current[itemId] = timer;
+          } else {
+            const timer = setTimeout(poll, 2000);
+            pollTimeouts.current[itemId] = timer;
+          }
+        } catch {
+          delete pollTimeouts.current[itemId];
         }
-      } catch (e) {
-        delete pollTimeouts.current[itemId];
-      }
-    };
-    poll();
-  }, [updateItem]);
+      };
+      poll();
+    },
+    [updateItem]
+  );
 
-  const addFiles = useCallback((files: File[], folderName?: string) => {
-    const newItems: UploadItem[] = files.map((file) => ({
-      id: Math.random().toString(36).substring(7),
-      file,
-      fileName: file.name,
-      totalSize: file.size,
-      uploadedBytes: 0,
-      status: "pending",
-      folderName,
-    }));
-    setQueue((prev) => [...prev, ...newItems]);
-    
-    // Auto-start uploads
-    newItems.forEach((item) => startUpload(item));
-  }, []);
-
-  const startUpload = async (item: UploadItem) => {
+  async function startUpload(item: UploadItem) {
     activeUploads.current[item.id] = true;
     updateItem(item.id, { status: "uploading" });
 
@@ -161,7 +146,7 @@ export const useUploadQueue = () => {
         const { data } = await api.post("/upload/init", {
           fileName: item.fileName,
           totalSize: item.totalSize,
-          folderName: item.folderName,
+          folderName: item.folderName
         });
         backendUploadId = data.uploadId;
         updateItem(item.id, { backendUploadId });
@@ -171,7 +156,23 @@ export const useUploadQueue = () => {
       updateItem(item.id, { status: "error", error: error.message });
       activeUploads.current[item.id] = false;
     }
-  };
+  }
+
+  const addFiles = useCallback((files: File[], folderName?: string) => {
+    const newItems: UploadItem[] = files.map((file) => ({
+      id: Math.random().toString(36).substring(7),
+      file,
+      fileName: file.name,
+      totalSize: file.size,
+      uploadedBytes: 0,
+      status: "pending",
+      folderName
+    }));
+    setQueue((prev) => [...prev, ...newItems]);
+
+    // Auto-start uploads
+    newItems.forEach((item) => startUpload(item));
+  }, []);
 
   const pauseUpload = async (id: string) => {
     activeUploads.current[id] = false;
@@ -182,7 +183,7 @@ export const useUploadQueue = () => {
     updateItem(id, { status: "paused", speed: 0, eta: undefined });
     const item = queue.find((q) => q.id === id);
     if (item && item.backendUploadId) {
-       await api.post(`/upload/pause/${item.backendUploadId}`).catch(() => {});
+      await api.post(`/upload/pause/${item.backendUploadId}`).catch(() => {});
     }
   };
 
@@ -191,8 +192,8 @@ export const useUploadQueue = () => {
     if (!item) return;
 
     if (!item.file) {
-       updateItem(id, { status: "error", error: "Please select the file again to resume" });
-       return;
+      updateItem(id, { status: "error", error: "Please select the file again to resume" });
+      return;
     }
 
     activeUploads.current[id] = true;
@@ -212,7 +213,7 @@ export const useUploadQueue = () => {
     }
     const item = queue.find((q) => q.id === id);
     setQueue((prev) => prev.filter((item) => item.id !== id));
-    
+
     if (item && item.backendUploadId) {
       await api.post(`/upload/cancel/${item.backendUploadId}`).catch(() => {});
     }
@@ -228,6 +229,6 @@ export const useUploadQueue = () => {
     pauseUpload,
     resumeUpload,
     cancelUpload,
-    attachFile,
+    attachFile
   };
 };

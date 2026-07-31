@@ -1,12 +1,7 @@
-import React from 'react';
+import React from "react";
 
-interface InputProps {
+interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  value: string | number;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  placeholder?: string;
-  type?: string;
-  required?: boolean;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -15,19 +10,30 @@ const Input: React.FC<InputProps> = ({
   onChange,
   placeholder,
   type = "text",
-  required = false
-}) => (
-  <div className="form-group">
-    <label className="form-label">{label}</label>
-    <input
-      className="form-input"
-      type={type}
-      placeholder={placeholder}
-      value={value === undefined || value === null ? '' : value}
-      onChange={onChange}
-      required={required}
-    />
-  </div>
-);
+  required = false,
+  className = "",
+  ...rest
+}) => {
+  const hasAsterisk = label.trim().endsWith("*");
+  const cleanLabel = hasAsterisk ? label.trim().slice(0, -1).trim() : label;
+
+  return (
+    <div className="form-group">
+      <label className="form-label">
+        {cleanLabel}
+        {(required || hasAsterisk) && <span className="text-red-500 font-bold ml-1">*</span>}
+      </label>
+      <input
+        className={`form-input ${className}`}
+        type={type}
+        placeholder={placeholder}
+        value={value === undefined || value === null ? "" : value}
+        onChange={onChange}
+        required={required}
+        {...rest}
+      />
+    </div>
+  );
+};
 
 export default Input;

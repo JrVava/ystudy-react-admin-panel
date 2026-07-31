@@ -27,7 +27,7 @@ export const navigationApi = {
     const decrypted = decrypt(data.data);
     return decrypted.data;
   },
-  reorder: async (items: { id: string, parentId: string | null, position: number }[]) => {
+  reorder: async (items: { id: string; parentId: string | null; position: number }[]) => {
     const { data } = await api.put("/navigations/reorder", { data: encrypt({ items }) });
     const decrypted = decrypt(data.data);
     return decrypted.data;

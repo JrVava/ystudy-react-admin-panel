@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, ChevronDown, X } from 'lucide-react';
+import React, { useState, useEffect, useRef } from "react";
+import { Search, ChevronDown, X } from "lucide-react";
 
 interface MultiSelectDropdownProps {
   label: string;
@@ -35,17 +35,25 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
   const optionsList = Array.isArray(options) ? options : [];
   const selectedIdsList = Array.isArray(selectedIds) ? selectedIds : [];
 
-  const filteredOptions = optionsList.filter(opt =>
-    opt && typeof opt.title === 'string' && opt.title.toLowerCase().includes((search || "").toLowerCase())
+  const filteredOptions = optionsList.filter(
+    (opt) => opt && typeof opt.title === "string" && opt.title.toLowerCase().includes((search || "").toLowerCase())
   );
 
-  const selectedOptions = optionsList.filter(opt => opt && opt._id && selectedIdsList.includes(opt._id));
+  const selectedOptions = optionsList.filter((opt) => opt && opt._id && selectedIdsList.includes(opt._id));
 
   return (
-    <div className="form-group" style={{ position: "relative", display: "flex", flexDirection: "column", gap: "0.5rem" }} ref={dropdownRef}>
+    <div
+      className="form-group"
+      style={{ position: "relative", display: "flex", flexDirection: "column", gap: "0.5rem" }}
+      ref={dropdownRef}
+    >
       <div>
-        <label className="form-label" style={{ margin: 0 }}>{label}</label>
-        {description && <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', margin: '4px 0 0 0' }}>{description}</p>}
+        <label className="form-label" style={{ margin: 0 }}>
+          {label}
+        </label>
+        {description && (
+          <p style={{ fontSize: "0.75rem", color: "var(--text-muted)", margin: "4px 0 0 0" }}>{description}</p>
+        )}
       </div>
 
       {/* Select Box Trigger */}
@@ -66,7 +74,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           paddingRight: "36px",
           transition: "all 0.2s"
         }}
-        onMouseEnter={(e) => e.currentTarget.style.borderColor = "var(--primary)"}
+        onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--primary)")}
         onMouseLeave={(e) => {
           if (!isOpen) e.currentTarget.style.borderColor = "var(--panel-border)";
         }}
@@ -74,7 +82,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         {selectedOptions.length === 0 ? (
           <span style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>{placeholder}</span>
         ) : (
-          selectedOptions.map(opt => (
+          selectedOptions.map((opt) => (
             <span
               key={opt._id}
               onClick={(e) => {
@@ -113,8 +121,22 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           ))
         )}
 
-        <div style={{ position: "absolute", right: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)", pointerEvents: "none", display: "flex", alignItems: "center" }}>
-          <ChevronDown size={16} style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+        <div
+          style={{
+            position: "absolute",
+            right: "12px",
+            top: "50%",
+            transform: "translateY(-50%)",
+            color: "var(--text-muted)",
+            pointerEvents: "none",
+            display: "flex",
+            alignItems: "center"
+          }}
+        >
+          <ChevronDown
+            size={16}
+            style={{ transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}
+          />
         </div>
       </div>
 
@@ -138,7 +160,16 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
         >
           {/* Search Input */}
           <div style={{ padding: "8px", borderBottom: "1px solid var(--panel-border)", position: "relative" }}>
-            <Search size={14} style={{ position: "absolute", left: "16px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+            <Search
+              size={14}
+              style={{
+                position: "absolute",
+                left: "16px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-muted)"
+              }}
+            />
             <input
               type="text"
               placeholder="Search courses..."
@@ -157,7 +188,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                 No courses found
               </div>
             ) : (
-              filteredOptions.map(opt => {
+              filteredOptions.map((opt) => {
                 const isSelected = selectedIdsList.includes(opt._id);
                 return (
                   <div
@@ -175,8 +206,10 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                       color: "white",
                       transition: "background 0.15s"
                     }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)"}
-                    onMouseLeave={(e) => e.currentTarget.style.background = isSelected ? "rgba(99, 102, 241, 0.08)" : "transparent"}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)")}
+                    onMouseLeave={(e) =>
+                      (e.currentTarget.style.background = isSelected ? "rgba(99, 102, 241, 0.08)" : "transparent")
+                    }
                   >
                     <span>{opt.title}</span>
                     <input

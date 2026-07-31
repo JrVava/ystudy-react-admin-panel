@@ -1,0 +1,29 @@
+/* Centralized Design Tokens */
+:root {
+  --bg-color: #080b13;
+  --bg-gradient: radial-gradient(circle at 10% 20%, rgba(13, 17, 30, 1) 0%, rgba(7, 8, 14, 1) 100%);
+  --sidebar-bg: rgba(13, 18, 33, 0.95);
+  --panel-bg: rgba(22, 28, 45, 0.4);
+  --panel-border: rgba(255, 255, 255, 0.08);
+  --panel-border-hover: rgba(255, 255, 255, 0.16);
+
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --text-muted: #57657a;
+
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-glow: rgba(99, 102, 241, 0.35);
+
+  --accent: #a855f7;
+  --accent-hover: #9333ea;
+
+  --success: #10b981;
+  --error: #f43f5e;
+  --warning: #f59e0b;
+  --info: #06b6d4;
+
+  --sidebar-width: 260px;
+  --header-height: 70px;
+  --mobile-header-height: 60px;
+}

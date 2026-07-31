@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { lookupApi } from '../utils/lookupApi';
-import { Edit2, Plus, AlertCircle, Search, X, Trash2, BookOpen, Award, Layers, Clock, Coins } from 'lucide-react';
-import { toast } from '../context/ToastContext';
-import { Table } from '../components/Table';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { lookupApi } from "../utils/lookupApi";
+import { Edit2, Plus, AlertCircle, Search, X, Trash2, BookOpen, Award, Layers, Clock, Coins } from "lucide-react";
+import { toast } from "../context/ToastContext";
+import { Table } from "../components/Table";
 
 interface LookupListPageProps {
-  type: 'subjects' | 'qualifications' | 'modes' | 'durations' | 'fundings';
+  type: "subjects" | "qualifications" | "modes" | "durations" | "fundings";
 }
 
 const configByType = {
-  subjects: { label: 'Subjects', icon: BookOpen, addLabel: 'Subject', path: '/courses/subjects' },
-  qualifications: { label: 'Qualifications', icon: Award, addLabel: 'Qualification', path: '/courses/qualifications' },
-  modes: { label: 'Modes of Study', icon: Layers, addLabel: 'Study Mode', path: '/courses/modes' },
-  durations: { label: 'Durations', icon: Clock, addLabel: 'Duration', path: '/courses/durations' },
-  fundings: { label: 'Fundings', icon: Coins, addLabel: 'Funding Option', path: '/courses/fundings' }
+  subjects: { label: "Subjects", icon: BookOpen, addLabel: "Subject", path: "/courses/subjects" },
+  qualifications: { label: "Qualifications", icon: Award, addLabel: "Qualification", path: "/courses/qualifications" },
+  modes: { label: "Modes of Study", icon: Layers, addLabel: "Study Mode", path: "/courses/modes" },
+  durations: { label: "Durations", icon: Clock, addLabel: "Duration", path: "/courses/durations" },
+  fundings: { label: "Fundings", icon: Coins, addLabel: "Funding Option", path: "/courses/fundings" }
 };
 
 export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
@@ -32,8 +32,8 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalRows, setTotalRows] = useState(0);
-  const [sortField, setSortField] = useState('createdAt');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+  const [sortField, setSortField] = useState("createdAt");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
 
   // Debounce search query
@@ -52,12 +52,13 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
     setCurrentPage(1);
   }, [type]);
 
-  // Fetch items on changes
-  useEffect(() => {
-    fetchItems(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
-  }, [type, currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery]);
-
-  const fetchItems = async (page: number, limit: number, field: string = 'createdAt', sort: string = 'desc', search: string = '') => {
+  async function fetchItems(
+    page: number,
+    limit: number,
+    field: string = "createdAt",
+    sort: string = "desc",
+    search: string = ""
+  ) {
     try {
       setLoading(true);
       setError(null);
@@ -74,7 +75,12 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }
+
+  // Fetch items on changes
+  useEffect(() => {
+    fetchItems(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery);
+  }, [type, currentPage, rowsPerPage, sortField, sortOrder, debouncedSearchQuery]);
 
   const handleDelete = async (id: string, name: string) => {
     if (!window.confirm(`Are you sure you want to delete "${name}"?`)) {
@@ -106,62 +112,69 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
     setCurrentPage(page);
   };
 
-  const handleSort = (column: any, sortDirection: 'asc' | 'desc') => {
-    setSortField(column.sortField || 'createdAt');
+  const handleSort = (column: any, sortDirection: "asc" | "desc") => {
+    setSortField(column.sortField || "createdAt");
     setSortOrder(sortDirection);
     setCurrentPage(1);
   };
 
   const columns = [
     {
-      name: 'Title',
-      selector: (row: any) => row.title || 'Unnamed Item',
+      name: "Title",
+      selector: (row: any) => row.title || "Unnamed Item",
       sortable: true,
-      sortField: 'title'
+      sortField: "title"
     },
     {
-      name: 'Status',
+      name: "Status",
       selector: (row: any) => row.status,
       sortable: true,
-      sortField: 'status',
+      sortField: "status",
       cell: (row: any) => (
         <span
           style={{
-            fontSize: '0.75rem',
-            padding: '3px 8px',
-            borderRadius: '6px',
+            fontSize: "0.75rem",
+            padding: "3px 8px",
+            borderRadius: "6px",
             fontWeight: 600,
-            background: row.status !== false ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.15)',
-            color: row.status !== false ? 'var(--success)' : 'var(--error)'
+            background: row.status !== false ? "rgba(16, 185, 129, 0.15)" : "rgba(244, 63, 94, 0.15)",
+            color: row.status !== false ? "var(--success)" : "var(--error)"
           }}
         >
-          {row.status !== false ? 'Active' : 'Inactive'}
+          {row.status !== false ? "Active" : "Inactive"}
         </span>
       )
     },
     {
-      name: 'Created At',
+      name: "Created At",
       selector: (row: any) => row.createdAt,
       sortable: true,
-      sortField: 'createdAt',
-      cell: (row: any) => row.createdAt ? new Date(row.createdAt).toLocaleString() : 'N/A'
+      sortField: "createdAt",
+      cell: (row: any) => (row.createdAt ? new Date(row.createdAt).toLocaleString() : "N/A")
     },
     {
-      name: 'Updated At',
+      name: "Updated At",
       selector: (row: any) => row.updatedAt,
       sortable: true,
-      sortField: 'updatedAt',
-      cell: (row: any) => row.updatedAt ? new Date(row.updatedAt).toLocaleString() : 'N/A'
+      sortField: "updatedAt",
+      cell: (row: any) => (row.updatedAt ? new Date(row.updatedAt).toLocaleString() : "N/A")
     },
     {
-      name: 'Actions',
+      name: "Actions",
       right: true,
       cell: (row: any) => (
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div style={{ display: "flex", gap: "0.5rem" }}>
           <button
             onClick={() => navigate(`${config.path}/edit/${row._id}`)}
             className="btn-secondary"
-            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+            style={{
+              padding: "0.4rem 0.8rem",
+              borderRadius: "8px",
+              fontSize: "0.85rem",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.3rem"
+            }}
           >
             <Edit2 size={12} />
             Edit
@@ -169,7 +182,16 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
           <button
             onClick={() => handleDelete(row._id, row.title)}
             className="btn-secondary"
-            style={{ padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: '0.3rem', color: 'var(--error)', borderColor: 'rgba(244, 63, 94, 0.2)' }}
+            style={{
+              padding: "0.4rem 0.8rem",
+              borderRadius: "8px",
+              fontSize: "0.85rem",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.3rem",
+              color: "var(--error)",
+              borderColor: "rgba(244, 63, 94, 0.2)"
+            }}
           >
             <Trash2 size={12} />
             Delete
@@ -180,24 +202,33 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
   ];
 
   return (
-    <div className="animate-fade-in" style={{ width: '100%' }}>
+    <div className="animate-fade-in" style={{ width: "100%" }}>
       <div className="page-header">
         <div>
-          <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <Icon size={32} style={{ color: 'var(--primary)', filter: 'drop-shadow(0 0 8px var(--primary-glow))' }} />
+          <h1 className="page-title" style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <Icon size={32} style={{ color: "var(--primary)", filter: "drop-shadow(0 0 8px var(--primary-glow))" }} />
             {config.label}
           </h1>
           <p className="page-subtitle">Configure list items displayed inside Course filter selections.</p>
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
           <div style={{ position: "relative", minWidth: "220px" }}>
-            <Search size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+            <Search
+              size={16}
+              style={{
+                position: "absolute",
+                left: "12px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                color: "var(--text-muted)"
+              }}
+            />
             <input
               type="text"
               placeholder={`Search ${config.label.toLowerCase()}...`}
               value={searchQuery}
-              onChange={e => {
+              onChange={(e) => {
                 setSearchQuery(e.target.value);
                 setCurrentPage(1);
               }}
@@ -210,7 +241,18 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
                   setSearchQuery("");
                   setCurrentPage(1);
                 }}
-                style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center" }}
+                style={{
+                  position: "absolute",
+                  right: "10px",
+                  top: "50%",
+                  transform: "translateY(-50%)",
+                  background: "none",
+                  border: "none",
+                  color: "var(--text-muted)",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center"
+                }}
               >
                 <X size={14} />
               </button>
@@ -220,7 +262,7 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
           <button
             onClick={() => navigate(`${config.path}/new`)}
             className="btn-primary"
-            style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', height: "40px" }}
+            style={{ display: "flex", alignItems: "center", gap: "0.5rem", height: "40px" }}
           >
             <Plus size={18} />
             Add {config.addLabel}
@@ -229,14 +271,26 @@ export const LookupListPage: React.FC<LookupListPageProps> = ({ type }) => {
       </div>
 
       {error && (
-        <div style={{ background: "rgba(244, 63, 94, 0.1)", border: "1px solid rgba(244, 63, 94, 0.2)", color: "#f43f5e", padding: "1rem", borderRadius: "12px", marginBottom: "1.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        <div
+          style={{
+            background: "rgba(244, 63, 94, 0.1)",
+            border: "1px solid rgba(244, 63, 94, 0.2)",
+            color: "#f43f5e",
+            padding: "1rem",
+            borderRadius: "12px",
+            marginBottom: "1.5rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem"
+          }}
+        >
           <AlertCircle size={20} />
           <span>Error: {error}</span>
         </div>
       )}
 
       <div className="panel-glass" style={{ padding: 0, overflow: "hidden" }}>
-        <Table 
+        <Table
           columns={columns}
           data={items}
           loading={loading}

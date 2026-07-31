@@ -1,11 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { navigationApi } from "../utils/navigationApi";
-import { 
-  Layers, Edit3, CheckCircle, AlertCircle, Save, X, GripVertical, Info,
-  ChevronDown, ChevronRight, Search
+import {
+  Layers,
+  Edit3,
+  CheckCircle,
+  AlertCircle,
+  Save,
+  X,
+  GripVertical,
+  Info,
+  ChevronDown,
+  ChevronRight,
+  Search
 } from "lucide-react";
 import "./Navigation.css";
 import { toast } from "../context/ToastContext";
+import Input from "./Input";
 
 interface NavigationItem {
   _id: string;
@@ -21,16 +31,16 @@ const slugify = (text: string): string => {
     .toString()
     .toLowerCase()
     .trim()
-    .replace(/\s+/g, '-') // Replace spaces with -
-    .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-    .replace(/\-\-+/g, '-'); // Replace multiple - with single -
+    .replace(/\s+/g, "-") // Replace spaces with -
+    .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+    .replace(/\-\-+/g, "-"); // Replace multiple - with single -
 };
 
 export const NavigationAdminPanel: React.FC = () => {
   const [items, setItems] = useState<NavigationItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Notification banner states
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [saveErrorMsg, setSaveErrorMsg] = useState<string | null>(null);
@@ -125,24 +135,24 @@ export const NavigationAdminPanel: React.FC = () => {
     if (isCurrentlyExpanded) {
       // Collapse this node: remove it and all its descendants from expandedNodeIds
       const getDescendantIds = (parentId: string): string[] => {
-        const children = items.filter(n => n.parentId === parentId);
+        const children = items.filter((n) => n.parentId === parentId);
         return children.reduce((acc, child) => {
           return [...acc, child._id, ...getDescendantIds(child._id)];
         }, [] as string[]);
       };
       const descendants = getDescendantIds(nodeId);
-      setExpandedNodeIds(prev => prev.filter(id => id !== nodeId && !descendants.includes(id)));
+      setExpandedNodeIds((prev) => prev.filter((id) => id !== nodeId && !descendants.includes(id)));
     } else {
       // Expand this node:
-      const targetNode = items.find(n => n._id === nodeId);
+      const targetNode = items.find((n) => n._id === nodeId);
       if (!targetNode) return;
 
       // 1. Find sibling nodes (same parentId)
-      const siblingIds = items.filter(n => n.parentId === targetNode.parentId && n._id !== nodeId).map(n => n._id);
-      
+      const siblingIds = items.filter((n) => n.parentId === targetNode.parentId && n._id !== nodeId).map((n) => n._id);
+
       // 2. Find all descendants of sibling nodes (to collapse siblings and their children)
       const getDescendantIds = (parentId: string): string[] => {
-        const children = items.filter(n => n.parentId === parentId);
+        const children = items.filter((n) => n.parentId === parentId);
         return children.reduce((acc, child) => {
           return [...acc, child._id, ...getDescendantIds(child._id)];
         }, [] as string[]);
@@ -151,8 +161,8 @@ export const NavigationAdminPanel: React.FC = () => {
         return [...acc, sibId, ...getDescendantIds(sibId)];
       }, [] as string[]);
 
-      setExpandedNodeIds(prev => {
-        const filtered = prev.filter(id => !siblingsAndDescendants.includes(id));
+      setExpandedNodeIds((prev) => {
+        const filtered = prev.filter((id) => !siblingsAndDescendants.includes(id));
         return [...filtered, nodeId];
       });
     }
@@ -172,7 +182,7 @@ export const NavigationAdminPanel: React.FC = () => {
 
     const rect = e.currentTarget.getBoundingClientRect();
     const relativeY = e.clientY - rect.top;
-    
+
     const beforeThreshold = rect.height * 0.3;
     const afterThreshold = rect.height * 0.7;
 
@@ -197,8 +207,8 @@ export const NavigationAdminPanel: React.FC = () => {
       return;
     }
 
-    const draggedNode = items.find(n => n._id === draggedId);
-    const targetNode = items.find(n => n._id === targetId);
+    const draggedNode = items.find((n) => n._id === draggedId);
+    const targetNode = items.find((n) => n._id === targetId);
     if (!draggedNode || !targetNode) {
       cleanupDrag();
       return;
@@ -213,7 +223,7 @@ export const NavigationAdminPanel: React.FC = () => {
           cleanupDrag();
           return;
         }
-        const parent = items.find(n => n._id === currentParentId);
+        const parent = items.find((n) => n._id === currentParentId);
         currentParentId = parent ? parent.parentId : null;
       }
     }
@@ -221,22 +231,24 @@ export const NavigationAdminPanel: React.FC = () => {
     let updatedItems = [...items];
     const nodeToMove = { ...draggedNode };
 
-    updatedItems = updatedItems.filter(n => n._id !== draggedId);
+    updatedItems = updatedItems.filter((n) => n._id !== draggedId);
 
     if (dropPosition === "inside") {
       nodeToMove.parentId = targetId;
       const maxPosition = updatedItems
-        .filter(n => n.parentId === targetId)
+        .filter((n) => n.parentId === targetId)
         .reduce((max, n) => Math.max(max, n.position), 0);
       nodeToMove.position = maxPosition + 1;
       updatedItems.push(nodeToMove);
 
       // Make sure the parent node is expanded so we can see the dropped item
-      setExpandedNodeIds(prev => {
+      setExpandedNodeIds((prev) => {
         if (prev.includes(targetId)) return prev;
-        const siblingIds = updatedItems.filter(n => n.parentId === targetNode.parentId && n._id !== targetId).map(n => n._id);
+        const siblingIds = updatedItems
+          .filter((n) => n.parentId === targetNode.parentId && n._id !== targetId)
+          .map((n) => n._id);
         const getDescendantIds = (parentId: string): string[] => {
-          const children = updatedItems.filter(n => n.parentId === parentId);
+          const children = updatedItems.filter((n) => n.parentId === parentId);
           return children.reduce((acc, child) => {
             return [...acc, child._id, ...getDescendantIds(child._id)];
           }, [] as string[]);
@@ -244,20 +256,20 @@ export const NavigationAdminPanel: React.FC = () => {
         const siblingsAndDescendants = siblingIds.reduce((acc, sibId) => {
           return [...acc, sibId, ...getDescendantIds(sibId)];
         }, [] as string[]);
-        const filtered = prev.filter(id => !siblingsAndDescendants.includes(id));
+        const filtered = prev.filter((id) => !siblingsAndDescendants.includes(id));
         return [...filtered, targetId];
       });
     } else {
       nodeToMove.parentId = targetNode.parentId;
-      const index = updatedItems.findIndex(n => n._id === targetId);
-      
+      const index = updatedItems.findIndex((n) => n._id === targetId);
+
       if (dropPosition === "before") {
         updatedItems.splice(index, 0, nodeToMove);
       } else {
         updatedItems.splice(index + 1, 0, nodeToMove);
       }
 
-      const siblings = updatedItems.filter(n => n.parentId === targetNode.parentId);
+      const siblings = updatedItems.filter((n) => n.parentId === targetNode.parentId);
       siblings.forEach((sib, idx) => {
         sib.position = idx;
       });
@@ -267,7 +279,7 @@ export const NavigationAdminPanel: React.FC = () => {
     cleanupDrag();
 
     try {
-      const payload = updatedItems.map(item => ({
+      const payload = updatedItems.map((item) => ({
         id: item._id,
         parentId: item.parentId,
         position: item.position
@@ -291,74 +303,75 @@ export const NavigationAdminPanel: React.FC = () => {
   // Helper function: Check recursively if a node or its children match the search query
   const checkMatchesSearch = (nodeId: string, query: string): boolean => {
     if (!query) return false;
-    const node = items.find(n => n._id === nodeId);
+    const node = items.find((n) => n._id === nodeId);
     if (!node) return false;
 
-    const matchesThis = 
+    const matchesThis =
       (node.pageName && node.pageName.toLowerCase().includes(query.toLowerCase())) ||
       (node.slug && node.slug.toLowerCase().includes(query.toLowerCase()));
-      
+
     if (matchesThis) return true;
 
     // Check children
-    const childNodes = items.filter(n => n.parentId === nodeId);
-    return childNodes.some(child => checkMatchesSearch(child._id, query));
+    const childNodes = items.filter((n) => n.parentId === nodeId);
+    return childNodes.some((child) => checkMatchesSearch(child._id, query));
   };
 
   // Build recursive tree map from flat array
   const buildTree = (nodes: NavigationItem[], parentId: string | null = null): React.ReactNode[] => {
     return nodes
-      .filter(node => node.parentId === parentId)
+      .filter((node) => node.parentId === parentId)
       .sort((a, b) => a.position - b.position)
-      .map(node => {
+      .map((node) => {
         const isDragged = draggedId === node._id;
         const isOver = dragOverId === node._id;
         const children = buildTree(nodes, node._id);
-        const hasChildren = nodes.some(n => n.parentId === node._id);
+        const hasChildren = nodes.some((n) => n.parentId === node._id);
         const isExpanded = expandedNodeIds.includes(node._id);
-        const directChildrenCount = nodes.filter(n => n.parentId === node._id).length;
+        const directChildrenCount = nodes.filter((n) => n.parentId === node._id).length;
 
         // When search query is active, auto-expand node if a child matches
         const queryActive = searchQuery.trim() !== "";
         const childMatches = queryActive && checkMatchesSearch(node._id, searchQuery);
-        
+
         // Render child nodes only if parent is expanded (or if a child matches, force it open)
         const showChildren = hasChildren && (isExpanded || childMatches);
 
         // Highlight this node if it directly matches search query
-        const isSearchMatch = queryActive && (
-          (node.pageName && node.pageName.toLowerCase().includes(searchQuery.toLowerCase())) ||
-          (node.slug && node.slug.toLowerCase().includes(searchQuery.toLowerCase()))
-        );
+        const isSearchMatch =
+          queryActive &&
+          ((node.pageName && node.pageName.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (node.slug && node.slug.toLowerCase().includes(searchQuery.toLowerCase())));
 
         return (
           <div key={node._id} style={{ marginLeft: parentId ? "2rem" : "0", marginTop: "0.5rem" }}>
-            
             {/* Visual drop indicator BEFORE node */}
             {isOver && dropPosition === "before" && <div className="tree-node-drag-line" />}
 
-            <div 
+            <div
               draggable
-              onDragStart={e => handleDragStart(e, node._id)}
-              onDragOver={e => handleDragOver(e, node._id)}
+              onDragStart={(e) => handleDragStart(e, node._id)}
+              onDragOver={(e) => handleDragOver(e, node._id)}
               onDragLeave={handleDragLeave}
-              onDrop={e => handleDrop(e, node._id)}
+              onDrop={(e) => handleDrop(e, node._id)}
               className={`navigation-row ${isDragged ? "dragging" : ""} ${isOver && dropPosition === "inside" ? "drop-inside" : ""}`}
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
                 padding: "0.75rem 1.25rem",
-                background: isSearchMatch 
-                  ? "rgba(99, 102, 241, 0.18)" 
-                  : isOver && dropPosition === "inside" 
-                    ? "rgba(99, 102, 241, 0.15)" 
+                background: isSearchMatch
+                  ? "rgba(99, 102, 241, 0.18)"
+                  : isOver && dropPosition === "inside"
+                    ? "rgba(99, 102, 241, 0.15)"
                     : "rgba(255, 255, 255, 0.02)",
-                border: `1px solid ${isSearchMatch 
-                  ? "rgba(99, 102, 241, 0.5)" 
-                  : isOver && dropPosition === "inside" 
-                    ? "var(--primary)" 
-                    : "var(--panel-border)"}`,
+                border: `1px solid ${
+                  isSearchMatch
+                    ? "rgba(99, 102, 241, 0.5)"
+                    : isOver && dropPosition === "inside"
+                      ? "var(--primary)"
+                      : "var(--panel-border)"
+                }`,
                 boxShadow: isSearchMatch ? "0 0 10px rgba(99, 102, 241, 0.25)" : "none",
                 borderRadius: "12px",
                 cursor: "grab",
@@ -367,10 +380,13 @@ export const NavigationAdminPanel: React.FC = () => {
             >
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 {/* Drag Handle */}
-                <div style={{ color: "var(--text-muted)", cursor: "grab", display: "flex", alignItems: "center" }} title="Drag to reorder">
+                <div
+                  style={{ color: "var(--text-muted)", cursor: "grab", display: "flex", alignItems: "center" }}
+                  title="Drag to reorder"
+                >
                   <GripVertical size={16} />
                 </div>
-                
+
                 {/* Accordion Expansion Trigger (Only for parents) */}
                 {hasChildren ? (
                   <button
@@ -399,15 +415,23 @@ export const NavigationAdminPanel: React.FC = () => {
                 )}
 
                 <div style={{ display: "flex", flexDirection: "column" }}>
-                  <span style={{ fontWeight: 700, color: "var(--text-primary)", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                  <span
+                    style={{
+                      fontWeight: 700,
+                      color: "var(--text-primary)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.4rem"
+                    }}
+                  >
                     {node.pageName}
                     {hasChildren && (
-                      <span 
-                        style={{ 
-                          fontSize: "0.7rem", 
-                          background: "rgba(99, 102, 241, 0.15)", 
-                          color: "var(--primary)", 
-                          padding: "2px 8px", 
+                      <span
+                        style={{
+                          fontSize: "0.7rem",
+                          background: "rgba(99, 102, 241, 0.15)",
+                          color: "var(--primary)",
+                          padding: "2px 8px",
                           borderRadius: "99px",
                           fontWeight: 800,
                           border: "1px solid rgba(99, 102, 241, 0.25)"
@@ -417,15 +441,24 @@ export const NavigationAdminPanel: React.FC = () => {
                       </span>
                     )}
                   </span>
-                  <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>/{node.slug} &bull; {node.componentName}</span>
+                  <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                    /{node.slug} &bull; {node.componentName}
+                  </span>
                 </div>
               </div>
 
               <div>
-                <button 
+                <button
                   onClick={() => handleEditClick(node)}
                   className="btn-secondary"
-                  style={{ padding: "4px 10px", fontSize: "0.75rem", display: "inline-flex", alignItems: "center", gap: "0.25rem", borderRadius: "8px" }}
+                  style={{
+                    padding: "4px 10px",
+                    fontSize: "0.75rem",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "0.25rem",
+                    borderRadius: "8px"
+                  }}
                 >
                   <Edit3 size={12} />
                   Edit
@@ -438,11 +471,9 @@ export const NavigationAdminPanel: React.FC = () => {
 
             {/* Children elements */}
             {hasChildren && showChildren && (
-              <div style={{ borderLeft: "1px dashed rgba(255,255,255,0.06)", paddingLeft: "0.25rem" }}>
-                {children}
-              </div>
+              <div style={{ borderLeft: "1px dashed rgba(255,255,255,0.06)", paddingLeft: "0.25rem" }}>{children}</div>
             )}
-            
+
             {/* Visual drop indicator AFTER node with children */}
             {isOver && dropPosition === "after" && showChildren && <div className="tree-node-drag-line" />}
           </div>
@@ -472,19 +503,39 @@ export const NavigationAdminPanel: React.FC = () => {
 
         {/* Quick Search inside Navigation */}
         <div style={{ position: "relative", minWidth: "240px" }}>
-          <Search size={16} style={{ position: "absolute", left: "12px", top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
-          <input 
-            type="text" 
-            placeholder="Search pages or slugs..." 
+          <Search
+            size={16}
+            style={{
+              position: "absolute",
+              left: "12px",
+              top: "50%",
+              transform: "translateY(-50%)",
+              color: "var(--text-muted)"
+            }}
+          />
+          <input
+            type="text"
+            placeholder="Search pages or slugs..."
             value={searchQuery}
-            onChange={e => setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="form-input"
             style={{ width: "100%", paddingLeft: "34px", paddingRight: "30px", height: "40px", fontSize: "0.85rem" }}
           />
           {searchQuery && (
-            <button 
-              onClick={() => setSearchQuery("")} 
-              style={{ position: "absolute", right: "10px", top: "50%", transform: "translateY(-50%)", background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", display: "flex", alignItems: "center" }}
+            <button
+              onClick={() => setSearchQuery("")}
+              style={{
+                position: "absolute",
+                right: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                background: "none",
+                border: "none",
+                color: "var(--text-muted)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center"
+              }}
             >
               <X size={14} />
             </button>
@@ -494,21 +545,59 @@ export const NavigationAdminPanel: React.FC = () => {
 
       {/* Global Notifications */}
       {successMsg && (
-        <div style={{ background: "rgba(16, 185, 129, 0.1)", border: "1px solid rgba(16, 185, 129, 0.25)", color: "var(--success)", padding: "1rem", borderRadius: "12px", display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
+        <div
+          style={{
+            background: "rgba(16, 185, 129, 0.1)",
+            border: "1px solid rgba(16, 185, 129, 0.25)",
+            color: "var(--success)",
+            padding: "1rem",
+            borderRadius: "12px",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            marginBottom: "1.5rem"
+          }}
+        >
           <CheckCircle size={18} />
           <span>{successMsg}</span>
         </div>
       )}
 
       {saveErrorMsg && (
-        <div style={{ background: "rgba(244, 63, 94, 0.12)", border: "1px solid rgba(244, 63, 94, 0.25)", color: "#f43f5e", padding: "1rem", borderRadius: "12px", display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
+        <div
+          style={{
+            background: "rgba(244, 63, 94, 0.12)",
+            border: "1px solid rgba(244, 63, 94, 0.25)",
+            color: "#f43f5e",
+            padding: "1rem",
+            borderRadius: "12px",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            marginBottom: "1.5rem"
+          }}
+        >
           <AlertCircle size={18} style={{ flexShrink: 0 }} />
-          <span><strong>Save Error:</strong> {saveErrorMsg}</span>
+          <span>
+            <strong>Save Error:</strong> {saveErrorMsg}
+          </span>
         </div>
       )}
 
       {error && (
-        <div style={{ background: "rgba(244, 63, 94, 0.12)", border: "1px solid rgba(244, 63, 94, 0.25)", color: "#f43f5e", padding: "1rem", borderRadius: "12px", display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "1.5rem" }}>
+        <div
+          style={{
+            background: "rgba(244, 63, 94, 0.12)",
+            border: "1px solid rgba(244, 63, 94, 0.25)",
+            color: "#f43f5e",
+            padding: "1rem",
+            borderRadius: "12px",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+            marginBottom: "1.5rem"
+          }}
+        >
           <AlertCircle size={18} />
           <span>{error}</span>
         </div>
@@ -516,18 +605,36 @@ export const NavigationAdminPanel: React.FC = () => {
 
       {/* Dual Panel Layout: Tree vs Editor Form */}
       <div style={{ display: "grid", gridTemplateColumns: editingItem ? "1.2fr 1fr" : "1fr", gap: "1.5rem" }}>
-        
         {/* Navigation Tree Display */}
         <div className="panel-glass">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(6, 182, 212, 0.05)', border: '1px solid rgba(6, 182, 212, 0.15)', color: 'var(--info)', padding: '0.75rem 1rem', borderRadius: '10px', fontSize: '0.85rem', fontWeight: 500, marginBottom: '1.5rem' }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              background: "rgba(6, 182, 212, 0.05)",
+              border: "1px solid rgba(6, 182, 212, 0.15)",
+              color: "var(--info)",
+              padding: "0.75rem 1rem",
+              borderRadius: "10px",
+              fontSize: "0.85rem",
+              fontWeight: 500,
+              marginBottom: "1.5rem"
+            }}
+          >
             <Info size={16} style={{ flexShrink: 0 }} />
-            <span>Click chevrons next to parent items to collapse or expand. Matching items highlight in search query active.</span>
+            <span>
+              Click chevrons next to parent items to collapse or expand. Matching items highlight in search query
+              active.
+            </span>
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
             {buildTree(items)}
             {items.length === 0 && (
-              <div style={{ color: "var(--text-secondary)", textAlign: "center", padding: "2rem" }}>No pages set up.</div>
+              <div style={{ color: "var(--text-secondary)", textAlign: "center", padding: "2rem" }}>
+                No pages set up.
+              </div>
             )}
           </div>
         </div>
@@ -535,11 +642,13 @@ export const NavigationAdminPanel: React.FC = () => {
         {/* Modal-style Editor Column */}
         {editingItem && (
           <div className="panel-glass animate-fade-in" style={{ height: "fit-content" }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}
+            >
               <h3 style={{ margin: 0, fontSize: "1.15rem", fontWeight: 700 }}>
                 Edit Item: <span style={{ color: "var(--accent)" }}>{editingItem.pageName}</span>
               </h3>
-              <button 
+              <button
                 onClick={() => setEditingItem(null)}
                 style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer" }}
               >
@@ -548,53 +657,52 @@ export const NavigationAdminPanel: React.FC = () => {
             </div>
 
             <form onSubmit={handleSaveEdit}>
-              <div className="form-group">
-                <label className="form-label">Page Display Name</label>
-                <input 
-                  type="text" 
-                  value={editForm.pageName} 
-                  onChange={e => {
-                    const val = e.target.value;
-                    setEditForm(prev => ({
-                      ...prev,
-                      pageName: val,
-                      slug: slugify(val)
-                    }));
-                  }} 
-                  className="form-input" 
-                  required 
-                />
-              </div>
+              <Input
+                label="Page Display Name"
+                type="text"
+                value={editForm.pageName}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setEditForm((prev) => ({
+                    ...prev,
+                    pageName: val,
+                    slug: slugify(val)
+                  }));
+                }}
+                required
+              />
 
-              <div className="form-group">
-                <label className="form-label">URL Slug</label>
-                <input 
-                  type="text" 
-                  value={editForm.slug} 
-                  onChange={e => setEditForm({ ...editForm, slug: e.target.value })} 
-                  className="form-input" 
-                  required 
-                />
-              </div>
+              <Input
+                label="URL Slug"
+                type="text"
+                value={editForm.slug}
+                onChange={(e) => setEditForm({ ...editForm, slug: e.target.value })}
+                required
+              />
 
-              <div className="form-group" style={{ marginBottom: "2rem" }}>
-                <label className="form-label">React Component File Name</label>
-                <input 
-                  type="text" 
-                  value={editForm.componentName} 
-                  className="form-input" 
-                  disabled={true}
-                  style={{ opacity: 0.6, cursor: "not-allowed", background: "rgba(0,0,0,0.4)" }}
-                />
-                <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>
-                  React bindings can only be changed by repository developers.
-                </span>
-              </div>
+              <Input
+                label="React Component File Name"
+                type="text"
+                value={editForm.componentName}
+                disabled={true}
+                style={{ opacity: 0.6, cursor: "not-allowed", background: "rgba(0,0,0,0.4)", marginBottom: 0 }}
+              />
+              <span
+                style={{
+                  display: "block",
+                  fontSize: "0.7rem",
+                  color: "var(--text-muted)",
+                  marginTop: "0.25rem",
+                  marginBottom: "2rem"
+                }}
+              >
+                React bindings can only be changed by repository developers.
+              </span>
 
               <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
-                <button 
-                  type="button" 
-                  onClick={() => setEditingItem(null)} 
+                <button
+                  type="button"
+                  onClick={() => setEditingItem(null)}
                   className="btn-secondary"
                   disabled={isSaving}
                   style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem" }}
@@ -602,8 +710,8 @@ export const NavigationAdminPanel: React.FC = () => {
                   <X size={16} />
                   Cancel
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="btn-primary"
                   disabled={isSaving}
                   style={{ display: "inline-flex", alignItems: "center", gap: "0.25rem" }}

@@ -27,13 +27,13 @@ export const useIdleLogout = (onLogout?: () => void) => {
     } finally {
       // Clear timers & interval
       clearAllTimers();
-      
+
       // Clear all auth fields
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       localStorage.removeItem("idleTimeoutMs");
       localStorage.removeItem("lastActivity");
-      
+
       if (onLogout) {
         onLogout();
       } else {
@@ -73,25 +73,25 @@ export const useIdleLogout = (onLogout?: () => void) => {
     clearAllTimers();
     setShowWarning(false);
     setTimeLeft(0);
-    
+
     // Save current activity timestamp
     localStorage.setItem("lastActivity", String(Date.now()));
     lastResetRef.current = Date.now();
-    
+
     const storedTimeout = localStorage.getItem("idleTimeoutMs");
     const timeoutMs = storedTimeout ? parseInt(storedTimeout, 10) : DEFAULT_IDLE_TIMEOUT_MS;
-    
+
     // Calculate warning delay: 5 minutes (300,000 ms) before logout
     let warningMs = timeoutMs - 5 * 60 * 1000;
     if (warningMs <= 0 || timeoutMs <= 5 * 60 * 1000) {
       warningMs = timeoutMs * 0.8; // Fallback: 80% of idle time if idle time is <= 5 mins
     }
-    
+
     // Warning Timer
     warningTimerRef.current = setTimeout(() => {
       const elapsed = Date.now() - parseInt(localStorage.getItem("lastActivity") || "0", 10);
       const remainingSec = Math.max(0, Math.floor((timeoutMs - elapsed) / 1000));
-      
+
       if (remainingSec <= 0) {
         logout();
         return;
@@ -99,7 +99,7 @@ export const useIdleLogout = (onLogout?: () => void) => {
 
       setShowWarning(true);
       setTimeLeft(remainingSec);
-      
+
       let sec = remainingSec;
       countdownIntervalRef.current = setInterval(() => {
         sec -= 1;
@@ -131,7 +131,7 @@ export const useIdleLogout = (onLogout?: () => void) => {
     }, 5000);
 
     const events = ["mousemove", "keydown", "click", "scroll", "touchstart"];
-    
+
     const handleEvent = () => {
       if (checkSessionExpiration()) return;
 
@@ -145,14 +145,14 @@ export const useIdleLogout = (onLogout?: () => void) => {
       }
     };
 
-    events.forEach(event => {
+    events.forEach((event) => {
       window.addEventListener(event, handleEvent);
     });
 
     return () => {
       clearAllTimers();
       clearInterval(checkInterval);
-      events.forEach(event => {
+      events.forEach((event) => {
         window.removeEventListener(event, handleEvent);
       });
     };

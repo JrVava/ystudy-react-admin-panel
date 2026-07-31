@@ -31,7 +31,7 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       localStorage.removeItem("idleTimeoutMs");
-      
+
       // Redirect to login page if not already there
       if (!window.location.pathname.startsWith("/login")) {
         window.location.href = "/login";

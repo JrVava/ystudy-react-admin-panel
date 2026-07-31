@@ -2,7 +2,13 @@ import api from "./api";
 import { encrypt, decrypt } from "./crypto";
 
 export const cmsApi = {
-  getAll: async (page: number = 1, limit: number = 10, field: string = "createdAt", sort: string = "desc", search: string = "") => {
+  getAll: async (
+    page: number = 1,
+    limit: number = 10,
+    field: string = "createdAt",
+    sort: string = "desc",
+    search: string = ""
+  ) => {
     const { data } = await api.get("/cms-pages", {
       params: { page, limit, field, sort, search }
     });
@@ -16,7 +22,7 @@ export const cmsApi = {
   },
   getById: async (id: string) => {
     const { data } = await api.get(`/cms-pages/page-data/${id}`);
-    let result = data.data ? decrypt(data.data) : data;
+    const result = data.data ? decrypt(data.data) : data;
     return result; // Contains { success, data: PagePayload }
   },
   update: async (id: string, payload: any) => {

@@ -34,7 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setToken(storedToken);
       try {
         setUser(JSON.parse(storedUser));
-      } catch (e) {
+      } catch {
         localStorage.removeItem("user");
         localStorage.removeItem("token");
       }
@@ -59,7 +59,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data } = await api.post("/auth/login", { data: encryptedPayload });
 
       const decrypted = decrypt(data.data);
-      console.log('decrypted ', decrypted);
+      console.log("decrypted ", decrypted);
 
       const { token: userToken, user: userData, idleTimeoutMs } = decrypted;
 
@@ -107,47 +107,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={value}>
       {children}
       {showWarning && (
-        <div style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: "rgba(8, 11, 19, 0.8)",
-          backdropFilter: "blur(12px)",
-          zIndex: 99999,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          overflowY: "auto",
-          padding: "40px 16px",
-          color: "var(--text-primary)",
-          fontFamily: "'Outfit', sans-serif"
-        }}>
-          <div className="panel-glass animate-fade-in modal-solid-bg" style={{
-            width: "100%",
-            maxWidth: "420px",
-            padding: "2.5rem 2rem",
-            margin: "auto 0",
-            textAlign: "center",
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "rgba(8, 11, 19, 0.8)",
+            backdropFilter: "blur(12px)",
+            zIndex: 99999,
             display: "flex",
-            flexDirection: "column",
-            gap: "1.5rem",
-            boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.65)"
-          }}>
-            <div style={{
-              width: "56px",
-              height: "56px",
-              borderRadius: "50%",
-              background: "rgba(245, 158, 11, 0.1)",
-              color: "var(--warning)",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            overflowY: "auto",
+            padding: "40px 16px",
+            color: "var(--text-primary)",
+            fontFamily: "'Outfit', sans-serif"
+          }}
+        >
+          <div
+            className="panel-glass animate-fade-in modal-solid-bg"
+            style={{
+              width: "100%",
+              maxWidth: "420px",
+              padding: "2.5rem 2rem",
+              margin: "auto 0",
+              textAlign: "center",
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              margin: "0 auto",
-              fontSize: "1.5rem",
-              border: "1px solid rgba(245, 158, 11, 0.2)"
-            }}>
+              flexDirection: "column",
+              gap: "1.5rem",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.65)"
+            }}
+          >
+            <div
+              style={{
+                width: "56px",
+                height: "56px",
+                borderRadius: "50%",
+                background: "rgba(245, 158, 11, 0.1)",
+                color: "var(--warning)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto",
+                fontSize: "1.5rem",
+                border: "1px solid rgba(245, 158, 11, 0.2)"
+              }}
+            >
               ⚠️
             </div>
             <div>
@@ -155,7 +162,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               <p style={{ margin: "10px 0 0 0", fontSize: "0.9rem", color: "var(--text-secondary)", lineHeight: 1.5 }}>
                 You have been idle for a while. You will be automatically logged out in:
               </p>
-              <p style={{ margin: "12px 0 0 0", fontSize: "1.75rem", fontWeight: 800, color: "var(--warning)", fontFamily: "monospace" }}>
+              <p
+                style={{
+                  margin: "12px 0 0 0",
+                  fontSize: "1.75rem",
+                  fontWeight: 800,
+                  color: "var(--warning)",
+                  fontFamily: "monospace"
+                }}
+              >
                 {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, "0")}
               </p>
             </div>

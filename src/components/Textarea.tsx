@@ -1,12 +1,8 @@
-import React from 'react';
+import React from "react";
 
-interface TextareaProps {
+interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
   label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
-  placeholder?: string;
   minHeight?: string;
-  required?: boolean;
 }
 
 const Textarea: React.FC<TextareaProps> = ({
@@ -15,19 +11,31 @@ const Textarea: React.FC<TextareaProps> = ({
   onChange,
   placeholder,
   minHeight = "100px",
-  required = false
-}) => (
-  <div className="form-group">
-    <label className="form-label">{label}</label>
-    <textarea
-      className="form-textarea"
-      placeholder={placeholder}
-      value={value || ''}
-      onChange={onChange}
-      style={{ minHeight }}
-      required={required}
-    />
-  </div>
-);
+  required = false,
+  className = "",
+  style,
+  ...rest
+}) => {
+  const hasAsterisk = label.trim().endsWith("*");
+  const cleanLabel = hasAsterisk ? label.trim().slice(0, -1).trim() : label;
+
+  return (
+    <div className="form-group">
+      <label className="form-label">
+        {cleanLabel}
+        {(required || hasAsterisk) && <span className="text-red-500 font-bold ml-1">*</span>}
+      </label>
+      <textarea
+        className={`form-textarea ${className}`}
+        placeholder={placeholder}
+        value={value || ""}
+        onChange={onChange}
+        style={{ minHeight, ...style }}
+        required={required}
+        {...rest}
+      />
+    </div>
+  );
+};
 
 export default Textarea;

@@ -9,6 +9,7 @@ A modern, high-performance, and secure Content Management & Administrative Conso
 ## 🚀 Key Features
 
 ### 1. 🎓 Course Management System
+
 - **Full Curriculum Editing**: Add, update, and review course catalogs, program entry specifications, and descriptions.
 - **Automated Slug Generation**: Auto-generates clean, SEO-friendly URL paths from course titles as you type.
 - **Outcomes & Attributes**: Manage graduate salary expectations (`from`/`to` yearly ranges) and career outcome tag tags.
@@ -16,27 +17,33 @@ A modern, high-performance, and secure Content Management & Administrative Conso
 - **Media Binding**: Seamlessly select and link cover banner graphics from the built-in Media Library.
 
 ### 2. ⏳ Inactivity Warning & Secure Auto-Logout
+
 - **Security Protocols**: Monitors user session activity (mouse movement, scroll, clicks, touch, and keystrokes).
 - **Graceful Warning Modal**: Automatically triggers a glassmorphic warning countdown modal **5 minutes** prior to session expiration.
 - **Adaptive Fallback**: If the configured idle time is short (e.g. for testing purposes, $\le$ 5 minutes), the warning displays at 80% elapsed time.
 - **Forced Action**: Blocks background actions while active; user must click **Stay Logged In** or **Log Out** to ensure security against walk-away exposure.
 
 ### 3. 🖼️ Media Library & Gallery
+
 - **Asset Hub**: Upload, explore, search, and manage files in nested folder hierarchies.
 - **Modal Media Picker**: Integrated modal selectors embedded inside form builders (Banners, Courses, CMS Pages) to link files instantly.
 
 ### 4. 📢 Interactive Banner Builder
+
 - **Visual Editor**: Customize headlines, taglines, layouts, and data points.
 - **Live Preview Visualizer**: Real-time rendering of stacked layouts, grids, highlight statistics, and listings.
 
 ### 5. 📑 CMS Pages & Accordion Layout Editor
+
 - **Dynamic Content Bindings**: Modify layout JSON structures page-by-page.
 - **Accordion Form Fields**: Section-based, modular fields toggle open/closed to reduce form clutter.
 
 ### 6. 🌐 Navigation Manager
+
 - **Dynamic Layouts**: Easily reorder and build tree-structured menus for header/footer routing.
 
 ### 7. 🔒 Encrypted Data Transport
+
 - **AES Payload Encryption**: Protects sensitive payload parameters using CryptoJS before transmitting them to the backend, aligning with backend routing decryption middlewares.
 
 ---
@@ -73,9 +80,11 @@ src/
 ## ⚙️ Getting Started
 
 ### 📋 Prerequisites
+
 Ensure you have Node.js (version 18+ recommended) and a package manager installed.
 
 ### 📥 Installation
+
 1. Clone the repository and navigate to the project directory:
    ```bash
    cd ystudy-react-admin-panel
@@ -86,7 +95,9 @@ Ensure you have Node.js (version 18+ recommended) and a package manager installe
    ```
 
 ### 🔑 Environment Variables
+
 Create a `.env` file in the root directory:
+
 ```env
 VITE_API_URL=http://localhost:4000/api
 VITE_CRYPTO_SECRET_KEY=your_aes_secret_key_here
@@ -94,6 +105,7 @@ VITE_PUBLIC_DOMAIN=https://y-study.co.uk
 ```
 
 ### 💻 Running the App
+
 - Run the local development server:
   ```bash
   npm run dev
@@ -110,4 +122,5 @@ VITE_PUBLIC_DOMAIN=https://y-study.co.uk
 ---
 
 ## 📄 License
+
 This project is proprietary and for internal administrative use only.

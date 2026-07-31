@@ -1,52 +1,27 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { timeTableApi } from '../utils/timeTableApi';
-import { courseApi } from '../utils/courseApi';
-import { Save, ArrowLeft, Clock, Plus, Trash2 } from 'lucide-react';
-import { toast } from '../context/ToastContext';
-import { SearchableSelect } from './SearchableSelect';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { timeTableApi } from "../utils/timeTableApi";
+import { courseApi } from "../utils/courseApi";
+import { Save, ArrowLeft, Clock, Plus, Trash2 } from "lucide-react";
+import { toast } from "../context/ToastContext";
+import { SearchableSelect } from "./SearchableSelect";
 
-const Input = ({ label, value, onChange, placeholder, required = false }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void; placeholder?: string; required?: boolean }) => (
-  <div className="form-group">
-    <label className="form-label">{label}</label>
-    <input
-      className="form-input"
-      type="text"
-      placeholder={placeholder}
-      value={value || ''}
-      onChange={onChange}
-      required={required}
-    />
-  </div>
-);
-
-const Textarea = ({ label, value, onChange, placeholder, minHeight = "100px", required = false }: { label: string; value: string; onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void; placeholder?: string; minHeight?: string; required?: boolean }) => (
-  <div className="form-group">
-    <label className="form-label">{label}</label>
-    <textarea
-      className="form-textarea"
-      placeholder={placeholder}
-      value={value || ''}
-      onChange={onChange}
-      style={{ minHeight }}
-      required={required}
-    />
-  </div>
-);
+import Input from "./Input";
+import Textarea from "./Textarea";
 
 export const TimeTableAdminPanel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   const [isLoading, setIsLoading] = useState(!!id);
   const [isSlugAutoSynced, setIsSlugAutoSynced] = useState(!id);
   const [coursesList, setCoursesList] = useState<any[]>([]);
 
   const [formData, setFormData] = useState<any>({
-    title: '',
-    slug: '',
-    badge: '',
-    description: '',
+    title: "",
+    slug: "",
+    badge: "",
+    description: "",
     items: [],
     status: true
   });
@@ -71,17 +46,17 @@ export const TimeTableAdminPanel: React.FC = () => {
         try {
           const res = await timeTableApi.getById(id);
           setFormData({
-            title: res.title || '',
-            slug: res.slug || '',
-            badge: res.badge || '',
-            description: res.description || '',
+            title: res.title || "",
+            slug: res.slug || "",
+            badge: res.badge || "",
+            description: res.description || "",
             items: Array.isArray(res.items) ? res.items : [],
             status: res.status !== false
           });
         } catch (e) {
           console.error("Failed to fetch timetable", e);
           toast.error("Failed to load timetable details.");
-          navigate('/time-tables');
+          navigate("/time-tables");
         } finally {
           setIsLoading(false);
         }
@@ -95,9 +70,9 @@ export const TimeTableAdminPanel: React.FC = () => {
       .toString()
       .toLowerCase()
       .trim()
-      .replace(/\s+/g, '-') // Replace spaces with -
-      .replace(/[^\w\-]+/g, '') // Remove all non-word chars
-      .replace(/\-\-+/g, '-'); // Replace multiple - with single -
+      .replace(/\s+/g, "-") // Replace spaces with -
+      .replace(/[^\w\-]+/g, "") // Remove all non-word chars
+      .replace(/\-\-+/g, "-"); // Replace multiple - with single -
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,11 +89,11 @@ export const TimeTableAdminPanel: React.FC = () => {
   const handleAddItem = () => {
     setFormData((prev: any) => ({
       ...prev,
-      items: [...prev.items, { type: '', mode: '' }]
+      items: [...prev.items, { type: "", mode: "" }]
     }));
   };
 
-  const handleUpdateItem = (index: number, key: 'type' | 'mode', val: string) => {
+  const handleUpdateItem = (index: number, key: "type" | "mode", val: string) => {
     setFormData((prev: any) => {
       const newItems = [...prev.items];
       newItems[index] = { ...newItems[index], [key]: val };
@@ -163,7 +138,7 @@ export const TimeTableAdminPanel: React.FC = () => {
 
       if (res.success || res.data?.success) {
         toast.success(id ? "Time table updated successfully!" : "Time table created successfully!");
-        navigate('/time-tables');
+        navigate("/time-tables");
       } else {
         toast.error("Failed to save time table: " + (res.message || "Unknown error"));
       }
@@ -185,22 +160,26 @@ export const TimeTableAdminPanel: React.FC = () => {
   }
 
   return (
-    <div className="animate-fade-in" style={{ width: '100%' }}>
+    <div className="animate-fade-in" style={{ width: "100%" }}>
       <form onSubmit={handleSave} id="timetable-form">
-        <div className="page-header" style={{ marginBottom: '1.5rem' }}>
+        <div className="page-header" style={{ marginBottom: "1.5rem" }}>
           <div>
-            <h1 className="page-title" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Clock size={28} style={{ color: 'var(--primary)' }} />
-              {id ? 'Edit Time Table' : 'Create Time Table'}
+            <h1 className="page-title" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+              <Clock size={28} style={{ color: "var(--primary)" }} />
+              {id ? "Edit Time Table" : "Create Time Table"}
             </h1>
-            <p className="page-subtitle">{id ? `Update scheduling configuration, study options, and status.` : 'Add a new timetable course option to the portal.'}</p>
+            <p className="page-subtitle">
+              {id
+                ? `Update scheduling configuration, study options, and status.`
+                : "Add a new timetable course option to the portal."}
+            </p>
           </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: "flex", gap: "8px" }}>
             <button
               type="button"
-              onClick={() => navigate('/time-tables')}
+              onClick={() => navigate("/time-tables")}
               className="btn-secondary"
-              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1rem' }}
+              style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 1rem" }}
             >
               <ArrowLeft size={16} />
               Back
@@ -208,7 +187,7 @@ export const TimeTableAdminPanel: React.FC = () => {
             <button
               type="submit"
               className="btn-primary"
-              style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.5rem 1.25rem' }}
+              style={{ display: "flex", alignItems: "center", gap: "0.4rem", padding: "0.5rem 1.25rem" }}
             >
               <Save size={16} />
               Save Time Table
@@ -216,8 +195,10 @@ export const TimeTableAdminPanel: React.FC = () => {
           </div>
         </div>
 
-        <div className="panel-glass" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-          
+        <div
+          className="panel-glass"
+          style={{ padding: "1.5rem", display: "flex", flexDirection: "column", gap: "1.5rem" }}
+        >
           {/* Title and Slug */}
           <div className="responsive-form-grid">
             <Input
@@ -243,136 +224,169 @@ export const TimeTableAdminPanel: React.FC = () => {
             />
           </div>
 
-        {/* Badge & Status */}
-        <div className="responsive-form-grid">
-          <Input
-            label="Badge Text (Kicker / Tagline)"
-            placeholder="e.g. Sept / Jan / May Intakes"
-            value={formData.badge}
-            onChange={e => setFormData({ ...formData, badge: e.target.value })}
+          {/* Badge & Status */}
+          <div className="responsive-form-grid">
+            <Input
+              label="Badge Text (Kicker / Tagline)"
+              placeholder="e.g. Sept / Jan / May Intakes"
+              value={formData.badge}
+              onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+            />
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+              <label className="form-label" style={{ margin: 0 }}>
+                Timetable Visibility Status
+              </label>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, status: !formData.status })}
+                className={formData.status ? "btn-primary" : "btn-secondary"}
+                style={{
+                  width: "100%",
+                  height: "42px",
+                  background: formData.status ? "rgba(16, 185, 129, 0.15)" : "rgba(244, 63, 94, 0.05)",
+                  color: formData.status ? "#10b981" : "#f43f5e",
+                  border: formData.status ? "1px solid rgba(16, 185, 129, 0.3)" : "1px solid rgba(244, 63, 94, 0.15)",
+                  fontWeight: 600
+                }}
+              >
+                {formData.status ? "● Active / Visible" : "○ Inactive / Hidden"}
+              </button>
+            </div>
+          </div>
+
+          {/* Description */}
+          <Textarea
+            label="Timetable Description"
+            placeholder="Enter schedule instructions, class hours information, study commitments, etc..."
+            value={formData.description}
+            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            minHeight="100px"
           />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-            <label className="form-label" style={{ margin: 0 }}>Timetable Visibility Status</label>
-            <button
-              type="button"
-              onClick={() => setFormData({ ...formData, status: !formData.status })}
-              className={formData.status ? "btn-primary" : "btn-secondary"}
-              style={{
-                width: '100%',
-                height: '42px',
-                background: formData.status ? 'rgba(16, 185, 129, 0.15)' : 'rgba(244, 63, 94, 0.05)',
-                color: formData.status ? '#10b981' : '#f43f5e',
-                border: formData.status ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(244, 63, 94, 0.15)',
-                fontWeight: 600
-              }}
+
+          {/* Timetable Items */}
+          <div style={{ marginTop: "0.5rem" }}>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
             >
-              {formData.status ? "● Active / Visible" : "○ Inactive / Hidden"}
-            </button>
-          </div>
-        </div>
-
-        {/* Description */}
-        <Textarea
-          label="Timetable Description"
-          placeholder="Enter schedule instructions, class hours information, study commitments, etc..."
-          value={formData.description}
-          onChange={e => setFormData({ ...formData, description: e.target.value })}
-          minHeight="100px"
-        />
-
-        {/* Timetable Items */}
-        <div style={{ marginTop: '0.5rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h4 style={{ fontSize: '0.95rem', fontWeight: 700, textTransform: 'uppercase', color: 'var(--text-secondary)' }}>
-              Timetable Details (Study Patterns)
-            </h4>
-            <button
-              type="button"
-              onClick={handleAddItem}
-              className="btn-secondary"
-              style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '8px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-            >
-              <Plus size={14} />
-              Add Study Row
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            {formData.items.map((item: any, index: number) => (
-              <div 
-                key={index} 
-                className="timetable-row-grid"
-                style={{ 
-                  background: 'rgba(255,255,255,0.02)', 
-                  border: '1px solid var(--panel-border)', 
-                  borderRadius: '10px', 
-                  padding: '12px'
+              <h4
+                style={{
+                  fontSize: "0.95rem",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  color: "var(--text-secondary)"
                 }}
               >
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '4px', color: 'var(--text-muted)' }}>
-                    Study Type (e.g. Full-time / Part-time)
-                  </label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g. Full-time"
-                    value={item.type}
-                    onChange={e => handleUpdateItem(index, 'type', e.target.value)}
-                    style={{ height: '38px', fontSize: '0.85rem' }}
-                  />
-                </div>
-                <div>
-                  <label style={{ display: 'block', fontSize: '0.75rem', fontWeight: 600, marginBottom: '4px', color: 'var(--text-muted)' }}>
-                    Delivery Mode (e.g. Blended / Online / Evening)
-                  </label>
-                  <input
-                    type="text"
-                    className="form-input"
-                    placeholder="e.g. Blended Learning (2 days/week)"
-                    value={item.mode}
-                    onChange={e => handleUpdateItem(index, 'mode', e.target.value)}
-                    style={{ height: '38px', fontSize: '0.85rem' }}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveItem(index)}
-                  className="btn-secondary"
-                  style={{ 
-                    height: '38px', 
-                    width: '38px', 
-                    padding: 0, 
-                    display: 'grid', 
-                    placeItems: 'center', 
-                    color: 'var(--error)', 
-                    borderColor: 'rgba(244, 63, 94, 0.15)' 
+                Timetable Details (Study Patterns)
+              </h4>
+              <button
+                type="button"
+                onClick={handleAddItem}
+                className="btn-secondary"
+                style={{
+                  padding: "6px 12px",
+                  fontSize: "0.8rem",
+                  borderRadius: "8px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.3rem"
+                }}
+              >
+                <Plus size={14} />
+                Add Study Row
+              </button>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              {formData.items.map((item: any, index: number) => (
+                <div
+                  key={index}
+                  className="timetable-row-grid"
+                  style={{
+                    background: "rgba(255,255,255,0.02)",
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "10px",
+                    padding: "12px"
                   }}
-                  title="Remove Row"
                 >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            ))}
+                  <div>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                        color: "var(--text-muted)"
+                      }}
+                    >
+                      Study Type (e.g. Full-time / Part-time)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g. Full-time"
+                      value={item.type}
+                      onChange={(e) => handleUpdateItem(index, "type", e.target.value)}
+                      style={{ height: "38px", fontSize: "0.85rem" }}
+                    />
+                  </div>
+                  <div>
+                    <label
+                      style={{
+                        display: "block",
+                        fontSize: "0.75rem",
+                        fontWeight: 600,
+                        marginBottom: "4px",
+                        color: "var(--text-muted)"
+                      }}
+                    >
+                      Delivery Mode (e.g. Blended / Online / Evening)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-input"
+                      placeholder="e.g. Blended Learning (2 days/week)"
+                      value={item.mode}
+                      onChange={(e) => handleUpdateItem(index, "mode", e.target.value)}
+                      style={{ height: "38px", fontSize: "0.85rem" }}
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveItem(index)}
+                    className="btn-secondary"
+                    style={{
+                      height: "38px",
+                      width: "38px",
+                      padding: 0,
+                      display: "grid",
+                      placeItems: "center",
+                      color: "var(--error)",
+                      borderColor: "rgba(244, 63, 94, 0.15)"
+                    }}
+                    title="Remove Row"
+                  >
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
 
-            {formData.items.length === 0 && (
-              <div 
-                style={{ 
-                  textAlign: 'center', 
-                  padding: '2.5rem', 
-                  border: '1px dashed var(--panel-border)', 
-                  borderRadius: '12px', 
-                  color: 'var(--text-muted)', 
-                  fontSize: '0.9rem' 
-                }}
-              >
-                No study patterns added yet. Click "Add Study Row" above.
-              </div>
-            )}
+              {formData.items.length === 0 && (
+                <div
+                  style={{
+                    textAlign: "center",
+                    padding: "2.5rem",
+                    border: "1px dashed var(--panel-border)",
+                    borderRadius: "12px",
+                    color: "var(--text-muted)",
+                    fontSize: "0.9rem"
+                  }}
+                >
+                  No study patterns added yet. Click "Add Study Row" above.
+                </div>
+              )}
+            </div>
           </div>
         </div>
-
-      </div>
       </form>
     </div>
   );
