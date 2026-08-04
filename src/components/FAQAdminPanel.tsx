@@ -3,6 +3,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import { faqApi } from "../utils/faqApi";
 import { Save, ArrowLeft, Plus, Trash2, HelpCircle, ChevronUp, ChevronDown } from "lucide-react";
 import { toast } from "../context/ToastContext";
+import api from "../utils/api";
+import { decrypt } from "../utils/crypto";
+import { SearchableSelect } from "./SearchableSelect";
 import Input from "./Input";
 import Textarea from "./Textarea";
 
@@ -20,6 +23,22 @@ export const FAQAdminPanel: React.FC = () => {
   const [formSlug, setFormSlug] = useState("");
   const [status, setStatus] = useState(true);
   const [faqs, setFaqs] = useState<FAQItem[]>([{ question: "", answer: "" }]);
+  const [slugsList, setSlugsList] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchSlugs = async () => {
+      try {
+        const res = await api.get("/navigations/allInOne");
+        const decrypted = decrypt(res.data.data);
+        if (decrypted && decrypted.success && decrypted.data) {
+          setSlugsList(decrypted.data);
+        }
+      } catch (e) {
+        console.error("Failed to load slugs list", e);
+      }
+    };
+    fetchSlugs();
+  }, []);
 
   useEffect(() => {
     if (slug) {
@@ -55,15 +74,6 @@ export const FAQAdminPanel: React.FC = () => {
     }
   }, [slug, navigate]);
 
-  const handleSlugChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Only slugify input characters to valid slug format
-    const val = e.target.value
-      .toLowerCase()
-      .replace(/\s+/g, "-")
-      .replace(/[^\w\-]+/g, "");
-    setFormSlug(val);
-  };
-
   const handleFAQChange = (index: number, field: keyof FAQItem, value: string) => {
     const updated = [...faqs];
     updated[index] = { ...updated[index], [field]: value };
@@ -98,7 +108,7 @@ export const FAQAdminPanel: React.FC = () => {
   const handleSave = async () => {
     const cleanSlug = formSlug.trim();
     if (!cleanSlug) {
-      toast.warning("Slug is required!");
+      toast.warning("FAQ Group Slug is required!");
       return;
     }
 
@@ -202,13 +212,19 @@ export const FAQAdminPanel: React.FC = () => {
             border: "1px solid var(--panel-border)"
           }}
         >
-          <Input
+          <SearchableSelect
             label="FAQ Group Slug *"
-            placeholder="e.g. degrees-faq, funding-guide-faq"
             value={formSlug}
-            onChange={handleSlugChange}
-            disabled={!!slug}
+            onChange={(selectedSlug) => {
+              setFormSlug(selectedSlug);
+            }}
+            options={slugsList.map((item) => ({
+              value: item.slug,
+              label: `${item.name} (${item.slug}) — ${item.type}`
+            }))}
+            placeholder="Select associated page or course slug..."
             required
+            disabled={!!slug}
           />
 
           <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>

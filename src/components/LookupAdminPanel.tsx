@@ -39,7 +39,8 @@ export const LookupAdminPanel: React.FC<LookupAdminPanelProps> = ({ type }) => {
     image: "",
     imageUrl: "",
     fullImageUrl: "",
-    tags: []
+    tags: [],
+    salary: ""
   });
 
   const isRichLookup = type === "subjects" || type === "qualifications";
@@ -57,7 +58,8 @@ export const LookupAdminPanel: React.FC<LookupAdminPanelProps> = ({ type }) => {
             image: data.image || "",
             imageUrl: data.image && typeof data.image === "object" && data.image.filePath ? data.image.filePath : "",
             fullImageUrl: data.fullImageUrl || "",
-            tags: Array.isArray(data.tags) ? data.tags : []
+            tags: Array.isArray(data.tags) ? data.tags : [],
+            salary: data.salary || ""
           });
         } catch (e) {
           console.error(`Failed to fetch ${type}`, e);
@@ -77,7 +79,8 @@ export const LookupAdminPanel: React.FC<LookupAdminPanelProps> = ({ type }) => {
         image: "",
         imageUrl: "",
         fullImageUrl: "",
-        tags: []
+        tags: [],
+        salary: ""
       });
       setIsLoading(false);
     }
@@ -120,6 +123,9 @@ export const LookupAdminPanel: React.FC<LookupAdminPanelProps> = ({ type }) => {
         payload.description = formData.description.trim();
         payload.image = formData.image || null;
         payload.tags = formData.tags;
+        if (type === "subjects") {
+          payload.salary = formData.salary ? formData.salary.trim() : "";
+        }
       }
 
       let res;
@@ -233,6 +239,15 @@ export const LookupAdminPanel: React.FC<LookupAdminPanelProps> = ({ type }) => {
                 value={formData.badge}
                 onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
               />
+
+              {type === "subjects" && (
+                <Input
+                  label="Average Salary"
+                  placeholder="e.g. £35,000"
+                  value={formData.salary}
+                  onChange={(e) => setFormData({ ...formData, salary: e.target.value })}
+                />
+              )}
 
               <Textarea
                 label="Description"

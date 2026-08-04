@@ -8,6 +8,7 @@ interface SearchableSelectProps {
   options: Array<{ value: string; label: string }>;
   placeholder?: string;
   required?: boolean;
+  disabled?: boolean;
 }
 
 export const SearchableSelect: React.FC<SearchableSelectProps> = ({
@@ -16,7 +17,8 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
   onChange,
   options,
   placeholder = "Select option...",
-  required = false
+  required = false,
+  disabled = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -68,12 +70,13 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
 
       <div
         className="form-input"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={() => !disabled && setIsOpen(!isOpen)}
         style={{
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          cursor: "pointer",
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.6 : 1,
           background: "rgba(255, 255, 255, 0.02)",
           border: isOpen ? "1px solid var(--primary)" : "1px solid var(--panel-border)",
           minHeight: "42px",
@@ -83,10 +86,10 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           transition: "all 0.2s"
         }}
         onMouseEnter={(e) => {
-          if (!isOpen) e.currentTarget.style.borderColor = "var(--primary)";
+          if (!isOpen && !disabled) e.currentTarget.style.borderColor = "var(--primary)";
         }}
         onMouseLeave={(e) => {
-          if (!isOpen) e.currentTarget.style.borderColor = "var(--panel-border)";
+          if (!isOpen && !disabled) e.currentTarget.style.borderColor = "var(--panel-border)";
         }}
       >
         <span>{selectedOption ? selectedOption.label : placeholder}</span>

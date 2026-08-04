@@ -6,7 +6,9 @@ import { toast } from "../context/ToastContext";
 import { Save, ArrowLeft, Image } from "lucide-react";
 import "./BannerAdminPanel.css";
 import config from "../config";
-
+import api from "../utils/api";
+import { decrypt } from "../utils/crypto";
+import { SearchableSelect } from "./SearchableSelect";
 import Input from "./Input";
 import Textarea from "./Textarea";
 
@@ -155,6 +157,23 @@ const BannerAdminPanel: React.FC = () => {
       ]
     }
   });
+
+  const [slugsList, setSlugsList] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchSlugs = async () => {
+      try {
+        const res = await api.get("/navigations/allInOne");
+        const decrypted = decrypt(res.data.data);
+        if (decrypted && decrypted.success && decrypted.data) {
+          setSlugsList(decrypted.data);
+        }
+      } catch (e) {
+        console.error("Failed to load slugs list", e);
+      }
+    };
+    fetchSlugs();
+  }, []);
 
   useEffect(() => {
     if (id) {
@@ -334,11 +353,17 @@ const BannerAdminPanel: React.FC = () => {
             {/* Tab 1: Background */}
             {activeTab === "general" && (
               <div className="animate-fade-in">
-                <Input
+                <SearchableSelect
                   label="Internal Banner Name *"
-                  placeholder="e.g., Homepage Promo Banner"
                   value={formData.internalName}
-                  onChange={(e) => setFormData({ ...formData, internalName: e.target.value })}
+                  onChange={(selectedSlug) => {
+                    setFormData({ ...formData, internalName: selectedSlug });
+                  }}
+                  options={slugsList.map((item) => ({
+                    value: item.slug,
+                    label: `${item.name} (${item.slug}) — ${item.type}`
+                  }))}
+                  placeholder="Select associated page or course slug..."
                   required
                 />
 

@@ -14,7 +14,8 @@ import {
   Clock,
   Trash2,
   Users,
-  Wrench
+  Wrench,
+  Calendar
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -267,18 +268,18 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                   >
                     Campus Locations
                   </NavLink>
-                  <NavLink
-                    to="/courses/upcoming-intakes"
-                    className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
-                    onClick={closeMobileSidebar}
-                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
-                  >
-                    Upcoming Intakes
-                  </NavLink>
                 </div>
               )}
             </div>
 
+            <NavLink
+              to="/courses/upcoming-intakes"
+              className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
+              onClick={closeMobileSidebar}
+            >
+              <Calendar size={20} />
+              Upcoming Intakes
+            </NavLink>
             <NavLink
               to="/faqs"
               className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
@@ -309,7 +310,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               onClick={closeMobileSidebar}
             >
               <Wrench size={20} />
-              Application Tools
+              Tools
             </NavLink>
             <NavLink
               to="/dynamic-forms"

@@ -29,10 +29,8 @@ export const TimeTableAdminPanel: React.FC = () => {
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const res = await courseApi.getPaginated(1, 1000);
-        if (res && res.success) {
-          setCoursesList(res.data || []);
-        }
+        const res = await courseApi.getList();
+        setCoursesList(res || []);
       } catch (e) {
         console.error("Failed to load courses list", e);
       }
@@ -114,8 +112,8 @@ export const TimeTableAdminPanel: React.FC = () => {
       toast.warning("Title is required!");
       return;
     }
-    if (!formData.slug.trim()) {
-      toast.warning("Slug is required!");
+    if (!formData.slug || !formData.slug.trim()) {
+      toast.warning("Associated Course Slug is required!");
       return;
     }
 
