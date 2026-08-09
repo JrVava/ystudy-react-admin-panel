@@ -23,10 +23,9 @@ const CourseAdminPanel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<"general" | "badges" | "relations" | "cms">("general");
-  const [socialCmsTab, setSocialCmsTab] = useState<
-    "overview" | "salary" | "funding" | "study" | "reviews" | "entry" | "faq"
-  >("overview");
+  const [activeTab, setActiveTab] = useState<"general" | "badges" | "relations" | "general_cms" | "social_cms">(
+    "general"
+  );
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [cmsMediaPickerTarget, setCmsMediaPickerTarget] = useState<{
     section: string;
@@ -63,7 +62,7 @@ const CourseAdminPanel: React.FC = () => {
     availableCourses: [],
     relatedCourses: [],
     locations: [],
-    courseType: "General",
+    courseType: "",
     entryRequirement: [],
     modeType: [],
     subjects: [],
@@ -193,7 +192,7 @@ const CourseAdminPanel: React.FC = () => {
             availableCourses: normalizeIdArray(course.availableCourses),
             relatedCourses: normalizeIdArray(course.relatedCourses),
             locations: normalizeIdArray(course.locations),
-            courseType: course.courseType || "General",
+            courseType: course.courseType || "",
             entryRequirement: Array.isArray(course.entryRequirement) ? course.entryRequirement : [],
             modeType: normalizeIdArray(course.modeType),
             subjects: normalizeIdArray(course.subjects),
@@ -407,13 +406,34 @@ const CourseAdminPanel: React.FC = () => {
   const handleCourseTypeChange = (val: string) => {
     setFormData((prev: any) => {
       const isSocial = val === "Social";
+      const isGeneral = val === "General";
       const hasCms = prev.courseCms && Object.keys(prev.courseCms).length > 0;
+      let newCms = prev.courseCms;
+      if (!hasCms) {
+        if (isSocial) newCms = DEFAULT_SOCIAL_CMS;
+        else if (isGeneral) newCms = DEFAULT_GENERAL_CMS;
+        else newCms = null;
+      }
       return {
         ...prev,
         courseType: val,
-        courseCms: hasCms ? prev.courseCms : isSocial ? DEFAULT_SOCIAL_CMS : DEFAULT_GENERAL_CMS
+        courseCms: newCms
       };
     });
+
+    if (val === "General") {
+      if (activeTab === "social_cms") {
+        setActiveTab("general_cms");
+      }
+    } else if (val === "Social") {
+      if (activeTab === "general_cms") {
+        setActiveTab("social_cms");
+      }
+    } else {
+      if (activeTab === "general_cms" || activeTab === "social_cms") {
+        setActiveTab("general");
+      }
+    }
   };
 
   const handleAddBadge = () => {
@@ -643,11 +663,29 @@ const CourseAdminPanel: React.FC = () => {
             </button>
             <button
               type="button"
-              onClick={() => setActiveTab("cms")}
-              className={`tab-btn ${activeTab === "cms" ? "active" : ""}`}
-              style={{ border: 0 }}
+              onClick={() => setActiveTab("general_cms")}
+              className={`tab-btn ${activeTab === "general_cms" ? "active" : ""}`}
+              disabled={formData.courseType !== "General"}
+              style={{
+                border: 0,
+                opacity: formData.courseType === "General" ? 1 : 0.5,
+                cursor: formData.courseType === "General" ? "pointer" : "not-allowed"
+              }}
             >
-              CMS Page sections
+              General CMS
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("social_cms")}
+              className={`tab-btn ${activeTab === "social_cms" ? "active" : ""}`}
+              disabled={formData.courseType !== "Social"}
+              style={{
+                border: 0,
+                opacity: formData.courseType === "Social" ? 1 : 0.5,
+                cursor: formData.courseType === "Social" ? "pointer" : "not-allowed"
+              }}
+            >
+              Social CMS
             </button>
           </div>
 
@@ -707,7 +745,7 @@ const CourseAdminPanel: React.FC = () => {
                 <label className="form-label">Course Type *</label>
                 <select
                   className="form-input"
-                  value={formData.courseType || "General"}
+                  value={formData.courseType || ""}
                   onChange={(e) => handleCourseTypeChange(e.target.value)}
                   style={{
                     background: "rgba(255, 255, 255, 0.02)",
@@ -716,6 +754,9 @@ const CourseAdminPanel: React.FC = () => {
                   }}
                   required
                 >
+                  <option value="" style={{ background: "#0b0f19" }}>
+                    Select Course Type...
+                  </option>
                   <option value="General" style={{ background: "#0b0f19" }}>
                     General
                   </option>
@@ -1137,8 +1178,8 @@ const CourseAdminPanel: React.FC = () => {
             </div>
           )}
 
-          {/* Tab 4: CMS Page sections */}
-          {activeTab === "cms" && (
+          {/* Tab 4: General CMS */}
+          {activeTab === "general_cms" && (
             <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
               <h3
                 style={{
@@ -1149,141 +1190,479 @@ const CourseAdminPanel: React.FC = () => {
                   margin: 0
                 }}
               >
-                Course Page CMS Configuration
+                General Course Page CMS Configuration
               </h3>
 
-              {/* Shared sub-tabs navigation */}
               <div
-                className="tabs w-full self-start mb-4"
+                className="scroll-form"
                 style={{
+                  maxHeight: "75vh",
+                  overflowY: "auto",
+                  paddingRight: "12px",
                   display: "flex",
-                  gap: "8px",
-                  borderBottom: "1px solid var(--panel-border)",
-                  paddingBottom: "8px"
+                  flexDirection: "column",
+                  gap: "2.5rem"
                 }}
               >
-                {(formData.courseType === "Social"
-                  ? ["overview", "salary", "funding", "study", "reviews", "entry", "faq"]
-                  : ["overview", "salary", "funding", "study", "reviews", "entry"]
-                ).map((tab) => (
-                  <button
-                    key={tab}
-                    type="button"
-                    onClick={() => setSocialCmsTab(tab as any)}
-                    className={`tab-btn ${socialCmsTab === tab ? "active" : ""}`}
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
                     style={{
-                      background: socialCmsTab === tab ? "rgba(99, 102, 241, 0.15)" : "transparent",
-                      border: 0,
-                      padding: "6px 12px",
-                      borderRadius: "8px",
-                      fontSize: "0.85rem",
-                      textTransform: "capitalize",
-                      cursor: "pointer",
-                      color: socialCmsTab === tab ? "var(--primary)" : "var(--text-secondary)"
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
                     }}
                   >
-                    {tab}
-                  </button>
-                ))}
+                    1. Overview Section
+                  </h4>
+                  <CmsOverviewSection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    2. Salary Section
+                  </h4>
+                  <CmsSalarySection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    3. Funding Section
+                  </h4>
+                  <CmsFundingSection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    handleAddStudyPoint={handleAddStudyPoint}
+                    handleRemoveStudyPoint={handleRemoveStudyPoint}
+                    handleStudyPointChange={handleStudyPointChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    4. Study Structure Section
+                  </h4>
+                  <CmsStudySection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    handleAddStudyPoint={handleAddStudyPoint}
+                    handleRemoveStudyPoint={handleRemoveStudyPoint}
+                    handleStudyPointChange={handleStudyPointChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    5. Reviews Section
+                  </h4>
+                  <CmsReviewsSection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    6. Entry Requirements Section
+                  </h4>
+                  <CmsEntrySection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                    allCoursesList={allCoursesList}
+                  />
+                </div>
               </div>
+            </div>
+          )}
 
-              {/* Tab Content: Overview */}
-              {socialCmsTab === "overview" && (
-                <CmsOverviewSection
-                  formData={formData}
-                  setFormData={setFormData}
-                  handleCmsTextChange={handleCmsTextChange}
-                  handleAddCmsArrayItem={handleAddCmsArrayItem}
-                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
-                  handleCmsArrayItemChange={handleCmsArrayItemChange}
-                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
-                />
-              )}
+          {/* Tab 5: Social CMS */}
+          {activeTab === "social_cms" && (
+            <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              <h3
+                style={{
+                  fontSize: "1.1rem",
+                  fontWeight: 700,
+                  borderBottom: "1px solid var(--panel-border)",
+                  paddingBottom: "0.5rem",
+                  margin: 0
+                }}
+              >
+                Social Course Page CMS Configuration
+              </h3>
 
-              {/* Tab Content: Salary */}
-              {socialCmsTab === "salary" && (
-                <CmsSalarySection
-                  formData={formData}
-                  setFormData={setFormData}
-                  handleCmsTextChange={handleCmsTextChange}
-                  handleAddCmsArrayItem={handleAddCmsArrayItem}
-                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
-                  handleCmsArrayItemChange={handleCmsArrayItemChange}
-                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
-                />
-              )}
+              <div
+                className="scroll-form"
+                style={{
+                  maxHeight: "75vh",
+                  overflowY: "auto",
+                  paddingRight: "12px",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "2.5rem"
+                }}
+              >
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    1. Overview Section
+                  </h4>
+                  <CmsOverviewSection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
 
-              {/* Tab Content: Funding */}
-              {socialCmsTab === "funding" && (
-                <CmsFundingSection
-                  formData={formData}
-                  setFormData={setFormData}
-                  handleCmsTextChange={handleCmsTextChange}
-                  handleAddCmsArrayItem={handleAddCmsArrayItem}
-                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
-                  handleCmsArrayItemChange={handleCmsArrayItemChange}
-                  handleAddStudyPoint={handleAddStudyPoint}
-                  handleRemoveStudyPoint={handleRemoveStudyPoint}
-                  handleStudyPointChange={handleStudyPointChange}
-                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
-                />
-              )}
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    2. Salary Section
+                  </h4>
+                  <CmsSalarySection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
 
-              {/* Tab Content: Study */}
-              {socialCmsTab === "study" && (
-                <CmsStudySection
-                  formData={formData}
-                  setFormData={setFormData}
-                  handleCmsTextChange={handleCmsTextChange}
-                  handleAddCmsArrayItem={handleAddCmsArrayItem}
-                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
-                  handleCmsArrayItemChange={handleCmsArrayItemChange}
-                  handleAddStudyPoint={handleAddStudyPoint}
-                  handleRemoveStudyPoint={handleRemoveStudyPoint}
-                  handleStudyPointChange={handleStudyPointChange}
-                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
-                />
-              )}
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    3. Funding Section
+                  </h4>
+                  <CmsFundingSection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    handleAddStudyPoint={handleAddStudyPoint}
+                    handleRemoveStudyPoint={handleRemoveStudyPoint}
+                    handleStudyPointChange={handleStudyPointChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
 
-              {/* Tab Content: Reviews */}
-              {socialCmsTab === "reviews" && (
-                <CmsReviewsSection
-                  formData={formData}
-                  setFormData={setFormData}
-                  handleCmsTextChange={handleCmsTextChange}
-                  handleAddCmsArrayItem={handleAddCmsArrayItem}
-                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
-                  handleCmsArrayItemChange={handleCmsArrayItemChange}
-                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
-                />
-              )}
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    4. Study Structure Section
+                  </h4>
+                  <CmsStudySection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    handleAddStudyPoint={handleAddStudyPoint}
+                    handleRemoveStudyPoint={handleRemoveStudyPoint}
+                    handleStudyPointChange={handleStudyPointChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
 
-              {/* Tab Content: Entry */}
-              {socialCmsTab === "entry" && (
-                <CmsEntrySection
-                  formData={formData}
-                  setFormData={setFormData}
-                  handleCmsTextChange={handleCmsTextChange}
-                  handleAddCmsArrayItem={handleAddCmsArrayItem}
-                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
-                  handleCmsArrayItemChange={handleCmsArrayItemChange}
-                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
-                  allCoursesList={allCoursesList}
-                />
-              )}
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    5. Reviews Section
+                  </h4>
+                  <CmsReviewsSection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
 
-              {/* Tab Content: FAQ */}
-              {socialCmsTab === "faq" && (
-                <CmsFaqSection
-                  formData={formData}
-                  setFormData={setFormData}
-                  handleCmsTextChange={handleCmsTextChange}
-                  handleAddCmsArrayItem={handleAddCmsArrayItem}
-                  handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
-                  handleCmsArrayItemChange={handleCmsArrayItemChange}
-                  setCmsMediaPickerTarget={setCmsMediaPickerTarget}
-                />
-              )}
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    6. Entry Requirements Section
+                  </h4>
+                  <CmsEntrySection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                    allCoursesList={allCoursesList}
+                  />
+                </div>
+
+                <div
+                  style={{
+                    border: "1px solid var(--panel-border)",
+                    borderRadius: "12px",
+                    padding: "1.5rem",
+                    background: "rgba(255,255,255,0.01)"
+                  }}
+                >
+                  <h4
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 700,
+                      color: "var(--primary)",
+                      marginTop: 0,
+                      marginBottom: "1.25rem",
+                      borderBottom: "1px solid rgba(255,255,255,0.05)",
+                      paddingBottom: "0.5rem"
+                    }}
+                  >
+                    7. FAQ Section
+                  </h4>
+                  <CmsFaqSection
+                    formData={formData}
+                    setFormData={setFormData}
+                    handleCmsTextChange={handleCmsTextChange}
+                    handleAddCmsArrayItem={handleAddCmsArrayItem}
+                    handleRemoveCmsArrayItem={handleRemoveCmsArrayItem}
+                    handleCmsArrayItemChange={handleCmsArrayItemChange}
+                    setCmsMediaPickerTarget={setCmsMediaPickerTarget}
+                  />
+                </div>
+              </div>
             </div>
           )}
         </div>
