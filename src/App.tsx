@@ -27,6 +27,8 @@ import { UpcomingIntakeAdminPanel } from "./components/UpcomingIntakeAdminPanel"
 import { ToolListPage } from "./pages/ToolListPage";
 import { ToolAdminPanel } from "./components/ToolAdminPanel";
 import { DynamicFormBuilderPage } from "./pages/DynamicFormBuilderPage";
+import { GuideListPage } from "./pages/GuideListPage";
+import { GuideAdminPanel } from "./components/GuideAdminPanel";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -458,6 +460,32 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DynamicFormBuilderPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Guides */}
+            <Route
+              path="/guides"
+              element={
+                <ProtectedRoute>
+                  <GuideListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/guides/new"
+              element={
+                <ProtectedRoute>
+                  <GuideAdminPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/guides/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <GuideAdminPanel />
                 </ProtectedRoute>
               }
             />

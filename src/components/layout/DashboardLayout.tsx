@@ -15,7 +15,8 @@ import {
   Trash2,
   Users,
   Wrench,
-  Calendar
+  Calendar,
+  BookOpen
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -303,6 +304,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             >
               <Users size={20} />
               Student Stories
+            </NavLink>
+            <NavLink
+              to="/guides"
+              className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
+              onClick={closeMobileSidebar}
+            >
+              <BookOpen size={20} />
+              Student Guides
             </NavLink>
             <NavLink
               to="/tools"
