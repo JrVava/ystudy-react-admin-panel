@@ -330,6 +330,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               Form Builder
             </NavLink>
             <NavLink
+              to="/smtp-config"
+              className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
+              onClick={closeMobileSidebar}
+            >
+              <FileText size={20} />
+              SMTP Config
+            </NavLink>
+            <NavLink
               to="/recycle-bin"
               className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
               onClick={closeMobileSidebar}

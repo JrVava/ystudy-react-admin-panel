@@ -49,7 +49,7 @@ const customStyles = {
       borderBottomColor: "rgba(255, 255, 255, 0.04)",
       borderBottomStyle: "solid" as const,
       transition: "background-color 0.2s ease",
-      "&:not(:last-of-type)": {
+      "&:not(:lastOfType)": {
         borderBottomWidth: "1px",
         borderBottomColor: "rgba(255, 255, 255, 0.04)",
         borderBottomStyle: "solid" as const

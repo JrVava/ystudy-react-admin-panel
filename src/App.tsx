@@ -29,6 +29,8 @@ import { ToolAdminPanel } from "./components/ToolAdminPanel";
 import { DynamicFormBuilderPage } from "./pages/DynamicFormBuilderPage";
 import { GuideListPage } from "./pages/GuideListPage";
 import { GuideAdminPanel } from "./components/GuideAdminPanel";
+import { SMTPPage } from "./pages/SMTPPage";
+import { SMTPConfig } from "./components/SMTPConfig";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -460,6 +462,33 @@ function App() {
               element={
                 <ProtectedRoute>
                   <DynamicFormBuilderPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/smtp-config"
+              element={
+                <ProtectedRoute>
+                  <SMTPPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/smtp-config/new"
+              element={
+                <ProtectedRoute>
+                  <SMTPConfig />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/smtp-config/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <SMTPConfig />
                 </ProtectedRoute>
               }
             />

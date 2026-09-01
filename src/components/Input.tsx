@@ -2,6 +2,7 @@ import React from "react";
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
+  error?: string;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -12,6 +13,7 @@ const Input: React.FC<InputProps> = ({
   type = "text",
   required = false,
   className = "",
+  error,
   ...rest
 }) => {
   const hasAsterisk = label.trim().endsWith("*");
@@ -24,7 +26,7 @@ const Input: React.FC<InputProps> = ({
         {(required || hasAsterisk) && <span className="text-red-500 font-bold ml-1">*</span>}
       </label>
       <input
-        className={`form-input ${className}`}
+        className={`form-input ${className} ${error ? "border-red-500" : ""}`}
         type={type}
         placeholder={placeholder}
         value={value === undefined || value === null ? "" : value}
@@ -32,6 +34,7 @@ const Input: React.FC<InputProps> = ({
         required={required}
         {...rest}
       />
+      {error && <span className="text-red-500 text-sm mt-1 block">{error}</span>}
     </div>
   );
 };
