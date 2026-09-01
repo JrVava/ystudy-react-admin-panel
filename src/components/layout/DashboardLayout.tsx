@@ -16,7 +16,8 @@ import {
   Users,
   Wrench,
   Calendar,
-  BookOpen
+  BookOpen,
+  Server
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -334,7 +335,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
               onClick={closeMobileSidebar}
             >
-              <FileText size={20} />
+              <Server size={20} />
               SMTP Config
             </NavLink>
             <NavLink
