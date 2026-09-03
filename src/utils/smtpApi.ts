@@ -14,7 +14,7 @@ export const smtpApi = {
     return decrypted;
   },
   getById: async (id: string) => {
-    const { data } = await api.get(`/smtp/edit/${id}`);
+    const { data } = await api.get(`/smtp/smpt-edit/${id}`);
     const result = data.data ? decrypt(data.data) : data;
     return result; // Returns decrypted JSON: { success: true, data: { slug, faqs: [...] } }
   },
