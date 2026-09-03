@@ -22,14 +22,14 @@ export const SMTPConfig = () => {
 
   useEffect(() => {
     if (id) {
-      fetchSmtpConfig(id);
+      fetchSmtpConfig();
     }
   }, [id]);
 
-  const fetchSmtpConfig = async (configId: string) => {
+  const fetchSmtpConfig = async () => {
     setLoading(true);
     try {
-      const res = await smtpApi.getById(configId);
+      const res = await smtpApi.getById();
       if (res?.success && res.data) {
         setFormData({
           host: res.data.host || "",
