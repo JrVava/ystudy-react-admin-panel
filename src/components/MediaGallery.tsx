@@ -523,7 +523,7 @@ export const MediaGallery: React.FC = () => {
 
               {/* Image Preview */}
               <img
-                src={`${config.apiUrl.replace("/api", "/")}${img.filePath}`}
+                src={`${config.mediaURL}/${img.filePath}`}
                 alt={img.altText || img.fileName}
                 title={img.title}
                 style={{

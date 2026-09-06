@@ -243,7 +243,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({ onSelect, on
                   </div>
                 </div>
                 <img
-                  src={`${config.apiUrl.replace("/api", "/")}${img.filePath}`}
+                  src={`${config.mediaURL}/${img.filePath}`}
                   alt={img.altText || img.fileName}
                   style={{ width: "100%", height: "110px", objectFit: "cover", borderRadius: "8px" }}
                 />
