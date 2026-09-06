@@ -20,6 +20,7 @@ import {
   FileText,
   UploadCloud
 } from "lucide-react";
+import config from "../config";
 
 export const MediaGallery: React.FC = () => {
   const [images, setImages] = useState<any[]>([]);
@@ -522,7 +523,7 @@ export const MediaGallery: React.FC = () => {
 
               {/* Image Preview */}
               <img
-                src={`http://localhost:4000/${img.filePath}`}
+                src={`${config.apiUrl.replace("/api", "/")}${img.filePath}`}
                 alt={img.altText || img.fileName}
                 title={img.title}
                 style={{

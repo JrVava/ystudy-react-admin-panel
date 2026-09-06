@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import api from "../utils/api";
 import { Folder, X, Search, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import config from "../config";
 
 interface MediaPickerModalProps {
   onSelect: (mediaId: string, filePath: string) => void;
@@ -242,7 +243,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({ onSelect, on
                   </div>
                 </div>
                 <img
-                  src={`http://localhost:4000/${img.filePath}`}
+                  src={`${config.apiUrl.replace("/api", "/")}${img.filePath}`}
                   alt={img.altText || img.fileName}
                   style={{ width: "100%", height: "110px", objectFit: "cover", borderRadius: "8px" }}
                 />
