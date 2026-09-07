@@ -5,9 +5,6 @@ import { toast } from "../context/ToastContext";
 import { Save, ArrowLeft, Image, MapPin } from "lucide-react";
 import { MediaPickerModal } from "./MediaPickerModal";
 import config from "../config";
-import api from "../utils/api";
-import { decrypt } from "../utils/crypto";
-import { SearchableSelect } from "./SearchableSelect";
 
 import Input from "./Input";
 import Textarea from "./Textarea";
@@ -19,7 +16,6 @@ export const LocationAdminPanel: React.FC = () => {
   const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(!!id);
   const [isSlugAutoSynced, setIsSlugAutoSynced] = useState(!id);
-  const [slugsList, setSlugsList] = useState<any[]>([]);
 
   const [formData, setFormData] = useState<any>({
     title: "",
@@ -31,21 +27,6 @@ export const LocationAdminPanel: React.FC = () => {
     fullImageUrl: "", // Backend absolute URL
     status: true
   });
-
-  useEffect(() => {
-    const fetchSlugs = async () => {
-      try {
-        const res = await api.get("/navigations/allInOne");
-        const decrypted = decrypt(res.data.data);
-        if (decrypted && decrypted.success && decrypted.data) {
-          setSlugsList(decrypted.data);
-        }
-      } catch (e) {
-        console.error("Failed to load slugs list", e);
-      }
-    };
-    fetchSlugs();
-  }, []);
 
   useEffect(() => {
     if (id) {
