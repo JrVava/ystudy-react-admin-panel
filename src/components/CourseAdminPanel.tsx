@@ -661,32 +661,26 @@ const CourseAdminPanel: React.FC = () => {
             >
               Relations
             </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("general_cms")}
-              className={`tab-btn ${activeTab === "general_cms" ? "active" : ""}`}
-              disabled={formData.courseType !== "General"}
-              style={{
-                border: 0,
-                opacity: formData.courseType === "General" ? 1 : 0.5,
-                cursor: formData.courseType === "General" ? "pointer" : "not-allowed"
-              }}
-            >
-              General CMS
-            </button>
-            <button
-              type="button"
-              onClick={() => setActiveTab("social_cms")}
-              className={`tab-btn ${activeTab === "social_cms" ? "active" : ""}`}
-              disabled={formData.courseType !== "Social"}
-              style={{
-                border: 0,
-                opacity: formData.courseType === "Social" ? 1 : 0.5,
-                cursor: formData.courseType === "Social" ? "pointer" : "not-allowed"
-              }}
-            >
-              Social CMS
-            </button>
+            {formData.courseType === "General" && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("general_cms")}
+                className={`tab-btn ${activeTab === "general_cms" ? "active" : ""}`}
+                style={{ border: 0 }}
+              >
+                General CMS
+              </button>
+            )}
+            {formData.courseType === "Social" && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("social_cms")}
+                className={`tab-btn ${activeTab === "social_cms" ? "active" : ""}`}
+                style={{ border: 0 }}
+              >
+                Social CMS
+              </button>
+            )}
           </div>
 
           {/* Tab 1: General Info */}
