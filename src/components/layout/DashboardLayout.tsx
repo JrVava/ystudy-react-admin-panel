@@ -15,6 +15,7 @@ import {
   Trash2,
   Users,
   Wrench,
+  MapPin,
   Calendar,
   BookOpen,
   Server
@@ -26,12 +27,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   const location = useLocation();
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isCoursesExpanded, setIsCoursesExpanded] = useState(
-    location.pathname.startsWith("/courses") || location.pathname.startsWith("/locations")
+    location.pathname.startsWith("/courses") && !location.pathname.startsWith("/courses/locations")
   );
 
   // Sync expanded state if location changes from outside
   useEffect(() => {
-    if (location.pathname.startsWith("/courses") || location.pathname.startsWith("/locations")) {
+    if (location.pathname.startsWith("/courses") && !location.pathname.startsWith("/courses/locations")) {
       setIsCoursesExpanded(true);
     }
   }, [location.pathname]);
@@ -173,10 +174,18 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               <FileText size={20} />
               CMS Pages
             </NavLink>
+            <NavLink
+              to="/courses/locations"
+              className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
+              onClick={closeMobileSidebar}
+            >
+              <MapPin size={20} />
+              Locations
+            </NavLink>
             {/* Collapsible Courses Group */}
             <div>
               <div
-                className={`nav-item ${location.pathname.startsWith("/courses") || location.pathname.startsWith("/locations") ? "nav-item-active" : ""}`}
+                className={`nav-item ${location.pathname.startsWith("/courses") && !location.pathname.startsWith("/courses/locations") ? "nav-item-active" : ""}`}
                 onClick={() => setIsCoursesExpanded(!isCoursesExpanded)}
                 style={{
                   cursor: "pointer",
@@ -220,7 +229,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                     onClick={closeMobileSidebar}
                     style={{ fontSize: "0.85rem", padding: "8px 12px" }}
                   >
-                    Curriculum Courses
+                    Courses
                   </NavLink>
                   <NavLink
                     to="/courses/subjects"
@@ -261,14 +270,6 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                     style={{ fontSize: "0.85rem", padding: "8px 12px" }}
                   >
                     Fundings
-                  </NavLink>
-                  <NavLink
-                    to="/courses/locations"
-                    className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
-                    onClick={closeMobileSidebar}
-                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
-                  >
-                    Campus Locations
                   </NavLink>
                 </div>
               )}

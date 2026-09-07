@@ -215,18 +215,14 @@ export const LocationAdminPanel: React.FC = () => {
               onChange={handleTitleChange}
               required
             />
-            <SearchableSelect
+            <Input
               label="Location Slug *"
+              placeholder="e.g. london-campus"
               value={formData.slug}
-              onChange={(selectedSlug) => {
+              onChange={(e) => {
                 setIsSlugAutoSynced(false);
-                setFormData((prev: any) => ({ ...prev, slug: selectedSlug }));
+                setFormData((prev: any) => ({ ...prev, slug: e.target.value }));
               }}
-              options={slugsList.map((item) => ({
-                value: item.slug,
-                label: `${item.name} (${item.slug}) — ${item.type}`
-              }))}
-              placeholder="Select associated page or course slug..."
               required
             />
           </div>

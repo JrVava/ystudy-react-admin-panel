@@ -4,7 +4,7 @@ import { timeTableApi } from "../utils/timeTableApi";
 import { courseApi } from "../utils/courseApi";
 import { Save, ArrowLeft, Clock, Plus, Trash2 } from "lucide-react";
 import { toast } from "../context/ToastContext";
-import { SearchableSelect } from "./SearchableSelect";
+import MultiSelectDropdown from "./MultiSelectDropdown";
 
 import Input from "./Input";
 import Textarea from "./Textarea";
@@ -19,7 +19,7 @@ export const TimeTableAdminPanel: React.FC = () => {
 
   const [formData, setFormData] = useState<any>({
     title: "",
-    slug: "",
+    slug: [],
     badge: "",
     description: "",
     items: [],
@@ -43,9 +43,16 @@ export const TimeTableAdminPanel: React.FC = () => {
       const fetchTimeTable = async () => {
         try {
           const res = await timeTableApi.getById(id);
+          let slugVal: string[] = [];
+          if (Array.isArray(res.slug)) {
+            slugVal = res.slug;
+          } else if (typeof res.slug === "string" && res.slug.trim()) {
+            slugVal = [res.slug.trim()];
+          }
+
           setFormData({
             title: res.title || "",
-            slug: res.slug || "",
+            slug: slugVal,
             badge: res.badge || "",
             description: res.description || "",
             items: Array.isArray(res.items) ? res.items : [],
@@ -78,7 +85,7 @@ export const TimeTableAdminPanel: React.FC = () => {
     setFormData((prev: any) => {
       const updated = { ...prev, title: newTitle };
       if (isSlugAutoSynced) {
-        updated.slug = slugify(newTitle);
+        updated.slug = [slugify(newTitle)];
       }
       return updated;
     });
@@ -112,7 +119,12 @@ export const TimeTableAdminPanel: React.FC = () => {
       toast.warning("Title is required!");
       return;
     }
-    if (!formData.slug || !formData.slug.trim()) {
+    const selectedSlugs = Array.isArray(formData.slug)
+      ? formData.slug
+      : typeof formData.slug === "string" && formData.slug.trim()
+        ? [formData.slug.trim()]
+        : [];
+    if (selectedSlugs.length === 0) {
       toast.warning("Associated Course Slug is required!");
       return;
     }
@@ -206,19 +218,26 @@ export const TimeTableAdminPanel: React.FC = () => {
               onChange={handleTitleChange}
               required
             />
-            <SearchableSelect
+            <MultiSelectDropdown
               label="Associated Course Slug *"
-              value={formData.slug}
+              description="Select one or more courses linked to this timetable."
+              placeholder="Select course(s)..."
+              options={coursesList.map((course) => ({
+                _id: course.slug,
+                title: `${course.title} (${course.slug})`
+              }))}
+              selectedIds={Array.isArray(formData.slug) ? formData.slug : formData.slug ? [formData.slug] : []}
               onChange={(selectedSlug) => {
                 setIsSlugAutoSynced(false);
-                setFormData((prev: any) => ({ ...prev, slug: selectedSlug }));
+                setFormData((prev: any) => {
+                  const current: string[] = Array.isArray(prev.slug) ? prev.slug : prev.slug ? [prev.slug] : [];
+                  const exists = current.includes(selectedSlug);
+                  const updatedSlugs = exists
+                    ? current.filter((s: string) => s !== selectedSlug)
+                    : [...current, selectedSlug];
+                  return { ...prev, slug: updatedSlugs };
+                });
               }}
-              options={coursesList.map((course) => ({
-                value: course.slug,
-                label: `${course.title} (${course.slug})`
-              }))}
-              placeholder="Select a course..."
-              required
             />
           </div>
 
