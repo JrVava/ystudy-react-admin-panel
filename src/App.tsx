@@ -31,6 +31,8 @@ import { GuideListPage } from "./pages/GuideListPage";
 import { GuideAdminPanel } from "./components/GuideAdminPanel";
 import { SMTPPage } from "./pages/SMTPPage";
 import { SMTPConfig } from "./components/SMTPConfig";
+import { GoogleSheetListPage } from "./pages/GoogleSheetListPage";
+import { GoogleSheetConfig } from "./components/GoogleSheetConfig";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -489,6 +491,33 @@ function App() {
               element={
                 <ProtectedRoute>
                   <SMTPConfig />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/google-sheets"
+              element={
+                <ProtectedRoute>
+                  <GoogleSheetListPage />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/google-sheets/new"
+              element={
+                <ProtectedRoute>
+                  <GoogleSheetConfig />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/google-sheets/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <GoogleSheetConfig />
                 </ProtectedRoute>
               }
             />

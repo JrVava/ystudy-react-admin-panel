@@ -18,7 +18,8 @@ import {
   MapPin,
   Calendar,
   BookOpen,
-  Server
+  Server,
+  FileSpreadsheet
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -330,6 +331,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             >
               <FileText size={20} />
               Form Builder
+            </NavLink>
+            <NavLink
+              to="/google-sheets"
+              className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
+              onClick={closeMobileSidebar}
+            >
+              <FileSpreadsheet size={20} />
+              Google Sheets Config
             </NavLink>
             <NavLink
               to="/smtp-config"

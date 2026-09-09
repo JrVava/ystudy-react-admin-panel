@@ -17,6 +17,7 @@ export const SMTPConfig = () => {
     password: "",
     secure: false,
     fromEmail: "",
+    recipient_email: "",
     status: true
   });
 
@@ -38,6 +39,7 @@ export const SMTPConfig = () => {
           password: res.data.password || "",
           secure: res.data.secure || false,
           fromEmail: res.data.fromEmail || "",
+          recipient_email: res.data.recipient_email || "",
           status: res.data.status !== undefined ? res.data.status : true
         });
       }
@@ -72,6 +74,8 @@ export const SMTPConfig = () => {
     if (!formData.user.trim()) newErrors.user = "User is required";
     if (!formData.password.trim()) newErrors.password = "Password is required";
     if (formData.fromEmail && !/\S+@\S+\.\S+/.test(formData.fromEmail)) newErrors.fromEmail = "Invalid email address";
+    if (formData.recipient_email && !/\S+@\S+\.\S+/.test(formData.recipient_email))
+      newErrors.recipient_email = "Invalid email address";
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -218,6 +222,16 @@ export const SMTPConfig = () => {
               value={formData.fromEmail}
               onChange={handleChange}
               error={errors.fromEmail}
+              style={{ gridColumn: "1 / -1" }}
+            />
+            <Input
+              label="Recipient Email"
+              name="recipient_email"
+              type="email"
+              placeholder="admin@example.com"
+              value={formData.recipient_email}
+              onChange={handleChange}
+              error={errors.recipient_email}
               style={{ gridColumn: "1 / -1" }}
             />
           </div>
