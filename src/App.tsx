@@ -14,6 +14,7 @@ import { LocationListPage } from "./pages/LocationListPage";
 import LocationAdminPanel from "./components/LocationAdminPanel";
 import { LookupListPage } from "./pages/LookupListPage";
 import { LookupAdminPanel } from "./components/LookupAdminPanel";
+import SubjectAdminPanel from "./components/SubjectAdminPanel";
 import { FAQListPage } from "./pages/FAQListPage";
 import { FAQAdminPanel } from "./components/FAQAdminPanel";
 import { TimeTableListPage } from "./pages/TimeTableListPage";
@@ -204,7 +205,7 @@ function App() {
               path="/courses/subjects/new"
               element={
                 <ProtectedRoute>
-                  <LookupAdminPanel type="subjects" />
+                  <SubjectAdminPanel />
                 </ProtectedRoute>
               }
             />
@@ -212,7 +213,7 @@ function App() {
               path="/courses/subjects/edit/:id"
               element={
                 <ProtectedRoute>
-                  <LookupAdminPanel type="subjects" />
+                  <SubjectAdminPanel />
                 </ProtectedRoute>
               }
             />
