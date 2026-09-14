@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FileSpreadsheet, Edit2, Plus, Trash2, Search, X } from "lucide-react";
+import { FileSpreadsheet, Edit2, Plus, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Table } from "../components/Table";
 import { toast } from "../context/ToastContext";

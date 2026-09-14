@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { lookupApi } from "../utils/lookupApi";
-import { Save, ArrowLeft, BookOpen, Image as ImageIcon, X, Plus, Layers } from "lucide-react";
+import { Save, ArrowLeft, BookOpen, Image as ImageIcon, X, Plus } from "lucide-react";
 import { toast } from "../context/ToastContext";
 import { MediaPickerModal } from "./MediaPickerModal";
 import config from "../config";
