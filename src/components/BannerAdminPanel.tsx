@@ -144,7 +144,10 @@ const BannerAdminPanel: React.FC = () => {
       title: "Find a degree that builds your bright future.",
       description: "Compare courses, Student Finance and flexible study routes before you apply.",
       badgeText: "FREE GUIDANCE FOR WORKING ADULTS",
-      footerItems: []
+      footerItems: [],
+      sfeText: "",
+      sfeLinkText: "",
+      sfeLinkUrl: ""
     },
     rightCard: {
       layoutType: "stacked-cards",
@@ -187,7 +190,15 @@ const BannerAdminPanel: React.FC = () => {
               fullImageUrl: banner.fullImageUrl || banner.background?.fullImageUrl || "",
               bgColor: banner.background?.bgColor || ""
             },
-            leftContent: banner.leftContent || { title: "", description: "", badgeText: "", footerItems: [] },
+            leftContent: {
+              title: banner.leftContent?.title || "",
+              description: banner.leftContent?.description || "",
+              badgeText: banner.leftContent?.badgeText || "",
+              footerItems: banner.leftContent?.footerItems || [],
+              sfeText: banner.leftContent?.sfeText || "",
+              sfeLinkText: banner.leftContent?.sfeLinkText || "",
+              sfeLinkUrl: banner.leftContent?.sfeLinkUrl || ""
+            },
             rightCard: {
               layoutType: banner.rightCard?.layoutType || "stacked-cards",
               title: banner.rightCard?.title || "",
@@ -571,6 +582,37 @@ const BannerAdminPanel: React.FC = () => {
                   value={formData.leftContent.description}
                   onChange={(e) => updateLeftContent("description", e.target.value)}
                 />
+
+                <div style={{ marginTop: "24px", paddingTop: "20px", borderTop: "1px solid var(--panel-border)" }}>
+                  <h4
+                    style={{
+                      fontSize: "0.95rem",
+                      fontWeight: 700,
+                      color: "var(--text-secondary)",
+                      marginBottom: "16px"
+                    }}
+                  >
+                    Student Finance / Eligibility Strip (Optional)
+                  </h4>
+                  <Textarea
+                    label="SFE Info Text"
+                    placeholder="e.g., Courses in this area may be eligible for Tuition Fee Loan, Maintenance Loan and grants depending on your circumstances."
+                    value={formData.leftContent.sfeText || ""}
+                    onChange={(e) => updateLeftContent("sfeText", e.target.value)}
+                  />
+                  <Input
+                    label="SFE Link Text"
+                    placeholder="e.g., Estimate your funding →"
+                    value={formData.leftContent.sfeLinkText || ""}
+                    onChange={(e) => updateLeftContent("sfeLinkText", e.target.value)}
+                  />
+                  <Input
+                    label="SFE Link URL"
+                    placeholder="e.g., /funding"
+                    value={formData.leftContent.sfeLinkUrl || ""}
+                    onChange={(e) => updateLeftContent("sfeLinkUrl", e.target.value)}
+                  />
+                </div>
               </div>
             )}
 
@@ -802,6 +844,49 @@ const BannerAdminPanel: React.FC = () => {
                   <p className="banner-description">
                     {formData.leftContent.description || "Add supporting details here."}
                   </p>
+
+                  {formData.leftContent.sfeText && (
+                    <div
+                      style={{
+                        marginTop: "16px",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        borderRadius: "12px",
+                        padding: "10px 14px",
+                        background: "rgba(255, 255, 255, 0.14)",
+                        border: "1px solid rgba(255, 255, 255, 0.34)",
+                        color: "#fff",
+                        fontSize: "0.8rem",
+                        backdropFilter: "blur(6px)"
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: "22px",
+                          height: "22px",
+                          borderRadius: "50%",
+                          display: "grid",
+                          placeItems: "center",
+                          background: "#3ddc97",
+                          color: "#04342c",
+                          fontWeight: 900,
+                          fontSize: "11px",
+                          flexShrink: 0
+                        }}
+                      >
+                        ✓
+                      </span>
+                      <span>
+                        {formData.leftContent.sfeText}{" "}
+                        {formData.leftContent.sfeLinkText && (
+                          <span style={{ color: "#fff", textDecoration: "underline", fontWeight: 800 }}>
+                            {formData.leftContent.sfeLinkText}
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  )}
                 </div>
               )}
 
