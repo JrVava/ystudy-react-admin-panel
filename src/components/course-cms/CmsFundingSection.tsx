@@ -8,11 +8,7 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
   handleCmsTextChange,
   handleAddCmsArrayItem,
   handleRemoveCmsArrayItem,
-  handleCmsArrayItemChange,
-  handleStudyPointChange,
-  handleAddStudyPoint,
-  handleRemoveStudyPoint,
-  setCmsMediaPickerTarget
+  handleCmsArrayItemChange
 }) => {
   return (
     <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -27,20 +23,22 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>Funding Section 1</h4>
+            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
+              Funding Section 1: Student Finance Estimate
+            </h4>
             <div
               className="responsive-form-grid"
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
             >
               <Input
+                label="Badge"
+                value={formData.courseCms?.funding?.section_1?.badge || ""}
+                onChange={(e) => handleCmsTextChange("funding.section_1", "badge", e.target.value)}
+              />
+              <Input
                 label="Title"
                 value={formData.courseCms?.funding?.section_1?.title || ""}
                 onChange={(e) => handleCmsTextChange("funding.section_1", "title", e.target.value)}
-              />
-              <Input
-                label="Subtitle"
-                value={formData.courseCms?.funding?.section_1?.subtitle || ""}
-                onChange={(e) => handleCmsTextChange("funding.section_1", "subtitle", e.target.value)}
               />
             </div>
             <Textarea
@@ -50,55 +48,19 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
             />
             <div
               className="responsive-form-grid"
-              style={{ display: "grid", gridTemplateColumns: "200px 1fr", gap: "1rem", marginTop: "0.5rem" }}
+              style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginTop: "0.5rem" }}
             >
-              <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                <label className="form-label">Featured Image</label>
-                {formData.courseCms?.funding?.section_1?.image ? (
-                  <div style={{ position: "relative", width: "150px", height: "80px" }}>
-                    <img
-                      src={formData.courseCms.funding.section_1.image}
-                      alt="funding"
-                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px" }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => handleCmsTextChange("funding.section_1", "image", "")}
-                      style={{
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        background: "rgba(0,0,0,0.6)",
-                        border: "none",
-                        color: "#fff",
-                        borderRadius: "50%",
-                        cursor: "pointer",
-                        width: "20px",
-                        height: "20px",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center"
-                      }}
-                    >
-                      ×
-                    </button>
-                  </div>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setCmsMediaPickerTarget({ section: "funding.section_1", arrayField: "", index: -1, key: "image" })
-                    }
-                    className="btn-secondary"
-                  >
-                    Select Image
-                  </button>
-                )}
-              </div>
               <Input
-                label="Total Support Description"
-                value={formData.courseCms?.funding?.section_1?.totalSupport || ""}
-                onChange={(e) => handleCmsTextChange("funding.section_1", "totalSupport", e.target.value)}
+                label="Total Support Card Title"
+                placeholder="e.g. Total possible support"
+                value={formData.courseCms?.funding?.section_1?.cardTItle || ""}
+                onChange={(e) => handleCmsTextChange("funding.section_1", "cardTItle", e.target.value)}
+              />
+              <Input
+                label="Total Support Card Value"
+                placeholder="e.g. £23,925"
+                value={formData.courseCms?.funding?.section_1?.cardDescription || ""}
+                onChange={(e) => handleCmsTextChange("funding.section_1", "cardDescription", e.target.value)}
               />
             </div>
 
@@ -118,7 +80,7 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
                 <button
                   type="button"
                   onClick={() =>
-                    handleAddCmsArrayItem("funding.section_1", "cards", { title: "", subtitle: "", description: "" })
+                    handleAddCmsArrayItem("funding.section_1", "cards", { title: "", description: "", link: "" })
                   }
                   className="btn-secondary"
                   style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
@@ -144,17 +106,17 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
                     }
                   />
                   <Input
-                    label="Subtitle"
-                    value={card.subtitle || ""}
-                    onChange={(e) =>
-                      handleCmsArrayItemChange("funding.section_1", "cards", idx, "subtitle", e.target.value)
-                    }
-                  />
-                  <Input
                     label="Description"
                     value={card.description || ""}
                     onChange={(e) =>
                       handleCmsArrayItemChange("funding.section_1", "cards", idx, "description", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Link Url"
+                    value={card.link || ""}
+                    onChange={(e) =>
+                      handleCmsArrayItemChange("funding.section_1", "cards", idx, "link", e.target.value)
                     }
                   />
                   <button
@@ -179,45 +141,91 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>Funding Section 2</h4>
-            <Input
-              label="Title"
-              value={formData.courseCms?.funding?.section_2?.title || ""}
-              onChange={(e) => handleCmsTextChange("funding.section_2", "title", e.target.value)}
-            />
+            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
+              Funding Section 2: Why This Course
+            </h4>
+            <div
+              className="responsive-form-grid"
+              style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
+            >
+              <Input
+                label="Badge"
+                value={formData.courseCms?.funding?.section_2?.badge || ""}
+                onChange={(e) => handleCmsTextChange("funding.section_2", "badge", e.target.value)}
+              />
+              <Input
+                label="Title"
+                value={formData.courseCms?.funding?.section_2?.title || ""}
+                onChange={(e) => handleCmsTextChange("funding.section_2", "title", e.target.value)}
+              />
+            </div>
             <Textarea
               label="Description"
               value={formData.courseCms?.funding?.section_2?.description || ""}
               onChange={(e) => handleCmsTextChange("funding.section_2", "description", e.target.value)}
             />
-            <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem", marginTop: "0.5rem" }}>
+
+            {/* cards */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+                marginTop: "1rem",
+                borderTop: "1px solid var(--panel-border)",
+                paddingTop: "1rem"
+              }}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <label className="form-label" style={{ margin: 0 }}>
-                  Bullet Points
-                </label>
+                <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Reason Cards</h5>
                 <button
                   type="button"
-                  onClick={() => handleAddStudyPoint?.("funding.section_2", "points")}
+                  onClick={() =>
+                    handleAddCmsArrayItem("funding.section_2", "cards", { icon: "", title: "", description: "" })
+                  }
                   className="btn-secondary"
-                  style={{ padding: "2px 6px", fontSize: "0.75rem" }}
+                  style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
                 >
-                  + Add Point
+                  + Add Reason Card
                 </button>
               </div>
-              {(formData.courseCms?.funding?.section_2?.points || []).map((point: string, idx: number) => (
-                <div key={idx} style={{ display: "flex", gap: "0.5rem" }}>
-                  <input
-                    type="text"
-                    className="form-input"
-                    value={point}
-                    onChange={(e) => handleStudyPointChange?.("funding.section_2", "points", idx, e.target.value)}
-                    style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--panel-border)" }}
+              {(formData.courseCms?.funding?.section_2?.cards || []).map((card: any, idx: number) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "100px 1fr 1fr auto",
+                    gap: "0.5rem",
+                    alignItems: "flex-end"
+                  }}
+                >
+                  <Input
+                    label="Icon (emoji)"
+                    placeholder="e.g. 💼"
+                    value={card.icon || ""}
+                    onChange={(e) =>
+                      handleCmsArrayItemChange("funding.section_2", "cards", idx, "icon", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Title"
+                    value={card.title || ""}
+                    onChange={(e) =>
+                      handleCmsArrayItemChange("funding.section_2", "cards", idx, "title", e.target.value)
+                    }
+                  />
+                  <Input
+                    label="Description"
+                    value={card.description || ""}
+                    onChange={(e) =>
+                      handleCmsArrayItemChange("funding.section_2", "cards", idx, "description", e.target.value)
+                    }
                   />
                   <button
                     type="button"
-                    onClick={() => handleRemoveStudyPoint?.("funding.section_2", "points", idx)}
+                    onClick={() => handleRemoveCmsArrayItem("funding.section_2", "cards", idx)}
                     className="btn-secondary"
-                    style={{ color: "var(--error)" }}
+                    style={{ color: "var(--error)", padding: "0.5rem" }}
                   >
                     Remove
                   </button>
@@ -241,7 +249,7 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
             >
               <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--primary)", margin: 0 }}>
-                Section 5: SFE support cards
+                Section 5: Progression Ladder
               </h4>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <input
@@ -290,16 +298,16 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Support Details</h5>
+                <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Progression Steps</h5>
                 <button
                   type="button"
                   onClick={() =>
-                    handleAddCmsArrayItem("section_5", "cards", { title: "", description: "", number: "" })
+                    handleAddCmsArrayItem("section_5", "cards", { badge: "", title: "", description: "", salary: "" })
                   }
                   className="btn-secondary"
                   style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
                 >
-                  + Add Support Info
+                  + Add Step
                 </button>
               </div>
               {(formData.courseCms?.section_5?.cards || []).map((card: any, idx: number) => (
@@ -307,16 +315,16 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
                   key={idx}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "100px 1fr 1fr auto",
+                    gridTemplateColumns: "80px 1fr 1fr 100px auto",
                     gap: "0.5rem",
                     alignItems: "flex-end"
                   }}
                 >
                   <Input
-                    label="Number Label"
-                    placeholder="e.g. 01"
-                    value={card.number || ""}
-                    onChange={(e) => handleCmsArrayItemChange("section_5", "cards", idx, "number", e.target.value)}
+                    label="Step #"
+                    placeholder="e.g. 1"
+                    value={card.badge || ""}
+                    onChange={(e) => handleCmsArrayItemChange("section_5", "cards", idx, "badge", e.target.value)}
                   />
                   <Input
                     label="Title"
@@ -327,6 +335,12 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
                     label="Description"
                     value={card.description || ""}
                     onChange={(e) => handleCmsArrayItemChange("section_5", "cards", idx, "description", e.target.value)}
+                  />
+                  <Input
+                    label="Salary"
+                    placeholder="e.g. £24k–£30k"
+                    value={card.salary || ""}
+                    onChange={(e) => handleCmsArrayItemChange("section_5", "cards", idx, "salary", e.target.value)}
                   />
                   <button
                     type="button"
@@ -354,7 +368,7 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
             >
               <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--primary)", margin: 0 }}>
-                Section 6: Why Choose/Funding Intro
+                Section 6: Entry Routes Intro
               </h4>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <input
@@ -390,6 +404,65 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
               value={formData.courseCms?.section_6?.description || ""}
               onChange={(e) => handleCmsTextChange("section_6", "description", e.target.value)}
             />
+
+            {/* Entry route cards */}
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+                marginTop: "1rem",
+                borderTop: "1px solid var(--panel-border)",
+                paddingTop: "1rem"
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Entry Route Cards</h5>
+                <button
+                  type="button"
+                  onClick={() => handleAddCmsArrayItem("section_6", "cards", { title: "", description: "", link: "" })}
+                  className="btn-secondary"
+                  style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
+                >
+                  + Add Route Card
+                </button>
+              </div>
+              {(formData.courseCms?.section_6?.cards || []).map((card: any, idx: number) => (
+                <div
+                  key={idx}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr 1fr auto",
+                    gap: "0.5rem",
+                    alignItems: "flex-end"
+                  }}
+                >
+                  <Input
+                    label="Title"
+                    value={card.title || ""}
+                    onChange={(e) => handleCmsArrayItemChange("section_6", "cards", idx, "title", e.target.value)}
+                  />
+                  <Input
+                    label="Description"
+                    value={card.description || ""}
+                    onChange={(e) => handleCmsArrayItemChange("section_6", "cards", idx, "description", e.target.value)}
+                  />
+                  <Input
+                    label="Link Url"
+                    value={card.link || ""}
+                    onChange={(e) => handleCmsArrayItemChange("section_6", "cards", idx, "link", e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveCmsArrayItem("section_6", "cards", idx)}
+                    className="btn-secondary"
+                    style={{ color: "var(--error)", padding: "0.5rem" }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         </>
       )}

@@ -8,7 +8,8 @@ export const CmsSalarySection: React.FC<CmsSectionProps> = ({
   handleCmsTextChange,
   handleAddCmsArrayItem,
   handleRemoveCmsArrayItem,
-  handleCmsArrayItemChange
+  handleCmsArrayItemChange,
+  setCmsMediaPickerTarget
 }) => {
   return (
     <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -51,7 +52,9 @@ export const CmsSalarySection: React.FC<CmsSectionProps> = ({
               <h4 style={{ margin: 0, fontSize: "0.95rem" }}>Roles & Salaries</h4>
               <button
                 type="button"
-                onClick={() => handleAddCmsArrayItem("salary", "cards", { title: "", description: "" })}
+                onClick={() =>
+                  handleAddCmsArrayItem("salary", "cards", { image: "", title: "", pay: "", description: "", link: "" })
+                }
                 className="btn-secondary"
                 style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
               >
@@ -63,23 +66,81 @@ export const CmsSalarySection: React.FC<CmsSectionProps> = ({
                 key={idx}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "1fr 1fr auto",
-                  gap: "1rem",
+                  gridTemplateColumns: "120px 1fr 1fr 1fr 1fr auto",
+                  gap: "0.5rem",
                   alignItems: "flex-end",
                   background: "rgba(255,255,255,0.01)",
                   padding: "0.5rem",
                   borderRadius: "8px"
                 }}
               >
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
+                  <label className="form-label" style={{ fontSize: "0.75rem" }}>
+                    Role Image
+                  </label>
+                  {card.image ? (
+                    <div style={{ position: "relative", width: "90px", height: "50px" }}>
+                      <img
+                        src={card.image}
+                        alt="role"
+                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px" }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleCmsArrayItemChange("salary", "cards", idx, "image", "")}
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          right: 0,
+                          background: "rgba(0,0,0,0.6)",
+                          border: "none",
+                          color: "#fff",
+                          borderRadius: "50%",
+                          cursor: "pointer",
+                          width: "16px",
+                          height: "16px",
+                          fontSize: "10px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setCmsMediaPickerTarget({ section: "salary", arrayField: "cards", index: idx, key: "image" })
+                      }
+                      className="btn-secondary"
+                      style={{ padding: "4px 8px", fontSize: "0.75rem" }}
+                    >
+                      Select Image
+                    </button>
+                  )}
+                </div>
                 <Input
                   label="Role Title"
                   value={card.title || ""}
                   onChange={(e) => handleCmsArrayItemChange("salary", "cards", idx, "title", e.target.value)}
                 />
                 <Input
-                  label="Salary description"
+                  label="Pay Range"
+                  placeholder="e.g. £28k–£45k"
+                  value={card.pay || ""}
+                  onChange={(e) => handleCmsArrayItemChange("salary", "cards", idx, "pay", e.target.value)}
+                />
+                <Input
+                  label="Description"
                   value={card.description || ""}
                   onChange={(e) => handleCmsArrayItemChange("salary", "cards", idx, "description", e.target.value)}
+                />
+                <Input
+                  label="Link Url"
+                  value={card.link || ""}
+                  onChange={(e) => handleCmsArrayItemChange("salary", "cards", idx, "link", e.target.value)}
                 />
                 <button
                   type="button"
@@ -139,11 +200,6 @@ export const CmsSalarySection: React.FC<CmsSectionProps> = ({
                 onChange={(e) => handleCmsTextChange("section_4", "title", e.target.value)}
               />
             </div>
-            <Textarea
-              label="Description"
-              value={formData.courseCms?.section_4?.description || ""}
-              onChange={(e) => handleCmsTextChange("section_4", "description", e.target.value)}
-            />
 
             {/* Salary Outcomes Cards Repeater */}
             <div

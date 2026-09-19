@@ -235,11 +235,11 @@ const CourseAdminPanel: React.FC = () => {
 
   const DEFAULT_GENERAL_CMS = {
     section_2: { badge: "", title: "", description: "" },
-    section_3: { badge: "", title: "", description: "", cards: [], tiles: [], status: true },
-    section_4: { badge: "", title: "", description: "", cards: [], status: true },
+    section_3: { badge: "", title: "", description: "", cards: [], status: true },
+    section_4: { badge: "", title: "", cards: [], status: true },
     section_5: { badge: "", title: "", description: "", cards: [], status: true },
-    section_6: { badge: "", title: "", description: "", status: true },
-    section_7: { badge: "", title: "", description: "", year1: [], year2: [], year3: [], status: true },
+    section_6: { badge: "", title: "", description: "", cards: [], status: true },
+    section_7: { badge: "", title: "", description: "", status: true },
     section_8: { badge: "", title: "", cards: [], status: true },
     section_9: { badge: "", title: "", description: "", cards: [], status: true },
     section_10: { badge: "", title: "", description: "", featured_course: "", status: true },
@@ -249,34 +249,38 @@ const CourseAdminPanel: React.FC = () => {
 
   const DEFAULT_SOCIAL_CMS = {
     overview: {
+      tab: "Overview",
       badge: "Course overview",
       title: "A practical degree, built around your life.",
       description: "",
       cards: [],
-      statsCards: []
+      statsCards: [],
+      status: true
     },
-    salary: { badge: "", title: "", description: "", cards: [] },
+    salary: { tab: "Salary", badge: "", title: "", description: "", cards: [], status: true },
     funding: {
-      section_1: { title: "", subtitle: "", description: "", image: "", totalSupport: "", cards: [] },
-      section_2: { title: "", description: "", points: [] }
+      tab: "Funding",
+      section_1: { badge: "", title: "", description: "", cardTItle: "", cardDescription: "", cards: [], status: true },
+      section_2: { badge: "", title: "", description: "", cards: [], status: true }
     },
     study: {
-      section_1: { title: "", subtitle: "", description: "", image: "", cards: [] },
-      section_2: { title: "", description: "", cards: [] }
+      section_1: { tab: "Study", badge: "", title: "", description: "", cards: [], status: true },
+      section_2: { badge: "", title: "", description: "", status: true }
     },
-    reviews: { title: "", subtitle: "", description: "" },
+    reviews: { tab: "Reviews", badge: "", title: "", description: "", status: true },
     Entry: {
-      section_1: { title: "", description: "", rows: [] },
-      section_2: { title: "", score: "", description: "" },
-      section_3: { title: "", description: "", image: "" },
-      section_4: { title: "", description: "", cards: [] },
-      section_5: { title: "", link: "", description: "" }
+      tab: "Entry",
+      section_1: { badge: "", title: "", description: "", cards: [], status: true },
+      section_2: { badge: "", title: "", description: "", status: true },
+      section_3: { badge: "", title: "", description: "", cards: [], status: true },
+      section_4: { title: "", description: "", status: true },
+      section_5: { badge: "", title: "", description: "", status: true }
     },
     FAQ: {
-      section_1: { title: "", subtitle: "", description: "" },
-      section_2: { title: "", description: "" },
-      section_3: { title: "", description: "", cards: [] },
-      section_4: { title: "", subtitle: "", description: "", cards: [] }
+      section_1: { tab: "FAQ", badge: "", title: "", description: "", status: true },
+      section_2: { badge: "", title: "", description: "" },
+      section_3: { cards: [], status: true },
+      section_4: { title: "", description: "", cards: [], status: true }
     }
   };
 
@@ -736,7 +740,10 @@ const CourseAdminPanel: React.FC = () => {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Course Type *</label>
+                <label className="form-label">
+                  Course Type
+                  <span className="text-red-500 font-bold ml-1">*</span>
+                </label>
                 <select
                   className="form-input"
                   value={formData.courseType || ""}

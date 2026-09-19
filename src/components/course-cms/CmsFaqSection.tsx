@@ -26,14 +26,14 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
         <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>FAQ Intro Header</h4>
         <div className="responsive-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
           <Input
+            label="Badge"
+            value={formData.courseCms?.FAQ?.section_1?.badge || ""}
+            onChange={(e) => handleCmsTextChange("FAQ.section_1", "badge", e.target.value)}
+          />
+          <Input
             label="Title"
             value={formData.courseCms?.FAQ?.section_1?.title || ""}
             onChange={(e) => handleCmsTextChange("FAQ.section_1", "title", e.target.value)}
-          />
-          <Input
-            label="Subtitle"
-            value={formData.courseCms?.FAQ?.section_1?.subtitle || ""}
-            onChange={(e) => handleCmsTextChange("FAQ.section_1", "subtitle", e.target.value)}
           />
         </div>
         <Textarea
@@ -55,11 +55,18 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
         <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
           Short Apply Form Guide
         </h4>
-        <Input
-          label="Title"
-          value={formData.courseCms?.FAQ?.section_2?.title || ""}
-          onChange={(e) => handleCmsTextChange("FAQ.section_2", "title", e.target.value)}
-        />
+        <div className="responsive-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
+          <Input
+            label="Badge"
+            value={formData.courseCms?.FAQ?.section_2?.badge || ""}
+            onChange={(e) => handleCmsTextChange("FAQ.section_2", "badge", e.target.value)}
+          />
+          <Input
+            label="Title"
+            value={formData.courseCms?.FAQ?.section_2?.title || ""}
+            onChange={(e) => handleCmsTextChange("FAQ.section_2", "title", e.target.value)}
+          />
+        </div>
         <Textarea
           label="Description"
           value={formData.courseCms?.FAQ?.section_2?.description || ""}
@@ -76,19 +83,21 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
           borderRadius: "16px"
         }}
       >
-        <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
-          FAQs List (Q&A Accordion)
-        </h4>
-        <Input
-          label="Title"
-          value={formData.courseCms?.FAQ?.section_3?.title || ""}
-          onChange={(e) => handleCmsTextChange("FAQ.section_3", "title", e.target.value)}
-        />
-        <Textarea
-          label="Description"
-          value={formData.courseCms?.FAQ?.section_3?.description || ""}
-          onChange={(e) => handleCmsTextChange("FAQ.section_3", "description", e.target.value)}
-        />
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0 }}>FAQs List (Q&A Accordion)</h4>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <input
+              type="checkbox"
+              id="faq_sec3_status"
+              checked={formData.courseCms?.FAQ?.section_3?.status !== false}
+              onChange={(e) => handleCmsTextChange("FAQ.section_3", "status", e.target.checked)}
+              style={{ width: "16px", height: "16px" }}
+            />
+            <label htmlFor="faq_sec3_status" className="form-label" style={{ margin: 0 }}>
+              Visible
+            </label>
+          </div>
+        </div>
 
         {/* faq list repeaters */}
         <div
@@ -150,18 +159,11 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
         }}
       >
         <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>Footer Action Cards</h4>
-        <div className="responsive-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
-          <Input
-            label="Title"
-            value={formData.courseCms?.FAQ?.section_4?.title || ""}
-            onChange={(e) => handleCmsTextChange("FAQ.section_4", "title", e.target.value)}
-          />
-          <Input
-            label="Subtitle"
-            value={formData.courseCms?.FAQ?.section_4?.subtitle || ""}
-            onChange={(e) => handleCmsTextChange("FAQ.section_4", "subtitle", e.target.value)}
-          />
-        </div>
+        <Input
+          label="Title"
+          value={formData.courseCms?.FAQ?.section_4?.title || ""}
+          onChange={(e) => handleCmsTextChange("FAQ.section_4", "title", e.target.value)}
+        />
         <Textarea
           label="Description"
           value={formData.courseCms?.FAQ?.section_4?.description || ""}

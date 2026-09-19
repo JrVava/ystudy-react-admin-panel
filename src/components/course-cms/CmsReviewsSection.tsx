@@ -8,8 +8,7 @@ export const CmsReviewsSection: React.FC<CmsSectionProps> = ({
   handleCmsTextChange,
   handleAddCmsArrayItem,
   handleRemoveCmsArrayItem,
-  handleCmsArrayItemChange,
-  setCmsMediaPickerTarget
+  handleCmsArrayItemChange
 }) => {
   return (
     <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -22,9 +21,9 @@ export const CmsReviewsSection: React.FC<CmsSectionProps> = ({
             onChange={(e) => handleCmsTextChange("reviews", "title", e.target.value)}
           />
           <Input
-            label="Reviews Subtitle"
-            value={formData.courseCms?.reviews?.subtitle || ""}
-            onChange={(e) => handleCmsTextChange("reviews", "subtitle", e.target.value)}
+            label="Reviews Badge"
+            value={formData.courseCms?.reviews?.badge || ""}
+            onChange={(e) => handleCmsTextChange("reviews", "badge", e.target.value)}
           />
           <Textarea
             label="Reviews Description"
@@ -47,7 +46,7 @@ export const CmsReviewsSection: React.FC<CmsSectionProps> = ({
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
             >
               <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--primary)", margin: 0 }}>
-                Section 9: Student Reviews & Quotes
+                Section 9: Next Steps (CTA Cards)
               </h4>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <input
@@ -96,14 +95,16 @@ export const CmsReviewsSection: React.FC<CmsSectionProps> = ({
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Reviews Cards</h5>
+                <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Next Steps Cards</h5>
                 <button
                   type="button"
-                  onClick={() => handleAddCmsArrayItem("section_9", "cards", { title: "", description: "", image: "" })}
+                  onClick={() =>
+                    handleAddCmsArrayItem("section_9", "cards", { icon: "", title: "", description: "", link: "" })
+                  }
                   className="btn-secondary"
                   style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
                 >
-                  + Add Review Card
+                  + Add Card
                 </button>
               </div>
               {(formData.courseCms?.section_9?.cards || []).map((card: any, idx: number) => (
@@ -111,72 +112,31 @@ export const CmsReviewsSection: React.FC<CmsSectionProps> = ({
                   key={idx}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "150px 1fr 1fr auto",
+                    gridTemplateColumns: "100px 1fr 1fr 1fr auto",
                     gap: "0.5rem",
                     alignItems: "flex-end"
                   }}
                 >
-                  <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                    <label className="form-label" style={{ fontSize: "0.75rem" }}>
-                      Student Avatar
-                    </label>
-                    {card.image ? (
-                      <div style={{ position: "relative", width: "50px", height: "50px" }}>
-                        <img
-                          src={card.image}
-                          alt="avatar"
-                          style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "50%" }}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleCmsArrayItemChange("section_9", "cards", idx, "image", "")}
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            right: 0,
-                            background: "rgba(0,0,0,0.6)",
-                            border: "none",
-                            color: "#fff",
-                            borderRadius: "50%",
-                            cursor: "pointer",
-                            width: "16px",
-                            height: "16px",
-                            fontSize: "10px",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center"
-                          }}
-                        >
-                          ×
-                        </button>
-                      </div>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setCmsMediaPickerTarget({
-                            section: "section_9",
-                            arrayField: "cards",
-                            index: idx,
-                            key: "image"
-                          })
-                        }
-                        className="btn-secondary"
-                        style={{ padding: "4px 8px", fontSize: "0.75rem" }}
-                      >
-                        Select Image
-                      </button>
-                    )}
-                  </div>
                   <Input
-                    label="Student Name / Role"
+                    label="Icon (emoji)"
+                    placeholder="e.g. 📝"
+                    value={card.icon || ""}
+                    onChange={(e) => handleCmsArrayItemChange("section_9", "cards", idx, "icon", e.target.value)}
+                  />
+                  <Input
+                    label="Title"
                     value={card.title || ""}
                     onChange={(e) => handleCmsArrayItemChange("section_9", "cards", idx, "title", e.target.value)}
                   />
                   <Input
-                    label="Review Text / Quote"
+                    label="Description"
                     value={card.description || ""}
                     onChange={(e) => handleCmsArrayItemChange("section_9", "cards", idx, "description", e.target.value)}
+                  />
+                  <Input
+                    label="Link Url"
+                    value={card.link || ""}
+                    onChange={(e) => handleCmsArrayItemChange("section_9", "cards", idx, "link", e.target.value)}
                   />
                   <button
                     type="button"

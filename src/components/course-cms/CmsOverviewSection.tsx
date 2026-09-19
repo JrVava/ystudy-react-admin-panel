@@ -8,8 +8,7 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
   handleCmsTextChange,
   handleAddCmsArrayItem,
   handleRemoveCmsArrayItem,
-  handleCmsArrayItemChange,
-  setCmsMediaPickerTarget
+  handleCmsArrayItemChange
 }) => {
   return (
     <div className="animate-fade-in" style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
@@ -52,7 +51,7 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
               <h4 style={{ margin: 0, fontSize: "0.95rem" }}>Statistics Cards</h4>
               <button
                 type="button"
-                onClick={() => handleAddCmsArrayItem("overview", "statsCards", { title: "", value: "", label: "" })}
+                onClick={() => handleAddCmsArrayItem("overview", "statsCards", { title: "", description: "" })}
                 className="btn-secondary"
                 style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
               >
@@ -72,19 +71,16 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
                 }}
               >
                 <Input
-                  label="Title / Icon key"
+                  label="Stat Value (e.g. 96%)"
                   value={card.title || ""}
                   onChange={(e) => handleCmsArrayItemChange("overview", "statsCards", idx, "title", e.target.value)}
                 />
                 <Input
-                  label="Value"
-                  value={card.value || ""}
-                  onChange={(e) => handleCmsArrayItemChange("overview", "statsCards", idx, "value", e.target.value)}
-                />
-                <Input
-                  label="Label"
-                  value={card.label || ""}
-                  onChange={(e) => handleCmsArrayItemChange("overview", "statsCards", idx, "label", e.target.value)}
+                  label="Stat Description"
+                  value={card.description || ""}
+                  onChange={(e) =>
+                    handleCmsArrayItemChange("overview", "statsCards", idx, "description", e.target.value)
+                  }
                 />
                 <button
                   type="button"
@@ -113,7 +109,7 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
               <h4 style={{ margin: 0, fontSize: "0.95rem" }}>Highlight Cards</h4>
               <button
                 type="button"
-                onClick={() => handleAddCmsArrayItem("overview", "cards", { image: "", text: "" })}
+                onClick={() => handleAddCmsArrayItem("overview", "cards", { icon: "", title: "", description: "" })}
                 className="btn-secondary"
                 style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
               >
@@ -125,71 +121,35 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
                 key={idx}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "200px 1fr auto",
-                  gap: "1rem",
-                  alignItems: "center",
+                  gridTemplateColumns: "100px 1fr 1fr auto",
+                  gap: "0.5rem",
+                  alignItems: "flex-end",
                   background: "rgba(255,255,255,0.01)",
                   padding: "0.5rem",
                   borderRadius: "8px"
                 }}
               >
-                <div style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-                  <label className="form-label" style={{ fontSize: "0.75rem" }}>
-                    Card Icon / Image
-                  </label>
-                  {card.image ? (
-                    <div style={{ position: "relative", width: "80px", height: "50px" }}>
-                      <img
-                        src={card.image}
-                        alt="icon"
-                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px" }}
-                      />
-                      <button
-                        type="button"
-                        onClick={() => handleCmsArrayItemChange("overview", "cards", idx, "image", "")}
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          right: 0,
-                          background: "rgba(0,0,0,0.6)",
-                          border: "none",
-                          color: "#fff",
-                          borderRadius: "50%",
-                          cursor: "pointer",
-                          width: "16px",
-                          height: "16px",
-                          fontSize: "10px",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center"
-                        }}
-                      >
-                        ×
-                      </button>
-                    </div>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setCmsMediaPickerTarget({ section: "overview", arrayField: "cards", index: idx, key: "image" })
-                      }
-                      className="btn-secondary"
-                      style={{ padding: "4px 8px", fontSize: "0.75rem" }}
-                    >
-                      Select Icon
-                    </button>
-                  )}
-                </div>
                 <Input
-                  label="Highlight Text"
-                  value={card.text || ""}
-                  onChange={(e) => handleCmsArrayItemChange("overview", "cards", idx, "text", e.target.value)}
+                  label="Icon (emoji)"
+                  placeholder="e.g. 🎯"
+                  value={card.icon || ""}
+                  onChange={(e) => handleCmsArrayItemChange("overview", "cards", idx, "icon", e.target.value)}
+                />
+                <Input
+                  label="Title"
+                  value={card.title || ""}
+                  onChange={(e) => handleCmsArrayItemChange("overview", "cards", idx, "title", e.target.value)}
+                />
+                <Input
+                  label="Description"
+                  value={card.description || ""}
+                  onChange={(e) => handleCmsArrayItemChange("overview", "cards", idx, "description", e.target.value)}
                 />
                 <button
                   type="button"
                   onClick={() => handleRemoveCmsArrayItem("overview", "cards", idx)}
                   className="btn-secondary"
-                  style={{ color: "var(--error)", padding: "0.5rem", alignSelf: "flex-end" }}
+                  style={{ color: "var(--error)", padding: "0.5rem" }}
                 >
                   Remove
                 </button>
@@ -291,7 +251,7 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
               style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
             >
               <h4 style={{ fontSize: "1rem", fontWeight: 700, color: "var(--primary)", margin: 0 }}>
-                Section 3: Course Overview Metrics
+                Section 3: Who Applies (Reasons Cards)
               </h4>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
                 <input
@@ -328,7 +288,7 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
               onChange={(e) => handleCmsTextChange("section_3", "description", e.target.value)}
             />
 
-            {/* Tiles Repeaters */}
+            {/* Cards Repeater */}
             <div
               style={{
                 display: "flex",
@@ -340,58 +300,10 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
               }}
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Overview Stat Cards</h5>
+                <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Reasons Cards</h5>
                 <button
                   type="button"
-                  onClick={() => handleAddCmsArrayItem("section_3", "tiles", { value: "", label: "" })}
-                  className="btn-secondary"
-                  style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
-                >
-                  + Add Stat Card
-                </button>
-              </div>
-              {(formData.courseCms?.section_3?.tiles || []).map((card: any, idx: number) => (
-                <div key={idx} style={{ display: "flex", gap: "0.5rem", alignItems: "flex-end" }}>
-                  <Input
-                    label="Metric Value (e.g. 96%)"
-                    value={card.value || ""}
-                    onChange={(e) => handleCmsArrayItemChange("section_3", "tiles", idx, "value", e.target.value)}
-                  />
-                  <Input
-                    label="Description Label"
-                    value={card.label || ""}
-                    onChange={(e) => handleCmsArrayItemChange("section_3", "tiles", idx, "label", e.target.value)}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveCmsArrayItem("section_3", "tiles", idx)}
-                    className="btn-secondary"
-                    style={{ color: "var(--error)", padding: "0.5rem" }}
-                  >
-                    Remove
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Cards Repeaters */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.75rem",
-                marginTop: "1rem",
-                borderTop: "1px solid var(--panel-border)",
-                paddingTop: "1rem"
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Overview Highlight Cards</h5>
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleAddCmsArrayItem("section_3", "cards", { title: "", description: "", number: "" })
-                  }
+                  onClick={() => handleAddCmsArrayItem("section_3", "cards", { title: "", description: "" })}
                   className="btn-secondary"
                   style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
                 >
@@ -403,17 +315,11 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
                   key={idx}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "100px 1fr 1fr auto",
+                    gridTemplateColumns: "1fr 1fr auto",
                     gap: "0.5rem",
                     alignItems: "flex-end"
                   }}
                 >
-                  <Input
-                    label="Number Label"
-                    placeholder="e.g. 01"
-                    value={card.number || ""}
-                    onChange={(e) => handleCmsArrayItemChange("section_3", "cards", idx, "number", e.target.value)}
-                  />
                   <Input
                     label="Title"
                     value={card.title || ""}

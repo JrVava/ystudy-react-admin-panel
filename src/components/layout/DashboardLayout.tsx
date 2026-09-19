@@ -225,8 +225,16 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                 >
                   <NavLink
                     to="/courses"
+                    className={({ isActive }) =>
+                      `nav-item ${
+                        isActive ||
+                        location.pathname === "/courses/new" ||
+                        location.pathname.startsWith("/courses/edit/")
+                          ? "nav-item-active"
+                          : ""
+                      }`
+                    }
                     end
-                    className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
                     onClick={closeMobileSidebar}
                     style={{ fontSize: "0.85rem", padding: "8px 12px" }}
                   >
