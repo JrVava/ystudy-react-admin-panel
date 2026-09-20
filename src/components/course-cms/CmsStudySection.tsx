@@ -2,6 +2,7 @@ import React from "react";
 import Input from "../Input";
 import Textarea from "../Textarea";
 import type { CmsSectionProps } from "./types.ts";
+import { CmsStatusToggle } from "./CmsStatusToggle";
 
 export const CmsStudySection: React.FC<CmsSectionProps> = ({
   formData,
@@ -26,9 +27,19 @@ export const CmsStudySection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
-              Study Section 1: What You Could Study
-            </h4>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
+            >
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
+                Study Section 1: What You Could Study
+              </h4>
+              <CmsStatusToggle
+                id="study1_status"
+                path="study.section_1"
+                formData={formData}
+                handleCmsTextChange={handleCmsTextChange}
+              />
+            </div>
             <div
               className="responsive-form-grid"
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
@@ -100,7 +111,7 @@ export const CmsStudySection: React.FC<CmsSectionProps> = ({
                     <Input
                       label="Year / Number"
                       placeholder="e.g. 1"
-                      value={card.number || ""}
+                      value={card.number || card.icon || ""}
                       onChange={(e) =>
                         handleCmsArrayItemChange("study.section_1", "cards", idx, "number", e.target.value)
                       }
@@ -190,9 +201,19 @@ export const CmsStudySection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
-              Study Section 2: Study Modes Intro
-            </h4>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
+            >
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
+                Study Section 2: Study Modes Intro
+              </h4>
+              <CmsStatusToggle
+                id="study2_status"
+                path="study.section_2"
+                formData={formData}
+                handleCmsTextChange={handleCmsTextChange}
+              />
+            </div>
             <div
               className="responsive-form-grid"
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}

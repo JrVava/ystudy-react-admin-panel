@@ -2,6 +2,7 @@ import React from "react";
 import Input from "../Input";
 import Textarea from "../Textarea";
 import type { CmsSectionProps } from "./types.ts";
+import { CmsStatusToggle } from "./CmsStatusToggle";
 
 export const CmsFundingSection: React.FC<CmsSectionProps> = ({
   formData,
@@ -23,9 +24,19 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
-              Funding Section 1: Student Finance Estimate
-            </h4>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
+            >
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
+                Funding Section 1: Student Finance Estimate
+              </h4>
+              <CmsStatusToggle
+                id="fund1_status"
+                path="funding.section_1"
+                formData={formData}
+                handleCmsTextChange={handleCmsTextChange}
+              />
+            </div>
             <div
               className="responsive-form-grid"
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
@@ -141,9 +152,19 @@ export const CmsFundingSection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
-              Funding Section 2: Why This Course
-            </h4>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
+            >
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
+                Funding Section 2: Why This Course
+              </h4>
+              <CmsStatusToggle
+                id="fund2_status"
+                path="funding.section_2"
+                formData={formData}
+                handleCmsTextChange={handleCmsTextChange}
+              />
+            </div>
             <div
               className="responsive-form-grid"
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}

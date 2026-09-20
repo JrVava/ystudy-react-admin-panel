@@ -2,6 +2,7 @@ import React from "react";
 import Input from "../Input";
 import Textarea from "../Textarea";
 import type { CmsSectionProps } from "./types.ts";
+import { CmsStatusToggle } from "./CmsStatusToggle";
 
 export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
   formData,
@@ -15,6 +16,14 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
       {formData.courseType === "Social" ? (
         <>
           {/* Social Overview fields */}
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <CmsStatusToggle
+              id="overview_status"
+              path="overview"
+              formData={formData}
+              handleCmsTextChange={handleCmsTextChange}
+            />
+          </div>
           <div
             className="responsive-form-grid"
             style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
@@ -159,51 +168,7 @@ export const CmsOverviewSection: React.FC<CmsSectionProps> = ({
         </>
       ) : (
         <>
-          {/* General Overview: Hero kicker, bannerStyle, Section 2, Section 3 */}
-          <div
-            className="responsive-form-grid"
-            style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
-          >
-            <div className="form-group">
-              <label className="form-label">Hero Badge / Kicker</label>
-              <input
-                type="text"
-                className="form-input"
-                placeholder="e.g. High Demand"
-                value={formData.courseCms?.kicker || ""}
-                onChange={(e) => handleCmsTextChange("", "kicker", e.target.value)}
-                style={{
-                  background: "rgba(255, 255, 255, 0.02)",
-                  color: "var(--text-primary)",
-                  border: "1px solid var(--panel-border)"
-                }}
-              />
-            </div>
-            <div className="form-group">
-              <label className="form-label">Banner Image Style</label>
-              <select
-                className="form-input"
-                value={formData.courseCms?.bannerStyle || "left"}
-                onChange={(e) => handleCmsTextChange("", "bannerStyle", e.target.value)}
-                style={{
-                  background: "rgba(255, 255, 255, 0.02)",
-                  color: "var(--text-primary)",
-                  border: "1px solid var(--panel-border)"
-                }}
-              >
-                <option value="left" style={{ background: "#0b0f19" }}>
-                  Left text, Right Image
-                </option>
-                <option value="right" style={{ background: "#0b0f19" }}>
-                  Right text, Left Image
-                </option>
-                <option value="center" style={{ background: "#0b0f19" }}>
-                  Centered (No Image)
-                </option>
-              </select>
-            </div>
-          </div>
-
+          {/* General Overview: Section 2, Section 3 */}
           {/* Section 2: Intro */}
           <div
             style={{

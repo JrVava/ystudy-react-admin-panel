@@ -2,6 +2,7 @@ import React from "react";
 import Input from "../Input";
 import Textarea from "../Textarea";
 import type { CmsSectionProps } from "./types.ts";
+import { CmsStatusToggle } from "./CmsStatusToggle";
 
 export const CmsSalarySection: React.FC<CmsSectionProps> = ({
   formData,
@@ -16,6 +17,14 @@ export const CmsSalarySection: React.FC<CmsSectionProps> = ({
       {formData.courseType === "Social" ? (
         <>
           {/* Social Salary fields */}
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <CmsStatusToggle
+              id="salary_status"
+              path="salary"
+              formData={formData}
+              handleCmsTextChange={handleCmsTextChange}
+            />
+          </div>
           <div
             className="responsive-form-grid"
             style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}

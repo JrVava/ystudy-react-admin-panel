@@ -2,6 +2,7 @@ import React from "react";
 import Input from "../Input";
 import Textarea from "../Textarea";
 import type { CmsSectionProps } from "./types.ts";
+import { CmsStatusToggle } from "./CmsStatusToggle";
 
 export const CmsReviewsSection: React.FC<CmsSectionProps> = ({
   formData,
@@ -15,6 +16,14 @@ export const CmsReviewsSection: React.FC<CmsSectionProps> = ({
       {formData.courseType === "Social" ? (
         <>
           {/* Social Reviews Configuration */}
+          <div style={{ display: "flex", justifyContent: "flex-end" }}>
+            <CmsStatusToggle
+              id="reviews_status"
+              path="reviews"
+              formData={formData}
+              handleCmsTextChange={handleCmsTextChange}
+            />
+          </div>
           <Input
             label="Reviews Title"
             value={formData.courseCms?.reviews?.title || ""}

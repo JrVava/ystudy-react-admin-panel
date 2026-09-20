@@ -23,7 +23,21 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
           borderRadius: "16px"
         }}
       >
-        <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>FAQ Intro Header</h4>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0 }}>FAQ Intro Header</h4>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <input
+              type="checkbox"
+              id="faq_sec1_status"
+              checked={formData.courseCms?.FAQ?.section_1?.status !== false}
+              onChange={(e) => handleCmsTextChange("FAQ.section_1", "status", e.target.checked)}
+              style={{ width: "16px", height: "16px" }}
+            />
+            <label htmlFor="faq_sec1_status" className="form-label" style={{ margin: 0 }}>
+              Visible
+            </label>
+          </div>
+        </div>
         <div className="responsive-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
           <Input
             label="Badge"
@@ -53,7 +67,7 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
         }}
       >
         <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
-          Short Apply Form Guide
+          Ready to Apply (Final CTA)
         </h4>
         <div className="responsive-form-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
           <Input
@@ -84,7 +98,7 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
-          <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0 }}>FAQs List (Q&A Accordion)</h4>
+          <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0 }}>Conversion Cards</h4>
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <input
               type="checkbox"
@@ -111,14 +125,14 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Q&A Items</h5>
+            <h5 style={{ margin: 0, fontSize: "0.9rem" }}>Cards List</h5>
             <button
               type="button"
               onClick={() => handleAddCmsArrayItem("FAQ.section_3", "cards", { title: "", description: "" })}
               className="btn-secondary"
               style={{ padding: "0.25rem 0.5rem", fontSize: "0.8rem" }}
             >
-              + Add FAQ
+              + Add Card
             </button>
           </div>
           {(formData.courseCms?.FAQ?.section_3?.cards || []).map((card: any, idx: number) => (
@@ -127,12 +141,12 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: "0.5rem", alignItems: "flex-end" }}
             >
               <Input
-                label="Question text"
+                label="Title"
                 value={card.title || ""}
                 onChange={(e) => handleCmsArrayItemChange("FAQ.section_3", "cards", idx, "title", e.target.value)}
               />
               <Input
-                label="Answer text"
+                label="Description"
                 value={card.description || ""}
                 onChange={(e) => handleCmsArrayItemChange("FAQ.section_3", "cards", idx, "description", e.target.value)}
               />
@@ -158,7 +172,21 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
           borderRadius: "16px"
         }}
       >
-        <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>Footer Action Cards</h4>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+          <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0 }}>Useful Next Steps (Footer Links)</h4>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <input
+              type="checkbox"
+              id="faq_sec4_status"
+              checked={formData.courseCms?.FAQ?.section_4?.status !== false}
+              onChange={(e) => handleCmsTextChange("FAQ.section_4", "status", e.target.checked)}
+              style={{ width: "16px", height: "16px" }}
+            />
+            <label htmlFor="faq_sec4_status" className="form-label" style={{ margin: 0 }}>
+              Visible
+            </label>
+          </div>
+        </div>
         <Input
           label="Title"
           value={formData.courseCms?.FAQ?.section_4?.title || ""}
@@ -203,7 +231,7 @@ export const CmsFaqSection: React.FC<CmsSectionProps> = ({
                 onChange={(e) => handleCmsArrayItemChange("FAQ.section_4", "cards", idx, "title", e.target.value)}
               />
               <Input
-                label="URL / Description"
+                label="Link Url"
                 value={card.link || ""}
                 onChange={(e) => handleCmsArrayItemChange("FAQ.section_4", "cards", idx, "link", e.target.value)}
               />

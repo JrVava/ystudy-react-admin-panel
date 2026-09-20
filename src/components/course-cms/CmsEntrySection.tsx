@@ -2,6 +2,7 @@ import React from "react";
 import Input from "../Input";
 import Textarea from "../Textarea";
 import type { CmsSectionProps } from "./types.ts";
+import { CmsStatusToggle } from "./CmsStatusToggle";
 
 export const CmsEntrySection: React.FC<CmsSectionProps> = ({
   formData,
@@ -24,9 +25,19 @@ export const CmsEntrySection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
-              General Entry Requirements
-            </h4>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
+            >
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
+                General Entry Requirements
+              </h4>
+              <CmsStatusToggle
+                id="entry1_status"
+                path="Entry.section_1"
+                formData={formData}
+                handleCmsTextChange={handleCmsTextChange}
+              />
+            </div>
             <div
               className="responsive-form-grid"
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
@@ -135,9 +146,19 @@ export const CmsEntrySection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
-              Upcoming Intakes Intro
-            </h4>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
+            >
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
+                Upcoming Intakes Intro
+              </h4>
+              <CmsStatusToggle
+                id="entry2_status"
+                path="Entry.section_2"
+                formData={formData}
+                handleCmsTextChange={handleCmsTextChange}
+              />
+            </div>
             <div
               className="responsive-form-grid"
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
@@ -172,7 +193,17 @@ export const CmsEntrySection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>Toolkit Section</h4>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
+            >
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>Toolkit Section</h4>
+              <CmsStatusToggle
+                id="entry3_status"
+                path="Entry.section_3"
+                formData={formData}
+                handleCmsTextChange={handleCmsTextChange}
+              />
+            </div>
             <div
               className="responsive-form-grid"
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
@@ -287,9 +318,19 @@ export const CmsEntrySection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
-              Conversion Band (Title + Salary Snapshot)
-            </h4>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
+            >
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
+                Conversion Band (Title + Salary Snapshot)
+              </h4>
+              <CmsStatusToggle
+                id="entry4_status"
+                path="Entry.section_4"
+                formData={formData}
+                handleCmsTextChange={handleCmsTextChange}
+              />
+            </div>
             <Input
               label="Title"
               value={formData.courseCms?.Entry?.section_4?.title || ""}
@@ -311,9 +352,19 @@ export const CmsEntrySection: React.FC<CmsSectionProps> = ({
               borderRadius: "16px"
             }}
           >
-            <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
-              Related & Alternatives Intro
-            </h4>
+            <div
+              style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}
+            >
+              <h4 style={{ fontSize: "0.95rem", fontWeight: 700, margin: 0, marginBottom: "1rem" }}>
+                Related & Alternatives Intro
+              </h4>
+              <CmsStatusToggle
+                id="entry5_status"
+                path="Entry.section_5"
+                formData={formData}
+                handleCmsTextChange={handleCmsTextChange}
+              />
+            </div>
             <div
               className="responsive-form-grid"
               style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
