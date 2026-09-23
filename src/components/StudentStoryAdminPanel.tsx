@@ -5,6 +5,7 @@ import { toast } from "../context/ToastContext";
 import { Save, ArrowLeft, Users, Star } from "lucide-react";
 import Input from "./Input";
 import Textarea from "./Textarea";
+import { MediaPickerModal } from "./MediaPickerModal";
 
 export const StudentStoryAdminPanel: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -19,8 +20,11 @@ export const StudentStoryAdminPanel: React.FC = () => {
     age: "",
     subject: "",
     year: "",
-    status: true
+    status: true,
+    image: "",
+    fullImageUrl: ""
   });
+  const [isMediaPickerOpen, setIsMediaPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEditMode);
 
@@ -39,7 +43,9 @@ export const StudentStoryAdminPanel: React.FC = () => {
               age: data.age !== undefined ? String(data.age) : "",
               subject: data.subject || "",
               year: data.year || "",
-              status: data.status !== false
+              status: data.status !== false,
+              image: data.image || "",
+              fullImageUrl: data.fullImageUrl || ""
             });
           } else {
             toast.error("Student story details not found");
@@ -75,6 +81,7 @@ export const StudentStoryAdminPanel: React.FC = () => {
         star: Number(formData.star),
         age: formData.age ? Number(formData.age) : undefined
       };
+      delete payload.fullImageUrl;
 
       let res;
       if (isEditMode && id) {
@@ -173,6 +180,49 @@ export const StudentStoryAdminPanel: React.FC = () => {
               />
             </div>
 
+            <div className="form-group" style={{ marginBottom: "1rem" }}>
+              <label className="form-label">Student Image</label>
+              {formData.fullImageUrl || formData.image ? (
+                <div style={{ position: "relative", width: "120px", height: "120px", marginTop: "0.5rem" }}>
+                  <img
+                    src={formData.fullImageUrl || formData.image}
+                    alt="preview"
+                    style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, image: "", fullImageUrl: "" })}
+                    style={{
+                      position: "absolute",
+                      top: 4,
+                      right: 4,
+                      background: "rgba(0,0,0,0.6)",
+                      border: "none",
+                      color: "#fff",
+                      borderRadius: "50%",
+                      cursor: "pointer",
+                      width: "24px",
+                      height: "24px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center"
+                    }}
+                  >
+                    ×
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsMediaPickerOpen(true)}
+                  className="btn-secondary"
+                  style={{ display: "block", marginTop: "0.5rem" }}
+                >
+                  Select Image
+                </button>
+              )}
+            </div>
+
             <div
               className="responsive-form-grid"
               style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1rem" }}
@@ -267,6 +317,20 @@ export const StudentStoryAdminPanel: React.FC = () => {
           </div>
         </div>
       </form>
+
+      {isMediaPickerOpen && (
+        <MediaPickerModal
+          onClose={() => setIsMediaPickerOpen(false)}
+          onSelect={(mediaId, filePath) => {
+            setFormData({
+              ...formData,
+              image: mediaId,
+              fullImageUrl: filePath
+            });
+            setIsMediaPickerOpen(false);
+          }}
+        />
+      )}
     </div>
   );
 };
