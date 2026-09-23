@@ -87,16 +87,19 @@ export const CmsSalarySection: React.FC<CmsSectionProps> = ({
                   <label className="form-label" style={{ fontSize: "0.75rem" }}>
                     Role Image
                   </label>
-                  {card.image ? (
+                  {card.image || card.fullImageUrl ? (
                     <div style={{ position: "relative", width: "90px", height: "50px" }}>
                       <img
-                        src={card.image}
+                        src={card.fullImageUrl || card.image}
                         alt="role"
                         style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "6px" }}
                       />
                       <button
                         type="button"
-                        onClick={() => handleCmsArrayItemChange("salary", "cards", idx, "image", "")}
+                        onClick={() => {
+                          handleCmsArrayItemChange("salary", "cards", idx, "image", "");
+                          handleCmsArrayItemChange("salary", "cards", idx, "fullImageUrl", "");
+                        }}
                         style={{
                           position: "absolute",
                           top: 0,

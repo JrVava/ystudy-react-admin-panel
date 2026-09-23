@@ -518,6 +518,17 @@ const CourseAdminPanel: React.FC = () => {
 
     try {
       // Build output payload
+      const cleanCourseCms = JSON.parse(JSON.stringify(formData.courseCms || {}));
+      const removeFullImageUrl = (obj: any) => {
+        if (Array.isArray(obj)) {
+          obj.forEach(removeFullImageUrl);
+        } else if (obj !== null && typeof obj === "object") {
+          delete obj.fullImageUrl;
+          Object.values(obj).forEach(removeFullImageUrl);
+        }
+      };
+      removeFullImageUrl(cleanCourseCms);
+
       const payload = {
         title: formData.title,
         slug: formData.slug,
@@ -538,7 +549,7 @@ const CourseAdminPanel: React.FC = () => {
         durations: formData.durations || [],
         fundings: formData.fundings || [],
         status: formData.status,
-        courseCms: formData.courseCms
+        courseCms: cleanCourseCms
       };
 
       let res;
@@ -1681,6 +1692,9 @@ const CourseAdminPanel: React.FC = () => {
             if (cmsMediaPickerTarget) {
               const { section, arrayField, index, key, useId } = cmsMediaPickerTarget;
               handleCmsArrayItemChange(section, arrayField, index, key, useId ? mediaId : filePath);
+              if (useId) {
+                handleCmsArrayItemChange(section, arrayField, index, "fullImageUrl", filePath);
+              }
               setCmsMediaPickerTarget(null);
             } else {
               setFormData((prev: any) => ({
