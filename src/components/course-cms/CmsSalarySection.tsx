@@ -121,7 +121,13 @@ export const CmsSalarySection: React.FC<CmsSectionProps> = ({
                     <button
                       type="button"
                       onClick={() =>
-                        setCmsMediaPickerTarget({ section: "salary", arrayField: "cards", index: idx, key: "image" })
+                        setCmsMediaPickerTarget({
+                          section: "salary",
+                          arrayField: "cards",
+                          index: idx,
+                          key: "image",
+                          useId: true
+                        })
                       }
                       className="btn-secondary"
                       style={{ padding: "4px 8px", fontSize: "0.75rem" }}

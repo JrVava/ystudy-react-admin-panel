@@ -32,6 +32,7 @@ const CourseAdminPanel: React.FC = () => {
     arrayField: string;
     index: number;
     key: string;
+    useId?: boolean;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(!!id);
   const [allCoursesList, setAllCoursesList] = useState<any[]>([]);
@@ -1678,8 +1679,8 @@ const CourseAdminPanel: React.FC = () => {
           }}
           onSelect={(mediaId, filePath) => {
             if (cmsMediaPickerTarget) {
-              const { section, arrayField, index, key } = cmsMediaPickerTarget;
-              handleCmsArrayItemChange(section, arrayField, index, key, filePath);
+              const { section, arrayField, index, key, useId } = cmsMediaPickerTarget;
+              handleCmsArrayItemChange(section, arrayField, index, key, useId ? mediaId : filePath);
               setCmsMediaPickerTarget(null);
             } else {
               setFormData((prev: any) => ({
