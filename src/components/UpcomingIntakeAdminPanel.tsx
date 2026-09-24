@@ -20,6 +20,7 @@ export const UpcomingIntakeAdminPanel: React.FC = () => {
     qualificationId: "",
     link: "",
     linkName: "",
+    description: "",
     status: true
   });
 
@@ -52,6 +53,7 @@ export const UpcomingIntakeAdminPanel: React.FC = () => {
               qualificationId: data.qualificationId || "",
               link: data.link || "",
               linkName: data.linkName || "",
+              description: data.description || "",
               status: data.status !== false
             });
           } else {
@@ -296,6 +298,13 @@ export const UpcomingIntakeAdminPanel: React.FC = () => {
                 onChange={(e) => setFormData({ ...formData, linkName: e.target.value })}
               />
             </div>
+
+            <Input
+              label="Description"
+              placeholder="e.g. Details about this intake..."
+              value={formData.description || ""}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            />
 
             <div
               className="form-group"
