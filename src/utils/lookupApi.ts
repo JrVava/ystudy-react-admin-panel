@@ -32,6 +32,11 @@ export const lookupApi = (type: string) => {
       const decrypted = decrypt(data.data);
       return decrypted;
     },
+    getList: async () => {
+      const { data } = await api.get(`${prefix}/list`);
+      const decrypted = decrypt(data.data);
+      return decrypted.data; // Array of { _id, title, slug, status }
+    },
     delete: async (id: string) => {
       const { data } = await api.delete(`${prefix}/delete/${id}`);
       const decrypted = decrypt(data.data);

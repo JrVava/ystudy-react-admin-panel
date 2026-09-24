@@ -19,6 +19,7 @@ export const UpcomingIntakeAdminPanel: React.FC = () => {
     subjectId: "",
     qualificationId: "",
     link: "",
+    linkName: "",
     status: true
   });
 
@@ -32,12 +33,12 @@ export const UpcomingIntakeAdminPanel: React.FC = () => {
       try {
         setLoading(true);
         // Load options
-        const subRes = await lookupApi("subjects").getPaginated(1, 1000);
-        const subOptions = subRes.success ? subRes.data || [] : [];
+        const subRes = await lookupApi("subjects").getList();
+        const subOptions = subRes ?? [];
         setSubjects(subOptions);
 
-        const qualRes = await lookupApi("qualifications").getPaginated(1, 1000);
-        const qualOptions = qualRes.success ? qualRes.data || [] : [];
+        const qualRes = await lookupApi("qualifications").getList();
+        const qualOptions = qualRes ? qualRes || [] : [];
         setQualifications(qualOptions);
 
         // Load details if edit mode
@@ -50,6 +51,7 @@ export const UpcomingIntakeAdminPanel: React.FC = () => {
               subjectId: data.subjectId || "",
               qualificationId: data.qualificationId || "",
               link: data.link || "",
+              linkName: data.linkName || "",
               status: data.status !== false
             });
           } else {
@@ -245,7 +247,7 @@ export const UpcomingIntakeAdminPanel: React.FC = () => {
                   </option>
                   {subjects.map((s) => (
                     <option key={s._id} value={s._id} style={{ background: "#0b0f19" }}>
-                      {s.name}
+                      {s.title}
                     </option>
                   ))}
                 </select>
@@ -269,20 +271,31 @@ export const UpcomingIntakeAdminPanel: React.FC = () => {
                   </option>
                   {qualifications.map((q) => (
                     <option key={q._id} value={q._id} style={{ background: "#0b0f19" }}>
-                      {q.name}
+                      {q.title}
                     </option>
                   ))}
                 </select>
               </div>
             </div>
 
-            <Input
-              label="Application Link URL *"
-              placeholder="e.g. https://ystudy.co.uk/apply"
-              value={formData.link}
-              onChange={(e) => setFormData({ ...formData, link: e.target.value })}
-              required
-            />
+            <div
+              className="responsive-form-grid"
+              style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}
+            >
+              <Input
+                label="Application Link URL *"
+                placeholder="e.g. https://ystudy.co.uk/apply"
+                value={formData.link}
+                onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+                required
+              />
+              <Input
+                label="Link Name"
+                placeholder="e.g. Apply Now"
+                value={formData.linkName || ""}
+                onChange={(e) => setFormData({ ...formData, linkName: e.target.value })}
+              />
+            </div>
 
             <div
               className="form-group"
