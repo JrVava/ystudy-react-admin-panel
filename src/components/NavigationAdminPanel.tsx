@@ -24,6 +24,7 @@ interface NavigationItem {
   componentName: string;
   parentId: string | null;
   position: number;
+  status: boolean;
 }
 
 const slugify = (text: string): string => {
@@ -51,8 +52,12 @@ export const NavigationAdminPanel: React.FC = () => {
   const [editForm, setEditForm] = useState({
     slug: "",
     pageName: "",
-    componentName: ""
+    componentName: "",
+    status: true
   });
+
+  // Tracks which item IDs are being toggled (to show loading on toggle)
+  const [togglingIds, setTogglingIds] = useState<string[]>([]);
 
   // Search query state
   const [searchQuery, setSearchQuery] = useState("");
@@ -92,7 +97,8 @@ export const NavigationAdminPanel: React.FC = () => {
     setEditForm({
       slug: item.slug || "",
       pageName: item.pageName || "",
-      componentName: item.componentName || ""
+      componentName: item.componentName || "",
+      status: item.status !== false
     });
     setSaveErrorMsg(null);
     setSuccessMsg(null);
@@ -111,7 +117,8 @@ export const NavigationAdminPanel: React.FC = () => {
         slug: editForm.slug,
         pageName: editForm.pageName,
         componentName: editingItem.componentName, // lock down
-        parentId: editingItem.parentId
+        parentId: editingItem.parentId,
+        status: editForm.status
       });
 
       if (updated) {
@@ -127,6 +134,23 @@ export const NavigationAdminPanel: React.FC = () => {
       setSaveErrorMsg(err.response?.data?.message || err.message || "Error: Check backend configuration.");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleStatusToggle = async (item: NavigationItem) => {
+    const newStatus = item.status === false ? true : false;
+    setTogglingIds((prev) => [...prev, item._id]);
+    // Optimistic update in local state
+    setItems((prev) => prev.map((n) => (n._id === item._id ? { ...n, status: newStatus } : n)));
+    try {
+      await navigationApi.toggleStatus(item._id);
+      toast.success(`"${item.pageName}" marked as ${newStatus ? "Active" : "Inactive"}.`);
+    } catch (e: any) {
+      // Rollback on failure
+      setItems((prev) => prev.map((n) => (n._id === item._id ? { ...n, status: item.status } : n)));
+      toast.error(e.message || "Failed to update status.");
+    } finally {
+      setTogglingIds((prev) => prev.filter((id) => id !== item._id));
     }
   };
 
@@ -447,7 +471,59 @@ export const NavigationAdminPanel: React.FC = () => {
                 </div>
               </div>
 
-              <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                {/* Status Toggle */}
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "0.4rem" }}
+                  title={node.status === false ? "Inactive – click to activate" : "Active – click to deactivate"}
+                >
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStatusToggle(node);
+                    }}
+                    disabled={togglingIds.includes(node._id)}
+                    style={{
+                      position: "relative",
+                      width: "38px",
+                      height: "20px",
+                      borderRadius: "999px",
+                      border: "none",
+                      cursor: togglingIds.includes(node._id) ? "wait" : "pointer",
+                      background: node.status === false ? "rgba(255,255,255,0.12)" : "var(--primary)",
+                      transition: "background 0.25s ease",
+                      padding: 0,
+                      flexShrink: 0,
+                      opacity: togglingIds.includes(node._id) ? 0.6 : 1
+                    }}
+                    aria-label={node.status === false ? "Activate" : "Deactivate"}
+                  >
+                    <span
+                      style={{
+                        position: "absolute",
+                        top: "3px",
+                        left: node.status === false ? "3px" : "19px",
+                        width: "14px",
+                        height: "14px",
+                        borderRadius: "50%",
+                        background: "#fff",
+                        transition: "left 0.2s ease",
+                        display: "block"
+                      }}
+                    />
+                  </button>
+                  <span
+                    style={{
+                      fontSize: "0.7rem",
+                      fontWeight: 600,
+                      color: node.status === false ? "var(--text-muted)" : "var(--success)",
+                      whiteSpace: "nowrap"
+                    }}
+                  >
+                    {node.status === false ? "Inactive" : "Active"}
+                  </span>
+                </div>
+
                 <button
                   onClick={() => handleEditClick(node)}
                   className="btn-secondary"
@@ -698,6 +774,60 @@ export const NavigationAdminPanel: React.FC = () => {
               >
                 React bindings can only be changed by repository developers.
               </span>
+
+              {/* Status Toggle in Edit Form */}
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  padding: "0.75rem 1rem",
+                  background: "rgba(255,255,255,0.02)",
+                  border: "1px solid var(--panel-border)",
+                  borderRadius: "10px",
+                  marginBottom: "1.5rem"
+                }}
+              >
+                <div>
+                  <p style={{ margin: 0, fontSize: "0.85rem", fontWeight: 600, color: "var(--text-primary)" }}>
+                    Page Status
+                  </p>
+                  <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--text-muted)" }}>
+                    {editForm.status ? "Visible and active on the website." : "Hidden from the website navigation."}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditForm((prev) => ({ ...prev, status: !prev.status }))}
+                  style={{
+                    position: "relative",
+                    width: "46px",
+                    height: "24px",
+                    borderRadius: "999px",
+                    border: "none",
+                    cursor: "pointer",
+                    background: editForm.status ? "var(--primary)" : "rgba(255,255,255,0.12)",
+                    transition: "background 0.25s ease",
+                    padding: 0,
+                    flexShrink: 0
+                  }}
+                  aria-label={editForm.status ? "Deactivate page" : "Activate page"}
+                >
+                  <span
+                    style={{
+                      position: "absolute",
+                      top: "4px",
+                      left: editForm.status ? "24px" : "4px",
+                      width: "16px",
+                      height: "16px",
+                      borderRadius: "50%",
+                      background: "#fff",
+                      transition: "left 0.2s ease",
+                      display: "block"
+                    }}
+                  />
+                </button>
+              </div>
 
               <div style={{ display: "flex", gap: "0.5rem", justifyContent: "flex-end" }}>
                 <button

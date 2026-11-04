@@ -18,6 +18,8 @@ export const ToolAdminPanel: React.FC = () => {
     description: "",
     time: "",
     link: "",
+    btnLabel: "",
+    badge: "",
     mode: "free",
     image: "", // Media ID (ObjectId hex)
     imageUrl: "", // Resolved path for preview
@@ -40,6 +42,8 @@ export const ToolAdminPanel: React.FC = () => {
               description: data.description || "",
               time: data.time || "",
               link: data.link || "",
+              badge: data.badge || "",
+              btnLabel: data.btnLabel || "",
               mode: data.mode || "free",
               image: data.image || "",
               imageUrl: data.fullImageUrl || "",
@@ -79,6 +83,14 @@ export const ToolAdminPanel: React.FC = () => {
       toast.error("Resource Link is required");
       return;
     }
+    if (!formData.btnLabel.trim()) {
+      toast.error("Button Label is required");
+      return;
+    }
+    if (!formData.badge.trim()) {
+      toast.error("badge is required");
+      return;
+    }
     if (!formData.image) {
       toast.error("Cover image is required");
       return;
@@ -91,6 +103,8 @@ export const ToolAdminPanel: React.FC = () => {
         description: formData.description,
         time: formData.time,
         link: formData.link,
+        badge: formData.badge,
+        btnLabel: formData.btnLabel,
         mode: formData.mode,
         image: formData.image,
         status: formData.status
@@ -201,6 +215,14 @@ export const ToolAdminPanel: React.FC = () => {
                 required
               />
 
+              <Input
+                label="Badge *"
+                placeholder="e.g. Quiz, Calculator, Checker, English"
+                value={formData.badge}
+                onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+                required
+              />
+
               <div className="form-group">
                 <label className="form-label">Access Mode *</label>
                 <select
@@ -229,6 +251,14 @@ export const ToolAdminPanel: React.FC = () => {
               placeholder="e.g. /tools/personal-statement-builder or external link"
               value={formData.link}
               onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+              required
+            />
+
+            <Input
+              label="Button Name *"
+              placeholder="e.g. Start quiz, Calculate, Check"
+              value={formData.btnLabel}
+              onChange={(e) => setFormData({ ...formData, btnLabel: e.target.value })}
               required
             />
 

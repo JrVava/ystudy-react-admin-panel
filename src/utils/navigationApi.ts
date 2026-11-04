@@ -31,5 +31,10 @@ export const navigationApi = {
     const { data } = await api.put("/navigations/reorder", { data: encrypt({ items }) });
     const decrypted = decrypt(data.data);
     return decrypted.data;
+  },
+  toggleStatus: async (id: string) => {
+    const { data } = await api.put(`/navigations/toggle-status/${id}`);
+    const decrypted = decrypt(data.data);
+    return decrypted.data;
   }
 };
