@@ -19,7 +19,8 @@ import {
   Calendar,
   BookOpen,
   Server,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Table2
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -331,6 +332,18 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             >
               <Wrench size={20} />
               Tools
+            </NavLink>
+            <NavLink
+              to="/repayment-thresholds-plans"
+              className={({ isActive }) =>
+                `nav-item ${
+                  isActive || location.pathname.startsWith("/repayment-thresholds-plans") ? "nav-item-active" : ""
+                }`
+              }
+              onClick={closeMobileSidebar}
+            >
+              <Table2 size={20} />
+              Repayment Plans
             </NavLink>
             <NavLink
               to="/dynamic-forms"

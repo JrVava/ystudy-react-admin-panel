@@ -34,6 +34,8 @@ import { SMTPPage } from "./pages/SMTPPage";
 import { SMTPConfig } from "./components/SMTPConfig";
 import { GoogleSheetListPage } from "./pages/GoogleSheetListPage";
 import { GoogleSheetConfig } from "./components/GoogleSheetConfig";
+import { RepaymentThresholdsPlanListPage } from "./pages/RepaymentThresholdsPlanListPage";
+import { RepaymentThresholdsPlanAdminPanel } from "./components/RepaymentThresholdsPlanAdminPanel";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -455,6 +457,32 @@ function App() {
               element={
                 <ProtectedRoute>
                   <ToolAdminPanel />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Repayment Thresholds Plans */}
+            <Route
+              path="/repayment-thresholds-plans"
+              element={
+                <ProtectedRoute>
+                  <RepaymentThresholdsPlanListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/repayment-thresholds-plans/new"
+              element={
+                <ProtectedRoute>
+                  <RepaymentThresholdsPlanAdminPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/repayment-thresholds-plans/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <RepaymentThresholdsPlanAdminPanel />
                 </ProtectedRoute>
               }
             />
