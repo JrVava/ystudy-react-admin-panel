@@ -20,6 +20,9 @@ export const GuideAdminPanel: React.FC = () => {
     link: "",
     image: "", // Media ID (ObjectId hex)
     imageUrl: "", // Resolved path for preview
+    badge: "",
+    read_time: "",
+    icon: "",
     status: true
   });
 
@@ -41,6 +44,9 @@ export const GuideAdminPanel: React.FC = () => {
               link: data.link || "",
               image: data.image || "",
               imageUrl: data.fullImageUrl || "",
+              badge: data.badge || "",
+              read_time: data.read_time || "",
+              icon: data.icon || "",
               status: data.status !== false
             });
           } else {
@@ -74,6 +80,9 @@ export const GuideAdminPanel: React.FC = () => {
         description: formData.description || "",
         link: formData.link || "",
         image: formData.image || null,
+        badge: formData.badge || "",
+        read_time: formData.read_time || "",
+        icon: formData.icon || "",
         status: formData.status
       };
 
@@ -181,10 +190,32 @@ export const GuideAdminPanel: React.FC = () => {
             />
 
             <Input
+              label="Badge"
+              placeholder="e.g. Funding, Applying, Careers"
+              value={formData.badge}
+              required
+              onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
+            />
+
+            <Input
               label="Resource Link URL"
               placeholder="e.g. /guides/handbook or external link"
               value={formData.link}
               onChange={(e) => setFormData({ ...formData, link: e.target.value })}
+            />
+            <Input
+              label="Read Time"
+              placeholder="e.g. 5 min read, 7 min read, 8 min read"
+              value={formData.read_time}
+              required
+              onChange={(e) => setFormData({ ...formData, read_time: e.target.value })}
+            />
+
+            <Input
+              label="Icon"
+              placeholder="e.g. 📖"
+              value={formData.icon}
+              onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
             />
 
             {/* Image Selector */}
