@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { courseApi } from "../utils/courseApi";
 import { toast } from "../context/ToastContext";
 import { locationApi } from "../utils/locationApi";
+import { studyRouteApi } from "../utils/studyRouteApi";
 import { Save, ArrowLeft, Image, X, Plus, GraduationCap } from "lucide-react";
 import { MediaPickerModal } from "./MediaPickerModal";
 import config from "../config";
@@ -38,6 +39,7 @@ const CourseAdminPanel: React.FC = () => {
   const [allCoursesList, setAllCoursesList] = useState<any[]>([]);
   const [allLocationsList, setAllLocationsList] = useState<any[]>([]);
   const [allSubjectsList, setAllSubjectsList] = useState<any[]>([]);
+  const [allRoutesList, setAllRoutesList] = useState<any[]>([]);
   const [allQualificationsList, setAllQualificationsList] = useState<any[]>([]);
   const [allModesList, setAllModesList] = useState<any[]>([]);
   const [allDurationsList, setAllDurationsList] = useState<any[]>([]);
@@ -67,6 +69,7 @@ const CourseAdminPanel: React.FC = () => {
     entryRequirement: [],
     modeType: [],
     subjects: [],
+    routes: [],
     qualifications: [],
     durations: [],
     fundings: [],
@@ -91,81 +94,76 @@ const CourseAdminPanel: React.FC = () => {
   };
 
   useEffect(() => {
-    // Load related/available courses for relationship selection using paginated route (limit 1000) to bypass status: true constraint
+    // Load related/available courses for relationship selection
     const loadCoursesList = async () => {
       try {
-        const res = await courseApi.getPaginated(1, 1000);
-        if (res && res.success) {
-          setAllCoursesList(res.data || []);
-        }
+        const res = await courseApi.getList();
+        setAllCoursesList(Array.isArray(res) ? res : res?.data || []);
       } catch (e) {
         console.error("Failed to load courses selection list", e);
       }
     };
-    // Load locations using paginated route (limit 1000) to bypass status: true constraint
+    // Load locations for relationship selection
     const loadLocationsList = async () => {
       try {
-        const res = await locationApi.getPaginated(1, 1000);
-        if (res && res.success) {
-          setAllLocationsList(res.data || []);
-        }
+        const res = await locationApi.getList();
+        setAllLocationsList(Array.isArray(res) ? res : res?.data || []);
       } catch (e) {
         console.error("Failed to load locations list", e);
       }
     };
     const loadSubjectsList = async () => {
       try {
-        const res = await lookupApi("subjects").getPaginated(1, 1000);
-        if (res && res.success) {
-          setAllSubjectsList(res.data || []);
-        }
+        const res = await lookupApi("subjects").getList();
+        setAllSubjectsList(Array.isArray(res) ? res : res?.data || []);
       } catch (e) {
         console.error("Failed to load subjects list", e);
       }
     };
     const loadQualificationsList = async () => {
       try {
-        const res = await lookupApi("qualifications").getPaginated(1, 1000);
-        if (res && res.success) {
-          setAllQualificationsList(res.data || []);
-        }
+        const res = await lookupApi("qualifications").getList();
+        setAllQualificationsList(Array.isArray(res) ? res : res?.data || []);
       } catch (e) {
         console.error("Failed to load qualifications list", e);
       }
     };
     const loadModesList = async () => {
       try {
-        const res = await lookupApi("modes").getPaginated(1, 1000);
-        if (res && res.success) {
-          setAllModesList(res.data || []);
-        }
+        const res = await lookupApi("modes").getList();
+        setAllModesList(Array.isArray(res) ? res : res?.data || []);
       } catch (e) {
         console.error("Failed to load modes list", e);
       }
     };
     const loadDurationsList = async () => {
       try {
-        const res = await lookupApi("durations").getPaginated(1, 1000);
-        if (res && res.success) {
-          setAllDurationsList(res.data || []);
-        }
+        const res = await lookupApi("durations").getList();
+        setAllDurationsList(Array.isArray(res) ? res : res?.data || []);
       } catch (e) {
         console.error("Failed to load durations list", e);
       }
     };
     const loadFundingsList = async () => {
       try {
-        const res = await lookupApi("fundings").getPaginated(1, 1000);
-        if (res && res.success) {
-          setAllFundingsList(res.data || []);
-        }
+        const res = await lookupApi("fundings").getList();
+        setAllFundingsList(Array.isArray(res) ? res : res?.data || []);
       } catch (e) {
         console.error("Failed to load fundings list", e);
+      }
+    };
+    const loadRoutesList = async () => {
+      try {
+        const res = await studyRouteApi.getList();
+        setAllRoutesList(Array.isArray(res) ? res : res?.data || []);
+      } catch (e) {
+        console.error("Failed to load routes list", e);
       }
     };
     loadCoursesList();
     loadLocationsList();
     loadSubjectsList();
+    loadRoutesList();
     loadQualificationsList();
     loadModesList();
     loadDurationsList();
@@ -197,6 +195,7 @@ const CourseAdminPanel: React.FC = () => {
             entryRequirement: Array.isArray(course.entryRequirement) ? course.entryRequirement : [],
             modeType: normalizeIdArray(course.modeType),
             subjects: normalizeIdArray(course.subjects),
+            routes: normalizeIdArray(course.routes),
             qualifications: normalizeIdArray(course.qualifications),
             durations: normalizeIdArray(course.durations),
             fundings: normalizeIdArray(course.fundings),
@@ -484,6 +483,7 @@ const CourseAdminPanel: React.FC = () => {
       | "locations"
       | "modeType"
       | "subjects"
+      | "routes"
       | "qualifications"
       | "durations"
       | "fundings",
@@ -545,6 +545,7 @@ const CourseAdminPanel: React.FC = () => {
         entryRequirement: formData.entryRequirement,
         modeType: formData.modeType,
         subjects: formData.subjects || [],
+        routes: formData.routes || [],
         qualifications: formData.qualifications || [],
         durations: formData.durations || [],
         fundings: formData.fundings || [],
@@ -1151,6 +1152,15 @@ const CourseAdminPanel: React.FC = () => {
                 options={allSubjectsList}
                 selectedIds={formData.subjects || []}
                 onChange={(subjectId) => handleRelationToggle("subjects", subjectId)}
+              />
+
+              <MultiSelectDropdown
+                label="Study Routes Association"
+                description="Select study pathways / routes linked to this course."
+                placeholder="Choose study routes..."
+                options={allRoutesList}
+                selectedIds={formData.routes || []}
+                onChange={(routeId) => handleRelationToggle("routes", routeId)}
               />
 
               <MultiSelectDropdown

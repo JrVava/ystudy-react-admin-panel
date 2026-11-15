@@ -20,7 +20,8 @@ import {
   BookOpen,
   Server,
   FileSpreadsheet,
-  Table2
+  Table2,
+  Route as RouteIcon
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 
@@ -344,6 +345,16 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             >
               <Table2 size={20} />
               Repayment Plans
+            </NavLink>
+            <NavLink
+              to="/study-routes"
+              className={({ isActive }) =>
+                `nav-item ${isActive || location.pathname.startsWith("/study-routes") ? "nav-item-active" : ""}`
+              }
+              onClick={closeMobileSidebar}
+            >
+              <RouteIcon size={20} />
+              Study Routes
             </NavLink>
             <NavLink
               to="/dynamic-forms"

@@ -36,6 +36,8 @@ import { GoogleSheetListPage } from "./pages/GoogleSheetListPage";
 import { GoogleSheetConfig } from "./components/GoogleSheetConfig";
 import { RepaymentThresholdsPlanListPage } from "./pages/RepaymentThresholdsPlanListPage";
 import { RepaymentThresholdsPlanAdminPanel } from "./components/RepaymentThresholdsPlanAdminPanel";
+import { StudyRouteListPage } from "./pages/StudyRouteListPage";
+import { StudyRouteAdminPanel } from "./components/StudyRouteAdminPanel";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -483,6 +485,32 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RepaymentThresholdsPlanAdminPanel />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Study Routes */}
+            <Route
+              path="/study-routes"
+              element={
+                <ProtectedRoute>
+                  <StudyRouteListPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/study-routes/new"
+              element={
+                <ProtectedRoute>
+                  <StudyRouteAdminPanel />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/study-routes/edit/:id"
+              element={
+                <ProtectedRoute>
+                  <StudyRouteAdminPanel />
                 </ProtectedRoute>
               }
             />
