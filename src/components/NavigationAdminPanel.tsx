@@ -419,9 +419,9 @@ export const NavigationAdminPanel: React.FC = () => {
                       toggleCollapseNode(node._id);
                     }}
                     style={{
-                      background: "rgba(255, 255, 255, 0.03)",
-                      border: "1px solid rgba(255, 255, 255, 0.05)",
-                      color: "white",
+                      background: "var(--input-bg, rgba(255, 255, 255, 0.04))",
+                      border: "1px solid var(--panel-border)",
+                      color: "var(--text-primary)",
                       cursor: "pointer",
                       width: "24px",
                       height: "24px",
@@ -429,8 +429,10 @@ export const NavigationAdminPanel: React.FC = () => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      padding: 0
+                      padding: 0,
+                      transition: "all 0.2s ease"
                     }}
+                    title={showChildren ? "Collapse" : "Expand"}
                   >
                     {showChildren ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                   </button>
@@ -490,7 +492,7 @@ export const NavigationAdminPanel: React.FC = () => {
                       borderRadius: "999px",
                       border: "none",
                       cursor: togglingIds.includes(node._id) ? "wait" : "pointer",
-                      background: node.status === false ? "rgba(255,255,255,0.12)" : "var(--primary)",
+                      background: node.status === false ? "var(--toggle-inactive-bg, #cbd5e1)" : "var(--primary)",
                       transition: "background 0.25s ease",
                       padding: 0,
                       flexShrink: 0,
@@ -547,7 +549,7 @@ export const NavigationAdminPanel: React.FC = () => {
 
             {/* Children elements */}
             {hasChildren && showChildren && (
-              <div style={{ borderLeft: "1px dashed rgba(255,255,255,0.06)", paddingLeft: "0.25rem" }}>{children}</div>
+              <div style={{ borderLeft: "1px dashed var(--panel-border)", paddingLeft: "0.25rem" }}>{children}</div>
             )}
 
             {/* Visual drop indicator AFTER node with children */}
@@ -806,7 +808,7 @@ export const NavigationAdminPanel: React.FC = () => {
                     borderRadius: "999px",
                     border: "none",
                     cursor: "pointer",
-                    background: editForm.status ? "var(--primary)" : "rgba(255,255,255,0.12)",
+                    background: editForm.status ? "var(--primary)" : "var(--toggle-inactive-bg, #cbd5e1)",
                     transition: "background 0.25s ease",
                     padding: 0,
                     flexShrink: 0

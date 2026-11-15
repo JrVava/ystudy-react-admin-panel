@@ -1,8 +1,10 @@
 /* Centralized Design Tokens */
-:root {
+:root,
+[data-theme="dark"] {
   --bg-color: #080b13;
   --bg-gradient: radial-gradient(circle at 10% 20%, rgba(13, 17, 30, 1) 0%, rgba(7, 8, 14, 1) 100%);
   --sidebar-bg: rgba(13, 18, 33, 0.95);
+  --header-bg: rgba(13, 18, 33, 0.85);
   --panel-bg: rgba(22, 28, 45, 0.4);
   --panel-border: rgba(255, 255, 255, 0.08);
   --panel-border-hover: rgba(255, 255, 255, 0.16);
@@ -23,7 +25,73 @@
   --warning: #f59e0b;
   --info: #06b6d4;
 
+  --input-bg: #0d1220;
+  --input-border: rgba(255, 255, 255, 0.08);
+  --table-th-bg: rgba(10, 14, 26, 0.7);
+  --table-td-border: rgba(255, 255, 255, 0.04);
+  --table-hover-bg: rgba(255, 255, 255, 0.02);
+  --modal-bg: #0f1322;
+  --page-title-gradient: linear-gradient(135deg, #ffffff 40%, #c7d2fe 100%);
+  --nav-hover-bg: rgba(255, 255, 255, 0.03);
+  --nav-active-bg: rgba(99, 102, 241, 0.15);
+  --nav-active-border: rgba(99, 102, 241, 0.25);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --user-chip-bg: rgba(255, 255, 255, 0.03);
+  --user-chip-border: rgba(255, 255, 255, 0.05);
+  --tabs-bg: rgba(15, 23, 42, 0.6);
+  --tab-inactive-color: #94a3b8;
+  --tab-inactive-hover: #f8fafc;
+  --toggle-inactive-bg: rgba(255, 255, 255, 0.15);
+
   --sidebar-width: 260px;
-  --header-height: 70px;
+  --header-height: 64px;
+  --mobile-header-height: 60px;
+}
+
+[data-theme="light"] {
+  --bg-color: #f8fafc;
+  --bg-gradient: radial-gradient(circle at 10% 20%, #f1f5f9 0%, #e2e8f0 100%);
+  --sidebar-bg: rgba(255, 255, 255, 0.98);
+  --header-bg: rgba(255, 255, 255, 0.88);
+  --panel-bg: rgba(255, 255, 255, 0.9);
+  --panel-border: rgba(0, 0, 0, 0.08);
+  --panel-border-hover: rgba(0, 0, 0, 0.16);
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-glow: rgba(79, 70, 229, 0.2);
+
+  --accent: #9333ea;
+  --accent-hover: #7e22ce;
+
+  --success: #059669;
+  --error: #e11d48;
+  --warning: #d97706;
+  --info: #0891b2;
+
+  --input-bg: #ffffff;
+  --input-border: rgba(0, 0, 0, 0.12);
+  --table-th-bg: #f1f5f9;
+  --table-td-border: rgba(0, 0, 0, 0.06);
+  --table-hover-bg: rgba(0, 0, 0, 0.02);
+  --modal-bg: #ffffff;
+  --page-title-gradient: linear-gradient(135deg, #0f172a 40%, #4338ca 100%);
+  --nav-hover-bg: rgba(0, 0, 0, 0.04);
+  --nav-active-bg: rgba(79, 70, 229, 0.1);
+  --nav-active-border: rgba(79, 70, 229, 0.2);
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --user-chip-bg: rgba(0, 0, 0, 0.03);
+  --user-chip-border: rgba(0, 0, 0, 0.06);
+  --tabs-bg: #e2e8f0;
+  --tab-inactive-color: #475569;
+  --tab-inactive-hover: #0f172a;
+  --toggle-inactive-bg: #cbd5e1;
+
+  --sidebar-width: 260px;
+  --header-height: 64px;
   --mobile-header-height: 60px;
 }

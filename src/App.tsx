@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
@@ -70,547 +71,549 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
-          <Routes>
-            {/* Public login route */}
-            <Route path="/login" element={<LoginPage />} />
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <ToastProvider>
+            <Routes>
+              {/* Public login route */}
+              <Route path="/login" element={<LoginPage />} />
 
-            {/* Protected admin dashboard routes */}
-            <Route
-              path="/"
-              element={
-                <ProtectedRoute>
-                  <Navigate to="/media" replace />
-                </ProtectedRoute>
-              }
-            />
+              {/* Protected admin dashboard routes */}
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <Navigate to="/media" replace />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/media"
-              element={
-                <ProtectedRoute>
-                  <MediaPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/media"
+                element={
+                  <ProtectedRoute>
+                    <MediaPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/banners"
-              element={
-                <ProtectedRoute>
-                  <BannerListPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/banners"
+                element={
+                  <ProtectedRoute>
+                    <BannerListPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/banners/new"
-              element={
-                <ProtectedRoute>
-                  <BannerAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/banners/new"
+                element={
+                  <ProtectedRoute>
+                    <BannerAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/banners/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <BannerAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/banners/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <BannerAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/navigations"
-              element={
-                <ProtectedRoute>
-                  <NavigationAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/navigations"
+                element={
+                  <ProtectedRoute>
+                    <NavigationAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/cms-pages"
-              element={
-                <ProtectedRoute>
-                  <CMSPagesAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/cms-pages"
+                element={
+                  <ProtectedRoute>
+                    <CMSPagesAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/courses"
-              element={
-                <ProtectedRoute>
-                  <CourseListPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/courses"
+                element={
+                  <ProtectedRoute>
+                    <CourseListPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/courses/new"
-              element={
-                <ProtectedRoute>
-                  <CourseAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/courses/new"
+                element={
+                  <ProtectedRoute>
+                    <CourseAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/courses/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <CourseAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/courses/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <CourseAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Nested / courses sub-routes */}
-            <Route
-              path="/courses/locations"
-              element={
-                <ProtectedRoute>
-                  <LocationListPage />
-                </ProtectedRoute>
-              }
-            />
+              {/* Nested / courses sub-routes */}
+              <Route
+                path="/courses/locations"
+                element={
+                  <ProtectedRoute>
+                    <LocationListPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/courses/locations/new"
-              element={
-                <ProtectedRoute>
-                  <LocationAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/courses/locations/new"
+                element={
+                  <ProtectedRoute>
+                    <LocationAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/courses/locations/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <LocationAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/courses/locations/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <LocationAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Dynamic lookup routes */}
-            <Route
-              path="/courses/subjects"
-              element={
-                <ProtectedRoute>
-                  <LookupListPage type="subjects" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/subjects/new"
-              element={
-                <ProtectedRoute>
-                  <SubjectAdminPanel />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/subjects/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <SubjectAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              {/* Dynamic lookup routes */}
+              <Route
+                path="/courses/subjects"
+                element={
+                  <ProtectedRoute>
+                    <LookupListPage type="subjects" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/subjects/new"
+                element={
+                  <ProtectedRoute>
+                    <SubjectAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/subjects/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <SubjectAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/courses/qualifications"
-              element={
-                <ProtectedRoute>
-                  <LookupListPage type="qualifications" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/qualifications/new"
-              element={
-                <ProtectedRoute>
-                  <LookupAdminPanel type="qualifications" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/qualifications/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <LookupAdminPanel type="qualifications" />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/courses/qualifications"
+                element={
+                  <ProtectedRoute>
+                    <LookupListPage type="qualifications" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/qualifications/new"
+                element={
+                  <ProtectedRoute>
+                    <LookupAdminPanel type="qualifications" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/qualifications/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <LookupAdminPanel type="qualifications" />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/courses/modes"
-              element={
-                <ProtectedRoute>
-                  <LookupListPage type="modes" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/modes/new"
-              element={
-                <ProtectedRoute>
-                  <LookupAdminPanel type="modes" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/modes/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <LookupAdminPanel type="modes" />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/courses/modes"
+                element={
+                  <ProtectedRoute>
+                    <LookupListPage type="modes" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/modes/new"
+                element={
+                  <ProtectedRoute>
+                    <LookupAdminPanel type="modes" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/modes/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <LookupAdminPanel type="modes" />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/courses/durations"
-              element={
-                <ProtectedRoute>
-                  <LookupListPage type="durations" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/durations/new"
-              element={
-                <ProtectedRoute>
-                  <LookupAdminPanel type="durations" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/durations/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <LookupAdminPanel type="durations" />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/courses/durations"
+                element={
+                  <ProtectedRoute>
+                    <LookupListPage type="durations" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/durations/new"
+                element={
+                  <ProtectedRoute>
+                    <LookupAdminPanel type="durations" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/durations/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <LookupAdminPanel type="durations" />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/courses/fundings"
-              element={
-                <ProtectedRoute>
-                  <LookupListPage type="fundings" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/fundings/new"
-              element={
-                <ProtectedRoute>
-                  <LookupAdminPanel type="fundings" />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/fundings/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <LookupAdminPanel type="fundings" />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/courses/fundings"
+                element={
+                  <ProtectedRoute>
+                    <LookupListPage type="fundings" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/fundings/new"
+                element={
+                  <ProtectedRoute>
+                    <LookupAdminPanel type="fundings" />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/fundings/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <LookupAdminPanel type="fundings" />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/faqs"
-              element={
-                <ProtectedRoute>
-                  <FAQListPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/faqs"
+                element={
+                  <ProtectedRoute>
+                    <FAQListPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/faqs/new"
-              element={
-                <ProtectedRoute>
-                  <FAQAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/faqs/new"
+                element={
+                  <ProtectedRoute>
+                    <FAQAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/faqs/edit/:slug"
-              element={
-                <ProtectedRoute>
-                  <FAQAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/faqs/edit/:slug"
+                element={
+                  <ProtectedRoute>
+                    <FAQAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/time-tables"
-              element={
-                <ProtectedRoute>
-                  <TimeTableListPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/time-tables"
+                element={
+                  <ProtectedRoute>
+                    <TimeTableListPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/time-tables/new"
-              element={
-                <ProtectedRoute>
-                  <TimeTableAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/time-tables/new"
+                element={
+                  <ProtectedRoute>
+                    <TimeTableAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/time-tables/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <TimeTableAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/time-tables/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <TimeTableAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/recycle-bin"
-              element={
-                <ProtectedRoute>
-                  <RecycleBinPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/recycle-bin"
+                element={
+                  <ProtectedRoute>
+                    <RecycleBinPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Student Stories */}
-            <Route
-              path="/student-stories"
-              element={
-                <ProtectedRoute>
-                  <StudentStoryListPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/student-stories/new"
-              element={
-                <ProtectedRoute>
-                  <StudentStoryAdminPanel />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/student-stories/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <StudentStoryAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              {/* Student Stories */}
+              <Route
+                path="/student-stories"
+                element={
+                  <ProtectedRoute>
+                    <StudentStoryListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student-stories/new"
+                element={
+                  <ProtectedRoute>
+                    <StudentStoryAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/student-stories/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <StudentStoryAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Upcoming Intakes */}
-            <Route
-              path="/courses/upcoming-intakes"
-              element={
-                <ProtectedRoute>
-                  <UpcomingIntakeListPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/upcoming-intakes/new"
-              element={
-                <ProtectedRoute>
-                  <UpcomingIntakeAdminPanel />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/courses/upcoming-intakes/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <UpcomingIntakeAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              {/* Upcoming Intakes */}
+              <Route
+                path="/courses/upcoming-intakes"
+                element={
+                  <ProtectedRoute>
+                    <UpcomingIntakeListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/upcoming-intakes/new"
+                element={
+                  <ProtectedRoute>
+                    <UpcomingIntakeAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/courses/upcoming-intakes/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <UpcomingIntakeAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Tools */}
-            <Route
-              path="/tools"
-              element={
-                <ProtectedRoute>
-                  <ToolListPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tools/new"
-              element={
-                <ProtectedRoute>
-                  <ToolAdminPanel />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/tools/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <ToolAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              {/* Tools */}
+              <Route
+                path="/tools"
+                element={
+                  <ProtectedRoute>
+                    <ToolListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tools/new"
+                element={
+                  <ProtectedRoute>
+                    <ToolAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/tools/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <ToolAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Repayment Thresholds Plans */}
-            <Route
-              path="/repayment-thresholds-plans"
-              element={
-                <ProtectedRoute>
-                  <RepaymentThresholdsPlanListPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/repayment-thresholds-plans/new"
-              element={
-                <ProtectedRoute>
-                  <RepaymentThresholdsPlanAdminPanel />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/repayment-thresholds-plans/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <RepaymentThresholdsPlanAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              {/* Repayment Thresholds Plans */}
+              <Route
+                path="/repayment-thresholds-plans"
+                element={
+                  <ProtectedRoute>
+                    <RepaymentThresholdsPlanListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/repayment-thresholds-plans/new"
+                element={
+                  <ProtectedRoute>
+                    <RepaymentThresholdsPlanAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/repayment-thresholds-plans/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <RepaymentThresholdsPlanAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Study Routes */}
-            <Route
-              path="/study-routes"
-              element={
-                <ProtectedRoute>
-                  <StudyRouteListPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/study-routes/new"
-              element={
-                <ProtectedRoute>
-                  <StudyRouteAdminPanel />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/study-routes/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <StudyRouteAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              {/* Study Routes */}
+              <Route
+                path="/study-routes"
+                element={
+                  <ProtectedRoute>
+                    <StudyRouteListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/study-routes/new"
+                element={
+                  <ProtectedRoute>
+                    <StudyRouteAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/study-routes/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <StudyRouteAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Dynamic Form Builder */}
-            <Route
-              path="/dynamic-forms"
-              element={
-                <ProtectedRoute>
-                  <DynamicFormBuilderPage />
-                </ProtectedRoute>
-              }
-            />
+              {/* Dynamic Form Builder */}
+              <Route
+                path="/dynamic-forms"
+                element={
+                  <ProtectedRoute>
+                    <DynamicFormBuilderPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/smtp-config"
-              element={
-                <ProtectedRoute>
-                  <SMTPPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/smtp-config"
+                element={
+                  <ProtectedRoute>
+                    <SMTPPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/smtp-config/new"
-              element={
-                <ProtectedRoute>
-                  <SMTPConfig />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/smtp-config/new"
+                element={
+                  <ProtectedRoute>
+                    <SMTPConfig />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/smtp-config/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <SMTPConfig />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/smtp-config/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <SMTPConfig />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/google-sheets"
-              element={
-                <ProtectedRoute>
-                  <GoogleSheetListPage />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/google-sheets"
+                element={
+                  <ProtectedRoute>
+                    <GoogleSheetListPage />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/google-sheets/new"
-              element={
-                <ProtectedRoute>
-                  <GoogleSheetConfig />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/google-sheets/new"
+                element={
+                  <ProtectedRoute>
+                    <GoogleSheetConfig />
+                  </ProtectedRoute>
+                }
+              />
 
-            <Route
-              path="/google-sheets/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <GoogleSheetConfig />
-                </ProtectedRoute>
-              }
-            />
+              <Route
+                path="/google-sheets/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <GoogleSheetConfig />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Guides */}
-            <Route
-              path="/guides"
-              element={
-                <ProtectedRoute>
-                  <GuideListPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/guides/new"
-              element={
-                <ProtectedRoute>
-                  <GuideAdminPanel />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/guides/edit/:id"
-              element={
-                <ProtectedRoute>
-                  <GuideAdminPanel />
-                </ProtectedRoute>
-              }
-            />
+              {/* Guides */}
+              <Route
+                path="/guides"
+                element={
+                  <ProtectedRoute>
+                    <GuideListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/guides/new"
+                element={
+                  <ProtectedRoute>
+                    <GuideAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/guides/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <GuideAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
 
-            {/* Catch-all redirect */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </ToastProvider>
-      </AuthProvider>
-    </BrowserRouter>
+              {/* Catch-all redirect */}
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </ToastProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   );
 }
 

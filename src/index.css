@@ -240,11 +240,153 @@ body {
   z-index: 95;
 }
 
-/* Main Content Area */
-.main-content {
+/* Main Layout Container & Header */
+.main-wrapper {
   margin-left: var(--sidebar-width);
   flex-grow: 1;
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  transition: margin-left 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dashboard-top-header {
+  height: var(--header-height);
+  background: var(--header-bg);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--panel-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2.25rem;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.header-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.header-breadcrumb-category {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.header-breadcrumb-separator {
+  color: var(--text-muted);
+  opacity: 0.5;
+}
+
+.header-breadcrumb-title {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.975rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+/* Theme Toggle Button */
+.theme-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.85rem;
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--text-primary);
+  border-radius: 9999px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.theme-toggle-btn:hover {
+  background: var(--nav-hover-bg);
+  border-color: var(--panel-border-hover);
+  transform: translateY(-1px);
+}
+
+.theme-toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--primary-glow);
+  color: var(--primary);
+  transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover .theme-toggle-icon {
+  transform: rotate(20deg);
+}
+
+.theme-toggle-btn-mobile {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  color: var(--text-primary);
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.theme-toggle-btn-mobile:hover {
+  background: var(--nav-hover-bg);
+  border-color: var(--panel-border-hover);
+}
+
+.header-user-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.75rem 0.35rem 0.45rem;
+  background: var(--user-chip-bg);
+  border: 1px solid var(--user-chip-border);
+  border-radius: 9999px;
+}
+
+.header-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--accent));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.header-user-name {
+  font-size: 0.825rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Main Content Area */
+.main-content {
+  flex-grow: 1;
   padding: 2.25rem;
   display: flex;
   flex-direction: column;
@@ -276,8 +418,15 @@ body {
     display: block;
   }
 
-  .main-content {
+  .main-wrapper {
     margin-left: 0;
+  }
+
+  .dashboard-top-header {
+    display: none;
+  }
+
+  .main-content {
     padding: 1.5rem 1rem;
     padding-top: calc(var(--mobile-header-height) + 1.5rem);
   }
@@ -335,12 +484,47 @@ body {
   border-radius: 20px;
   padding: 2rem;
   backdrop-filter: blur(16px);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
   transition: border-color 0.3s ease;
 }
 
 .panel-glass:hover {
   border-color: var(--panel-border-hover);
+}
+
+/* Form and Panel Navigation Tabs */
+.tabs {
+  display: flex;
+  background: var(--tabs-bg, rgba(15, 23, 42, 0.6));
+  padding: 4px;
+  border-radius: 12px;
+  border: 1px solid var(--panel-border);
+  gap: 4px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--tab-inactive-color, var(--text-secondary));
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: center;
+}
+
+.tab-btn.active {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 4px 12px var(--primary-glow);
+}
+
+.tab-btn:hover:not(.active) {
+  color: var(--tab-inactive-hover, var(--text-primary));
+  background: var(--nav-hover-bg);
 }
 
 /* Page Headers */
@@ -357,7 +541,7 @@ body {
   font-size: 2.15rem;
   font-weight: 800;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #ffffff 40%, #c7d2fe 100%);
+  background: var(--page-title-gradient, linear-gradient(135deg, #ffffff 40%, #c7d2fe 100%));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -387,8 +571,8 @@ body {
 .form-input,
 .form-textarea,
 .form-select {
-  background: #0d1220;
-  border: 1px solid var(--panel-border);
+  background: var(--input-bg, #0d1220);
+  border: 1px solid var(--input-border, var(--panel-border));
   color: var(--text-primary);
   padding: 0.75rem 1rem;
   border-radius: 12px;
@@ -399,7 +583,7 @@ body {
 }
 
 .form-select option {
-  background-color: #0d1220;
+  background-color: var(--input-bg, #0d1220);
   color: var(--text-primary);
 }
 
@@ -430,7 +614,7 @@ body {
 }
 
 .admin-table th {
-  background: rgba(10, 14, 26, 0.7);
+  background: var(--table-th-bg, rgba(10, 14, 26, 0.7));
   padding: 1rem 1.25rem;
   color: var(--text-secondary);
   font-weight: 600;
@@ -442,13 +626,62 @@ body {
 
 .admin-table td {
   padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--table-td-border, rgba(255, 255, 255, 0.04));
   font-size: 0.95rem;
   color: var(--text-primary);
 }
 
 .admin-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--table-hover-bg, rgba(255, 255, 255, 0.02));
+}
+
+/* React Data Table Component Theme Overrides */
+.rdt_Table {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+.rdt_TableHeadRow {
+  background-color: var(--table-th-bg) !important;
+  border-bottom: 1px solid var(--panel-border) !important;
+}
+
+.rdt_TableCol,
+.rdt_TableCol_Sortable {
+  color: var(--text-secondary) !important;
+}
+
+.rdt_TableRow {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--table-td-border) !important;
+}
+
+.rdt_TableRow:hover {
+  background-color: var(--table-hover-bg) !important;
+}
+
+.rdt_TableCell {
+  color: var(--text-primary) !important;
+}
+
+.rdt_Pagination {
+  background-color: transparent !important;
+  color: var(--text-secondary) !important;
+  border-top: 1px solid var(--panel-border) !important;
+}
+
+.rdt_Pagination select {
+  color: var(--text-primary) !important;
+  background-color: var(--input-bg) !important;
+}
+
+.rdt_Pagination svg {
+  fill: var(--text-primary) !important;
+}
+
+.rdt_Pagination button:disabled svg {
+  fill: var(--text-muted) !important;
 }
 
 /* Toggle Switch */
@@ -496,9 +729,9 @@ body {
 
 /* Solid High Contrast Modal Base (eliminates transparency text issues) */
 .modal-solid-bg {
-  background: #0f1322 !important;
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.55) !important;
+  background: var(--modal-bg, #0f1322) !important;
+  border: 1px solid var(--panel-border-hover) !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35) !important;
   border-radius: 20px;
 }
 
@@ -584,14 +817,18 @@ body {
 }
 
 /* Dropdown & Multiselect Options Text Color Override */
-select,
-.form-select,
-select option {
+[data-theme="dark"] select,
+[data-theme="dark"] .form-select,
+[data-theme="dark"] select option {
   color: #ffffff !important;
+  background-color: #0d1220 !important;
 }
 
-select option {
-  background-color: #0b0f19 !important;
+[data-theme="light"] select,
+[data-theme="light"] .form-select,
+[data-theme="light"] select option {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
 }
 
 /* Page Loader Overlay */

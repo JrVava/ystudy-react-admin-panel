@@ -1,5 +1,6 @@
 import React from "react";
 import DataTable, { createTheme } from "react-data-table-component";
+import { useTheme } from "../context/ThemeContext";
 
 // Define the custom dark theme for YStudy matching index.css variables
 createTheme("ystudy-dark", {
@@ -20,12 +21,31 @@ createTheme("ystudy-dark", {
   }
 });
 
-const customStyles = {
+// Define the custom light theme for YStudy
+createTheme("ystudy-light", {
+  text: {
+    primary: "#0f172a",
+    secondary: "#475569",
+    disabled: "rgba(0, 0, 0, 0.25)"
+  },
+  background: {
+    default: "transparent"
+  },
+  context: {
+    background: "rgba(99, 102, 241, 0.1)",
+    text: "#0f172a"
+  },
+  divider: {
+    default: "rgba(0, 0, 0, 0.08)"
+  }
+});
+
+const getCustomStyles = (isLight: boolean) => ({
   headRow: {
     style: {
-      backgroundColor: "rgba(10, 14, 26, 0.7)",
+      backgroundColor: isLight ? "#f1f5f9" : "rgba(10, 14, 26, 0.7)",
       borderBottomWidth: "1px",
-      borderBottomColor: "rgba(255, 255, 255, 0.08)",
+      borderBottomColor: isLight ? "rgba(0, 0, 0, 0.08)" : "rgba(255, 255, 255, 0.08)",
       borderBottomStyle: "solid" as const,
       minHeight: "52px"
     }
@@ -34,7 +54,7 @@ const customStyles = {
     style: {
       fontSize: "0.8rem",
       fontWeight: "600",
-      color: "#94a3b8",
+      color: isLight ? "#475569" : "#94a3b8",
       textTransform: "uppercase" as const,
       letterSpacing: "0.5px",
       paddingLeft: "1.25rem",
@@ -46,23 +66,23 @@ const customStyles = {
       minHeight: "56px",
       backgroundColor: "transparent",
       borderBottomWidth: "1px",
-      borderBottomColor: "rgba(255, 255, 255, 0.04)",
+      borderBottomColor: isLight ? "rgba(0, 0, 0, 0.06)" : "rgba(255, 255, 255, 0.04)",
       borderBottomStyle: "solid" as const,
       transition: "background-color 0.2s ease",
       "&:not(:lastOfType)": {
         borderBottomWidth: "1px",
-        borderBottomColor: "rgba(255, 255, 255, 0.04)",
+        borderBottomColor: isLight ? "rgba(0, 0, 0, 0.06)" : "rgba(255, 255, 255, 0.04)",
         borderBottomStyle: "solid" as const
       },
       "&:hover": {
-        backgroundColor: "rgba(255, 255, 255, 0.02) !important"
+        backgroundColor: isLight ? "rgba(0, 0, 0, 0.025) !important" : "rgba(255, 255, 255, 0.02) !important"
       }
     }
   },
   cells: {
     style: {
       fontSize: "0.95rem",
-      color: "#f8fafc",
+      color: isLight ? "#0f172a" : "#f8fafc",
       paddingLeft: "1.25rem",
       paddingRight: "1.25rem"
     }
@@ -70,9 +90,9 @@ const customStyles = {
   pagination: {
     style: {
       backgroundColor: "transparent",
-      color: "#94a3b8",
+      color: isLight ? "#475569" : "#94a3b8",
       borderTopWidth: "1px",
-      borderTopColor: "rgba(255, 255, 255, 0.08)",
+      borderTopColor: isLight ? "rgba(0, 0, 0, 0.08)" : "rgba(255, 255, 255, 0.08)",
       borderTopStyle: "solid" as const,
       fontSize: "0.85rem",
       fontWeight: 500
@@ -85,14 +105,14 @@ const customStyles = {
       margin: "2px",
       cursor: "pointer",
       transition: "all 0.2s ease",
-      color: "#f8fafc",
-      fill: "#f8fafc",
+      color: isLight ? "#0f172a" : "#f8fafc",
+      fill: isLight ? "#0f172a" : "#f8fafc",
       "&:disabled": {
-        color: "rgba(255, 255, 255, 0.18)",
-        fill: "rgba(255, 255, 255, 0.18)"
+        color: isLight ? "rgba(0, 0, 0, 0.2)" : "rgba(255, 255, 255, 0.18)",
+        fill: isLight ? "rgba(0, 0, 0, 0.2)" : "rgba(255, 255, 255, 0.18)"
       },
       "&:hover:not(:disabled)": {
-        backgroundColor: "rgba(255, 255, 255, 0.08)"
+        backgroundColor: isLight ? "rgba(0, 0, 0, 0.06)" : "rgba(255, 255, 255, 0.08)"
       }
     }
   },
@@ -102,7 +122,7 @@ const customStyles = {
       alignItems: "center",
       justifyContent: "center",
       padding: "3rem",
-      color: "#94a3b8",
+      color: isLight ? "#475569" : "#94a3b8",
       fontSize: "0.95rem",
       backgroundColor: "transparent"
     }
@@ -117,7 +137,7 @@ const customStyles = {
       backgroundColor: "transparent"
     }
   }
-};
+});
 
 interface TableProps {
   columns: any[];
@@ -152,6 +172,9 @@ export const Table: React.FC<TableProps> = ({
   onSelectedRowsChange,
   noDataText = "No records found."
 }) => {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
   // If record is less than 10, no need to show pagination.
   // When serverSide pagination is used, totalRows gives the count in database.
   // Otherwise, data.length gives the client-side count.
@@ -173,8 +196,8 @@ export const Table: React.FC<TableProps> = ({
           </div>
         }
         noDataComponent={<div>{noDataText}</div>}
-        theme="ystudy-dark"
-        customStyles={customStyles}
+        theme={isLight ? "ystudy-light" : "ystudy-dark"}
+        customStyles={getCustomStyles(isLight)}
         pagination={showPagination}
         paginationServer={serverSide}
         paginationTotalRows={totalRows}
