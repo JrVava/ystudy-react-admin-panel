@@ -41,6 +41,7 @@ import { StudyRouteListPage } from "./pages/StudyRouteListPage";
 import { StudyRouteAdminPanel } from "./components/StudyRouteAdminPanel";
 import { FormSendEmailListPage } from "./pages/FormSendEmailListPage";
 import { DegreeMatchListPage } from "./pages/DegreeMatchListPage";
+import { EligibilityCheckListPage } from "./pages/EligibilityCheckListPage";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -604,6 +605,17 @@ function App() {
                 }
               />
               <Route path="/degree-match" element={<Navigate to="/forms/degree-match" replace />} />
+
+              {/* Form / Eligibility Check */}
+              <Route
+                path="/forms/eligibility-check"
+                element={
+                  <ProtectedRoute>
+                    <EligibilityCheckListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/eligibility-check" element={<Navigate to="/forms/eligibility-check" replace />} />
 
               {/* Guides */}
               <Route

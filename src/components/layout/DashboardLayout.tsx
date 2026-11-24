@@ -73,8 +73,11 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     if (pathname.startsWith("/guides")) return { title: "Student Guides" };
     if (pathname.startsWith("/tools")) return { title: "Tools" };
     if (pathname.startsWith("/repayment-thresholds-plans")) return { title: "Repayment Plans" };
-    if (pathname.startsWith("/forms") || pathname.startsWith("/degree-match"))
+    if (pathname.startsWith("/forms/eligibility-check") || pathname.startsWith("/eligibility-check"))
+      return { category: "Form", title: "Eligibility Check" };
+    if (pathname.startsWith("/forms/degree-match") || pathname.startsWith("/degree-match"))
       return { category: "Form", title: "Degree Match" };
+    if (pathname.startsWith("/forms")) return { category: "Form", title: "Form" };
     if (pathname.startsWith("/smtp-config")) return { category: "Settings", title: "SMTP Config" };
     if (pathname.startsWith("/google-sheets")) return { category: "Settings", title: "Google Sheets Config" };
     if (pathname.startsWith("/dynamic-forms")) return { category: "Settings", title: "Form Builder" };
@@ -102,7 +105,9 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const isFormRoute = (pathname: string) => {
-    return pathname.startsWith("/forms") || pathname.startsWith("/degree-match");
+    return (
+      pathname.startsWith("/forms") || pathname.startsWith("/degree-match") || pathname.startsWith("/eligibility-check")
+    );
   };
 
   const isSettingsRoute = (pathname: string) => {
@@ -115,12 +120,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     );
   };
 
-  type MenuGroup = "website" | "courses" | "form" | "settings" | null;
+  type MenuGroup = "website" | "courses" | "forms" | "settings" | null;
 
   const getActiveGroupFromRoute = (pathname: string): MenuGroup => {
     if (isWebsiteRoute(pathname)) return "website";
     if (isCoursesRoute(pathname)) return "courses";
-    if (isFormRoute(pathname)) return "form";
+    if (isFormRoute(pathname)) return "forms";
     if (isSettingsRoute(pathname)) return "settings";
     return null;
   };
@@ -135,7 +140,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [location.pathname]);
 
-  const toggleGroup = (group: "website" | "courses" | "form" | "settings") => {
+  const toggleGroup = (group: "website" | "courses" | "forms" | "settings") => {
     setExpandedGroup((prev) => (prev === group ? null : group));
   };
 
@@ -550,7 +555,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
             <div>
               <div
                 className={`nav-item ${isFormRoute(location.pathname) ? "nav-item-active" : ""}`}
-                onClick={() => toggleGroup("form")}
+                onClick={() => toggleGroup("forms")}
                 style={{
                   cursor: "pointer",
                   display: "flex",
@@ -561,20 +566,20 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
                   <FileText size={20} />
-                  Form
+                  Forms
                 </div>
                 <span
                   style={{
                     fontSize: "0.65rem",
                     transition: "transform 0.2s",
-                    transform: expandedGroup === "form" ? "rotate(180deg)" : "none"
+                    transform: expandedGroup === "forms" ? "rotate(180deg)" : "none"
                   }}
                 >
                   ▼
                 </span>
               </div>
 
-              {expandedGroup === "form" && (
+              {expandedGroup === "forms" && (
                 <div
                   style={{
                     paddingLeft: "1.25rem",
@@ -601,6 +606,22 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                     style={{ fontSize: "0.85rem", padding: "8px 12px" }}
                   >
                     Degree Match
+                  </NavLink>
+                  <NavLink
+                    to="/forms/eligibility-check"
+                    className={({ isActive }) =>
+                      `nav-item ${
+                        isActive ||
+                        location.pathname.startsWith("/forms/eligibility-check") ||
+                        location.pathname.startsWith("/eligibility-check")
+                          ? "nav-item-active"
+                          : ""
+                      }`
+                    }
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                  >
+                    Eligibility Check
                   </NavLink>
                 </div>
               )}

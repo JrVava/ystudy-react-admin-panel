@@ -21,6 +21,9 @@ export interface DegreeMatchItem {
   phone?: string;
   bestTimeToCall?: string;
   status: DegreeMatchStatus;
+  is_agree?: boolean;
+  isNotificationSend?: boolean;
+  isNotificationSendToAdmin?: boolean;
   is_notification_send?: boolean;
   createdAt?: string;
   updatedAt?: string;

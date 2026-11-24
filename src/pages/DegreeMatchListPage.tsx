@@ -11,7 +11,8 @@ import {
   AlertCircle,
   ChevronDown,
   CheckCircle2,
-  Clock
+  Clock,
+  ShieldCheck
 } from "lucide-react";
 import { Table } from "../components/Table";
 import { toast } from "../context/ToastContext";
@@ -290,13 +291,47 @@ export const DegreeMatchListPage: React.FC = () => {
       }
     },
     {
-      name: "Notification Sent",
-      selector: (row: DegreeMatchItem) => (row.is_notification_send ? "Sent" : "Not Sent"),
+      name: "Notification (User)",
+      selector: (row: DegreeMatchItem) =>
+        (row.isNotificationSend !== undefined ? row.isNotificationSend : row.is_notification_send)
+          ? "Sent"
+          : "Not Sent",
       sortable: true,
-      sortField: "is_notification_send",
+      sortField: "isNotificationSend",
       grow: 1,
       cell: (row: DegreeMatchItem) => {
-        const isSent = Boolean(row.is_notification_send);
+        const isSent = Boolean(
+          row.isNotificationSend !== undefined ? row.isNotificationSend : row.is_notification_send
+        );
+        return (
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "4px 10px",
+              borderRadius: "20px",
+              fontSize: "0.78rem",
+              fontWeight: 600,
+              background: isSent ? "rgba(16, 185, 129, 0.12)" : "rgba(148, 163, 184, 0.12)",
+              color: isSent ? "#10b981" : "var(--text-muted)",
+              border: `1px solid ${isSent ? "rgba(16, 185, 129, 0.3)" : "rgba(148, 163, 184, 0.25)"}`
+            }}
+          >
+            {isSent ? <CheckCircle2 size={13} /> : <Clock size={13} />}
+            <span>{isSent ? "Sent" : "Not Sent"}</span>
+          </div>
+        );
+      }
+    },
+    {
+      name: "Notification (Admin)",
+      selector: (row: DegreeMatchItem) => (row.isNotificationSendToAdmin ? "Sent" : "Not Sent"),
+      sortable: true,
+      sortField: "isNotificationSendToAdmin",
+      grow: 1,
+      cell: (row: DegreeMatchItem) => {
+        const isSent = Boolean(row.isNotificationSendToAdmin);
         return (
           <div
             style={{
@@ -759,7 +794,7 @@ export const DegreeMatchListPage: React.FC = () => {
                         letterSpacing: "0.5px"
                       }}
                     >
-                      Notification Status
+                      User Notification
                     </div>
                     <div
                       style={{
@@ -771,15 +806,87 @@ export const DegreeMatchListPage: React.FC = () => {
                         fontSize: "0.78rem",
                         fontWeight: 600,
                         marginTop: "2px",
-                        background: selectedItemForView.is_notification_send
-                          ? "rgba(16, 185, 129, 0.12)"
-                          : "rgba(148, 163, 184, 0.12)",
-                        color: selectedItemForView.is_notification_send ? "#10b981" : "var(--text-muted)",
-                        border: `1px solid ${selectedItemForView.is_notification_send ? "rgba(16, 185, 129, 0.3)" : "rgba(148, 163, 184, 0.25)"}`
+                        background:
+                          selectedItemForView.isNotificationSend !== undefined
+                            ? selectedItemForView.isNotificationSend
+                              ? "rgba(16, 185, 129, 0.12)"
+                              : "rgba(148, 163, 184, 0.12)"
+                            : selectedItemForView.is_notification_send
+                              ? "rgba(16, 185, 129, 0.12)"
+                              : "rgba(148, 163, 184, 0.12)",
+                        color: (
+                          selectedItemForView.isNotificationSend !== undefined
+                            ? selectedItemForView.isNotificationSend
+                            : selectedItemForView.is_notification_send
+                        )
+                          ? "#10b981"
+                          : "var(--text-muted)",
+                        border: `1px solid ${
+                          (
+                            selectedItemForView.isNotificationSend !== undefined
+                              ? selectedItemForView.isNotificationSend
+                              : selectedItemForView.is_notification_send
+                          )
+                            ? "rgba(16, 185, 129, 0.3)"
+                            : "rgba(148, 163, 184, 0.25)"
+                        }`
                       }}
                     >
-                      {selectedItemForView.is_notification_send ? <CheckCircle2 size={13} /> : <Clock size={13} />}
-                      <span>{selectedItemForView.is_notification_send ? "Sent" : "Not Sent"}</span>
+                      {(
+                        selectedItemForView.isNotificationSend !== undefined
+                          ? selectedItemForView.isNotificationSend
+                          : selectedItemForView.is_notification_send
+                      ) ? (
+                        <CheckCircle2 size={13} />
+                      ) : (
+                        <Clock size={13} />
+                      )}
+                      <span>
+                        {(
+                          selectedItemForView.isNotificationSend !== undefined
+                            ? selectedItemForView.isNotificationSend
+                            : selectedItemForView.is_notification_send
+                        )
+                          ? "Sent"
+                          : "Not Sent"}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div
+                      style={{
+                        fontSize: "0.78rem",
+                        color: "var(--text-muted)",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.5px"
+                      }}
+                    >
+                      Admin Notification
+                    </div>
+                    <div
+                      style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
+                        padding: "3px 10px",
+                        borderRadius: "20px",
+                        fontSize: "0.78rem",
+                        fontWeight: 600,
+                        marginTop: "2px",
+                        background: selectedItemForView.isNotificationSendToAdmin
+                          ? "rgba(16, 185, 129, 0.12)"
+                          : "rgba(148, 163, 184, 0.12)",
+                        color: selectedItemForView.isNotificationSendToAdmin ? "#10b981" : "var(--text-muted)",
+                        border: `1px solid ${
+                          selectedItemForView.isNotificationSendToAdmin
+                            ? "rgba(16, 185, 129, 0.3)"
+                            : "rgba(148, 163, 184, 0.25)"
+                        }`
+                      }}
+                    >
+                      {selectedItemForView.isNotificationSendToAdmin ? <CheckCircle2 size={13} /> : <Clock size={13} />}
+                      <span>{selectedItemForView.isNotificationSendToAdmin ? "Sent" : "Not Sent"}</span>
                     </div>
                   </div>
                 </div>
@@ -875,19 +982,86 @@ export const DegreeMatchListPage: React.FC = () => {
                     </p>
                   </div>
                   <div className="detail-item">
-                    <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
-                      Notification Sent (Email Dispatch)
-                    </span>
+                    <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>User Notification Sent</span>
                     <p
                       style={{
                         margin: "3px 0 0",
                         fontWeight: 600,
-                        color: selectedItemForView.is_notification_send ? "#10b981" : "var(--text-muted)"
+                        color: (
+                          selectedItemForView.isNotificationSend !== undefined
+                            ? selectedItemForView.isNotificationSend
+                            : selectedItemForView.is_notification_send
+                        )
+                          ? "#10b981"
+                          : "var(--text-muted)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px"
                       }}
                     >
-                      {selectedItemForView.is_notification_send ? "Yes (Email dispatched)" : "No (Not dispatched)"}
+                      {(
+                        selectedItemForView.isNotificationSend !== undefined
+                          ? selectedItemForView.isNotificationSend
+                          : selectedItemForView.is_notification_send
+                      ) ? (
+                        <CheckCircle2 size={14} style={{ color: "#10b981" }} />
+                      ) : (
+                        <Clock size={14} style={{ color: "var(--text-muted)" }} />
+                      )}
+                      <span>
+                        {(
+                          selectedItemForView.isNotificationSend !== undefined
+                            ? selectedItemForView.isNotificationSend
+                            : selectedItemForView.is_notification_send
+                        )
+                          ? "Yes (Dispatched)"
+                          : "No (Pending)"}
+                      </span>
                     </p>
                   </div>
+                  <div className="detail-item">
+                    <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>Admin Notification Sent</span>
+                    <p
+                      style={{
+                        margin: "3px 0 0",
+                        fontWeight: 600,
+                        color: selectedItemForView.isNotificationSendToAdmin ? "#10b981" : "var(--text-muted)",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "6px"
+                      }}
+                    >
+                      {selectedItemForView.isNotificationSendToAdmin ? (
+                        <CheckCircle2 size={14} style={{ color: "#10b981" }} />
+                      ) : (
+                        <Clock size={14} style={{ color: "var(--text-muted)" }} />
+                      )}
+                      <span>{selectedItemForView.isNotificationSendToAdmin ? "Yes (Dispatched)" : "No (Pending)"}</span>
+                    </p>
+                  </div>
+                  {selectedItemForView.is_agree !== undefined && (
+                    <div className="detail-item">
+                      <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                        Agreed to Terms & Conditions
+                      </span>
+                      <p
+                        style={{
+                          margin: "3px 0 0",
+                          fontWeight: 600,
+                          color: selectedItemForView.is_agree ? "#10b981" : "var(--text-muted)",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px"
+                        }}
+                      >
+                        <ShieldCheck
+                          size={15}
+                          style={{ color: selectedItemForView.is_agree ? "#10b981" : "var(--text-muted)" }}
+                        />
+                        <span>{selectedItemForView.is_agree ? "Yes (Agreed)" : "No"}</span>
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
