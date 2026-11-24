@@ -47,6 +47,7 @@ body {
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -58,6 +59,7 @@ body {
     transform: translateX(-20px);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -69,6 +71,7 @@ body {
   100% {
     transform: translateY(0);
   }
+
   50% {
     transform: translateY(-8px);
   }
@@ -394,7 +397,7 @@ body {
 }
 
 .content-wrapper {
-  max-width: 1200px;
+  /* max-width: 1200px; */
   width: 100%;
   margin: 0 auto;
   flex-grow: 1;
@@ -735,6 +738,23 @@ body {
   border-radius: 20px;
 }
 
+/* Upload Dropzone Container */
+.dropzone-container {
+  background: var(--dropzone-bg, #f8fafc);
+  border: 2px dashed var(--dropzone-border, #cbd5e1);
+  border-radius: 20px;
+  padding: 3rem 1.5rem;
+  text-align: center;
+  backdrop-filter: blur(12px);
+  transition: all 0.25s ease;
+}
+
+.dropzone-container:hover,
+.dropzone-container.drag-over {
+  border-color: var(--dropzone-border-hover, var(--primary)) !important;
+  background: var(--dropzone-bg-hover, rgba(99, 102, 241, 0.05)) !important;
+}
+
 /* Drag indicator layout line for tree structure */
 .tree-node-drag-line {
   height: 3px;
@@ -799,6 +819,7 @@ body {
     grid-template-columns: 1fr;
     gap: 8px;
   }
+
   .timetable-row-grid button {
     width: 100% !important;
   }
@@ -810,6 +831,7 @@ body {
     transform: translateY(-50px) scale(0.9);
     opacity: 0;
   }
+
   to {
     transform: translateY(0) scale(1);
     opacity: 1;
@@ -867,8 +889,10 @@ body {
   height: 100px;
   border-radius: 50%;
   border: 3px solid transparent;
-  border-top-color: #6366f1; /* Admin Indigo */
-  border-bottom-color: #a855f7; /* Admin Purple */
+  border-top-color: #6366f1;
+  /* Admin Indigo */
+  border-bottom-color: #a855f7;
+  /* Admin Purple */
   animation: spinLoader 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
   z-index: 1;
 }
@@ -885,6 +909,7 @@ body {
     transform: scale(1);
     opacity: 0.85;
   }
+
   50% {
     transform: scale(1.1);
     opacity: 1;
@@ -899,6 +924,7 @@ body {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
@@ -920,13 +946,16 @@ body {
 .sidebar-scrollable-content::-webkit-scrollbar {
   width: 4px;
 }
+
 .sidebar-scrollable-content::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .sidebar-scrollable-content::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 4px;
 }
+
 .sidebar-scrollable-content::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
 }

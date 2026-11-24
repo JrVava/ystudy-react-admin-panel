@@ -148,13 +148,13 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
             top: "100%",
             left: 0,
             right: 0,
-            background: "rgba(15, 23, 42, 0.95)",
+            background: "var(--dropdown-bg, var(--modal-bg))",
             backdropFilter: "blur(20px)",
             border: "1px solid var(--panel-border)",
             borderRadius: "10px",
             marginTop: "6px",
             zIndex: 1000,
-            boxShadow: "0 10px 25px -5px rgba(0,0,0,0.5)",
+            boxShadow: "var(--dropdown-shadow)",
             overflow: "hidden"
           }}
         >
@@ -172,11 +172,18 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
             />
             <input
               type="text"
-              placeholder="Search courses..."
+              placeholder="Search..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="form-input"
-              style={{ height: "34px", fontSize: "0.8rem", padding: "6px 10px 6px 30px" }}
+              style={{
+                height: "34px",
+                fontSize: "0.8rem",
+                padding: "6px 10px 6px 30px",
+                background: "var(--input-bg)",
+                border: "1px solid var(--panel-border)",
+                color: "var(--text-primary)"
+              }}
               onClick={(e) => e.stopPropagation()}
             />
           </div>
@@ -185,7 +192,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
           <div style={{ maxHeight: "200px", overflowY: "auto", padding: "4px" }}>
             {filteredOptions.length === 0 ? (
               <div style={{ padding: "12px", textAlign: "center", fontSize: "0.8rem", color: "var(--text-muted)" }}>
-                No courses found
+                No options found
               </div>
             ) : (
               filteredOptions.map((opt) => {
@@ -202,13 +209,18 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "space-between",
-                      background: isSelected ? "rgba(99, 102, 241, 0.08)" : "transparent",
-                      color: "white",
+                      background: isSelected ? "rgba(99, 102, 241, 0.12)" : "transparent",
+                      color: isSelected ? "var(--primary)" : "var(--text-primary)",
+                      fontWeight: isSelected ? 600 : 400,
                       transition: "background 0.15s"
                     }}
-                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255, 255, 255, 0.03)")}
+                    onMouseEnter={(e) =>
+                      (e.currentTarget.style.background = isSelected
+                        ? "rgba(99, 102, 241, 0.18)"
+                        : "var(--nav-hover-bg)")
+                    }
                     onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = isSelected ? "rgba(99, 102, 241, 0.08)" : "transparent")
+                      (e.currentTarget.style.background = isSelected ? "rgba(99, 102, 241, 0.12)" : "transparent")
                     }
                   >
                     <span>{opt.title}</span>

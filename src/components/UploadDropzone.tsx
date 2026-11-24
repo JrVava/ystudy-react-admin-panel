@@ -10,6 +10,7 @@ interface UploadDropzoneProps {
 
 export const UploadDropzone = ({ onFilesAdded, folders = [], initialFolderName = "" }: UploadDropzoneProps) => {
   const [folderName, setFolderName] = useState(initialFolderName);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   useEffect(() => {
     if (initialFolderName) {
@@ -19,11 +20,18 @@ export const UploadDropzone = ({ onFilesAdded, folders = [], initialFolderName =
 
   const onDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    setIsDragOver(true);
+  }, []);
+
+  const onDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
   }, []);
 
   const onDrop = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
+      setIsDragOver(false);
       const files = Array.from(e.dataTransfer.files);
       if (files.length > 0) {
         onFilesAdded(files, folderName.trim() || undefined);
@@ -77,17 +85,18 @@ export const UploadDropzone = ({ onFilesAdded, folders = [], initialFolderName =
       </div>
 
       <div
-        className="dropzone-container"
+        className={`dropzone-container ${isDragOver ? "drag-over" : ""}`}
         onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
         onDrop={onDrop}
         style={{
-          background: "rgba(30, 41, 59, 0.4)",
-          border: "2px dashed rgba(255, 255, 255, 0.08)",
+          background: isDragOver ? "var(--dropzone-bg-hover)" : "var(--dropzone-bg)",
+          border: `2px dashed ${isDragOver ? "var(--dropzone-border-hover)" : "var(--dropzone-border)"}`,
           borderRadius: "20px",
           padding: "3rem 1.5rem",
           textAlign: "center",
           backdropFilter: "blur(12px)",
-          transition: "all 0.3s ease"
+          transition: "all 0.25s ease"
         }}
       >
         <div className="dropzone-content">
@@ -105,7 +114,7 @@ export const UploadDropzone = ({ onFilesAdded, folders = [], initialFolderName =
           >
             <UploadCloud size={40} className="cloud-icon" />
           </div>
-          <h2 style={{ fontSize: "1.35rem", fontWeight: 600, marginBottom: "0.25rem" }}>
+          <h2 style={{ fontSize: "1.35rem", fontWeight: 700, marginBottom: "0.35rem", color: "var(--text-primary)" }}>
             Drag & Drop your media files here
           </h2>
           <p

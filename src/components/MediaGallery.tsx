@@ -314,11 +314,15 @@ export const MediaGallery: React.FC = () => {
                 style={{
                   display: "inline-flex",
                   alignItems: "center",
-                  background: activeFolderId === folder._id ? "rgba(99, 102, 241, 0.15)" : "rgba(255, 255, 255, 0.02)",
+                  background:
+                    activeFolderId === folder._id
+                      ? "rgba(99, 102, 241, 0.15)"
+                      : "var(--user-chip-bg, rgba(255, 255, 255, 0.02))",
                   border: `1px solid ${activeFolderId === folder._id ? "var(--primary)" : "var(--panel-border)"}`,
                   borderRadius: "10px",
                   overflow: "hidden",
-                  padding: "2px"
+                  padding: "2px",
+                  transition: "all 0.2s ease"
                 }}
               >
                 {isEditing ? (
@@ -334,7 +338,8 @@ export const MediaGallery: React.FC = () => {
                         padding: "4px 8px",
                         fontSize: "0.8rem",
                         width: "110px",
-                        background: "rgba(0,0,0,0.5)"
+                        background: "var(--input-bg, #0d1220)",
+                        color: "var(--text-primary)"
                       }}
                       autoFocus
                       onKeyDown={(e) => {
@@ -389,8 +394,8 @@ export const MediaGallery: React.FC = () => {
                         border: "none",
                         cursor: "pointer",
                         background: "transparent",
-                        color: "white",
-                        fontWeight: 500,
+                        color: "var(--text-primary)",
+                        fontWeight: 600,
                         display: "flex",
                         alignItems: "center",
                         gap: "0.4rem",
@@ -407,8 +412,8 @@ export const MediaGallery: React.FC = () => {
                       <div
                         style={{
                           display: "flex",
-                          background: "rgba(0,0,0,0.2)",
-                          borderLeft: "1px solid rgba(255,255,255,0.05)"
+                          background: "var(--user-chip-bg, rgba(0,0,0,0.2))",
+                          borderLeft: "1px solid var(--panel-border)"
                         }}
                       >
                         <button
@@ -421,7 +426,7 @@ export const MediaGallery: React.FC = () => {
                             border: "none",
                             cursor: "pointer",
                             background: "transparent",
-                            color: "white"
+                            color: "var(--text-secondary)"
                           }}
                           title="Rename Folder Inline"
                         >
@@ -629,7 +634,7 @@ export const MediaGallery: React.FC = () => {
               left: 0,
               right: 0,
               bottom: 0,
-              background: "rgba(10, 14, 26, 0.8)",
+              background: "var(--modal-overlay-bg, rgba(10, 14, 26, 0.8))",
               backdropFilter: "blur(8px)",
               display: "flex",
               justifyContent: "center",
@@ -725,7 +730,7 @@ export const MediaGallery: React.FC = () => {
               left: 0,
               right: 0,
               bottom: 0,
-              background: "rgba(10, 14, 26, 0.85)",
+              background: "var(--modal-overlay-bg, rgba(10, 14, 26, 0.85))",
               backdropFilter: "blur(8px)",
               display: "flex",
               justifyContent: "center",

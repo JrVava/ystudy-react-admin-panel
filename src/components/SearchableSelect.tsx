@@ -77,7 +77,7 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
           alignItems: "center",
           cursor: disabled ? "not-allowed" : "pointer",
           opacity: disabled ? 0.6 : 1,
-          background: "rgba(255, 255, 255, 0.02)",
+          background: "var(--input-bg)",
           border: isOpen ? "1px solid var(--primary)" : "1px solid var(--panel-border)",
           minHeight: "42px",
           padding: "8px 12px",
@@ -110,13 +110,13 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
             top: "100%",
             left: 0,
             right: 0,
-            background: "rgba(15, 23, 42, 0.95)",
+            background: "var(--dropdown-bg, var(--modal-bg))",
             backdropFilter: "blur(20px)",
             border: "1px solid var(--panel-border)",
             borderRadius: "10px",
             marginTop: "6px",
             zIndex: 1000,
-            boxShadow: "0 10px 25px -5px rgba(0,0,0,0.5)",
+            boxShadow: "var(--dropdown-shadow)",
             padding: "6px"
           }}
         >
@@ -141,8 +141,9 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                 height: "34px",
                 fontSize: "0.8rem",
                 paddingLeft: "30px",
-                background: "rgba(255, 255, 255, 0.03)",
-                border: "1px solid var(--panel-border)"
+                background: "var(--input-bg)",
+                border: "1px solid var(--panel-border)",
+                color: "var(--text-primary)"
               }}
               onClick={(e) => e.stopPropagation()}
               autoFocus
@@ -170,18 +171,19 @@ export const SearchableSelect: React.FC<SearchableSelectProps> = ({
                       borderRadius: "6px",
                       cursor: "pointer",
                       fontSize: "0.85rem",
-                      color: isSelected ? "white" : "var(--text-secondary)",
-                      background: isSelected ? "rgba(99, 102, 241, 0.15)" : "transparent",
-                      border: isSelected ? "1px solid rgba(99, 102, 241, 0.3)" : "1px solid transparent",
+                      color: isSelected ? "var(--primary)" : "var(--text-primary)",
+                      background: isSelected ? "rgba(99, 102, 241, 0.12)" : "transparent",
+                      border: isSelected ? "1px solid rgba(99, 102, 241, 0.25)" : "1px solid transparent",
+                      fontWeight: isSelected ? 600 : 400,
                       transition: "all 0.1s"
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = isSelected
-                        ? "rgba(99, 102, 241, 0.2)"
-                        : "rgba(255, 255, 255, 0.03)";
+                        ? "rgba(99, 102, 241, 0.18)"
+                        : "var(--nav-hover-bg)";
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = isSelected ? "rgba(99, 102, 241, 0.15)" : "transparent";
+                      e.currentTarget.style.background = isSelected ? "rgba(99, 102, 241, 0.12)" : "transparent";
                     }}
                   >
                     {opt.label}

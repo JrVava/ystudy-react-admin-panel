@@ -15,6 +15,7 @@ import {
   Table2,
   Globe,
   Settings,
+  FileText,
   Sun,
   Moon
 } from "lucide-react";
@@ -72,9 +73,12 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     if (pathname.startsWith("/guides")) return { title: "Student Guides" };
     if (pathname.startsWith("/tools")) return { title: "Tools" };
     if (pathname.startsWith("/repayment-thresholds-plans")) return { title: "Repayment Plans" };
+    if (pathname.startsWith("/forms") || pathname.startsWith("/degree-match"))
+      return { category: "Form", title: "Degree Match" };
     if (pathname.startsWith("/smtp-config")) return { category: "Settings", title: "SMTP Config" };
     if (pathname.startsWith("/google-sheets")) return { category: "Settings", title: "Google Sheets Config" };
     if (pathname.startsWith("/dynamic-forms")) return { category: "Settings", title: "Form Builder" };
+    if (pathname.startsWith("/form-send-email")) return { category: "Settings", title: "Form Send Email" };
     if (pathname.startsWith("/recycle-bin")) return { category: "Settings", title: "Recycle Bin" };
     return { title: "Dashboard" };
   };
@@ -97,20 +101,26 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     );
   };
 
+  const isFormRoute = (pathname: string) => {
+    return pathname.startsWith("/forms") || pathname.startsWith("/degree-match");
+  };
+
   const isSettingsRoute = (pathname: string) => {
     return (
       pathname.startsWith("/dynamic-forms") ||
       pathname.startsWith("/google-sheets") ||
       pathname.startsWith("/smtp-config") ||
+      pathname.startsWith("/form-send-email") ||
       pathname.startsWith("/recycle-bin")
     );
   };
 
-  type MenuGroup = "website" | "courses" | "settings" | null;
+  type MenuGroup = "website" | "courses" | "form" | "settings" | null;
 
   const getActiveGroupFromRoute = (pathname: string): MenuGroup => {
     if (isWebsiteRoute(pathname)) return "website";
     if (isCoursesRoute(pathname)) return "courses";
+    if (isFormRoute(pathname)) return "form";
     if (isSettingsRoute(pathname)) return "settings";
     return null;
   };
@@ -125,7 +135,7 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [location.pathname]);
 
-  const toggleGroup = (group: "website" | "courses" | "settings") => {
+  const toggleGroup = (group: "website" | "courses" | "form" | "settings") => {
     setExpandedGroup((prev) => (prev === group ? null : group));
   };
 
@@ -535,6 +545,67 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
               <Table2 size={20} />
               Repayment Plans
             </NavLink>
+
+            {/* Collapsible Form Group */}
+            <div>
+              <div
+                className={`nav-item ${isFormRoute(location.pathname) ? "nav-item-active" : ""}`}
+                onClick={() => toggleGroup("form")}
+                style={{
+                  cursor: "pointer",
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  userSelect: "none"
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <FileText size={20} />
+                  Form
+                </div>
+                <span
+                  style={{
+                    fontSize: "0.65rem",
+                    transition: "transform 0.2s",
+                    transform: expandedGroup === "form" ? "rotate(180deg)" : "none"
+                  }}
+                >
+                  ▼
+                </span>
+              </div>
+
+              {expandedGroup === "form" && (
+                <div
+                  style={{
+                    paddingLeft: "1.25rem",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "4px",
+                    marginTop: "4px",
+                    borderLeft: "1px solid var(--panel-border)",
+                    marginLeft: "12px"
+                  }}
+                >
+                  <NavLink
+                    to="/forms/degree-match"
+                    className={({ isActive }) =>
+                      `nav-item ${
+                        isActive ||
+                        location.pathname.startsWith("/forms/degree-match") ||
+                        location.pathname.startsWith("/degree-match")
+                          ? "nav-item-active"
+                          : ""
+                      }`
+                    }
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                  >
+                    Degree Match
+                  </NavLink>
+                </div>
+              )}
+            </div>
+
             {/* Collapsible Settings Group */}
             <div>
               <div
@@ -614,6 +685,14 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                     style={{ fontSize: "0.85rem", padding: "8px 12px" }}
                   >
                     Form Builder
+                  </NavLink>
+                  <NavLink
+                    to="/form-send-email"
+                    className={({ isActive }) => `nav-item ${isActive ? "nav-item-active" : ""}`}
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                  >
+                    Notification
                   </NavLink>
                   <NavLink
                     to="/recycle-bin"

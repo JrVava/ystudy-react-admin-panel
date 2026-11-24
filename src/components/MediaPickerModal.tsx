@@ -74,7 +74,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({ onSelect, on
         left: 0,
         right: 0,
         bottom: 0,
-        background: "rgba(15, 23, 42, 0.8)",
+        background: "var(--modal-overlay-bg, rgba(15, 23, 42, 0.8))",
         backdropFilter: "blur(6px)",
         display: "flex",
         justifyContent: "center",
@@ -84,7 +84,7 @@ export const MediaPickerModal: React.FC<MediaPickerModalProps> = ({ onSelect, on
       }}
     >
       <div
-        className="panel-glass animate-fade-in"
+        className="panel-glass modal-solid-bg animate-fade-in"
         style={{ width: "100%", maxWidth: "850px", maxHeight: "90vh", overflowY: "auto", padding: "2rem" }}
       >
         <div

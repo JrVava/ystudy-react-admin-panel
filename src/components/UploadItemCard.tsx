@@ -40,8 +40,8 @@ export const UploadItemCard = ({ item, onPause, onResume, onCancel, onAttachFile
         display: "flex",
         flexDirection: "column",
         gap: "0.5rem",
-        background: "rgba(30, 41, 59, 0.4)",
-        border: "1px solid rgba(255, 255, 255, 0.08)",
+        background: "var(--dropzone-bg, rgba(30, 41, 59, 0.4))",
+        border: "1px solid var(--panel-border)",
         borderRadius: "14px",
         padding: "1rem",
         transition: "all 0.2s ease"

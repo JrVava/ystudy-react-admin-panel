@@ -39,6 +39,8 @@ import { RepaymentThresholdsPlanListPage } from "./pages/RepaymentThresholdsPlan
 import { RepaymentThresholdsPlanAdminPanel } from "./components/RepaymentThresholdsPlanAdminPanel";
 import { StudyRouteListPage } from "./pages/StudyRouteListPage";
 import { StudyRouteAdminPanel } from "./components/StudyRouteAdminPanel";
+import { FormSendEmailListPage } from "./pages/FormSendEmailListPage";
+import { DegreeMatchListPage } from "./pages/DegreeMatchListPage";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -580,6 +582,28 @@ function App() {
                   </ProtectedRoute>
                 }
               />
+
+              {/* Form Send Email To User */}
+              <Route
+                path="/form-send-email"
+                element={
+                  <ProtectedRoute>
+                    <FormSendEmailListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/form-send-email-to-user" element={<Navigate to="/form-send-email" replace />} />
+
+              {/* Form / Degree Match */}
+              <Route
+                path="/forms/degree-match"
+                element={
+                  <ProtectedRoute>
+                    <DegreeMatchListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/degree-match" element={<Navigate to="/forms/degree-match" replace />} />
 
               {/* Guides */}
               <Route

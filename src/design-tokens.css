@@ -42,6 +42,13 @@
   --tab-inactive-color: #94a3b8;
   --tab-inactive-hover: #f8fafc;
   --toggle-inactive-bg: rgba(255, 255, 255, 0.15);
+  --dropzone-bg: rgba(30, 41, 59, 0.35);
+  --dropzone-border: rgba(255, 255, 255, 0.12);
+  --dropzone-border-hover: var(--primary);
+  --dropzone-bg-hover: rgba(99, 102, 241, 0.08);
+  --modal-overlay-bg: rgba(10, 14, 26, 0.8);
+  --dropdown-bg: #0f172a;
+  --dropdown-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
 
   --sidebar-width: 260px;
   --header-height: 64px;
@@ -90,6 +97,13 @@
   --tab-inactive-color: #475569;
   --tab-inactive-hover: #0f172a;
   --toggle-inactive-bg: #cbd5e1;
+  --dropzone-bg: #f8fafc;
+  --dropzone-border: #cbd5e1;
+  --dropzone-border-hover: var(--primary);
+  --dropzone-bg-hover: rgba(99, 102, 241, 0.04);
+  --modal-overlay-bg: rgba(15, 23, 42, 0.45);
+  --dropdown-bg: #ffffff;
+  --dropdown-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
 
   --sidebar-width: 260px;
   --header-height: 64px;
