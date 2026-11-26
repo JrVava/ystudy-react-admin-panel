@@ -73,6 +73,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     if (pathname.startsWith("/guides")) return { title: "Student Guides" };
     if (pathname.startsWith("/tools")) return { title: "Tools" };
     if (pathname.startsWith("/repayment-thresholds-plans")) return { title: "Repayment Plans" };
+    if (pathname.startsWith("/forms/become-an-adviser") || pathname.startsWith("/become-an-adviser"))
+      return { category: "Form", title: "Become an Adviser" };
     if (pathname.startsWith("/forms/eligibility-check") || pathname.startsWith("/eligibility-check"))
       return { category: "Form", title: "Eligibility Check" };
     if (pathname.startsWith("/forms/degree-match") || pathname.startsWith("/degree-match"))
@@ -106,7 +108,10 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
 
   const isFormRoute = (pathname: string) => {
     return (
-      pathname.startsWith("/forms") || pathname.startsWith("/degree-match") || pathname.startsWith("/eligibility-check")
+      pathname.startsWith("/forms") ||
+      pathname.startsWith("/degree-match") ||
+      pathname.startsWith("/eligibility-check") ||
+      pathname.startsWith("/become-an-adviser")
     );
   };
 
@@ -622,6 +627,22 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                     style={{ fontSize: "0.85rem", padding: "8px 12px" }}
                   >
                     Eligibility Check
+                  </NavLink>
+                  <NavLink
+                    to="/forms/become-an-adviser"
+                    className={({ isActive }) =>
+                      `nav-item ${
+                        isActive ||
+                        location.pathname.startsWith("/forms/become-an-adviser") ||
+                        location.pathname.startsWith("/become-an-adviser")
+                          ? "nav-item-active"
+                          : ""
+                      }`
+                    }
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                  >
+                    Become an Adviser
                   </NavLink>
                 </div>
               )}
