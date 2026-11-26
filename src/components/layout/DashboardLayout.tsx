@@ -74,6 +74,13 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     if (pathname.startsWith("/tools")) return { title: "Tools" };
     if (pathname.startsWith("/repayment-thresholds-plans")) return { title: "Repayment Plans" };
     if (
+      pathname.startsWith("/forms/adviser-leads") ||
+      pathname.startsWith("/adviser-leads") ||
+      pathname.startsWith("/forms/adviser-call") ||
+      pathname.startsWith("/adviser-call")
+    )
+      return { category: "Form", title: "Adviser Leads" };
+    if (
       pathname.startsWith("/forms/partner-form") ||
       pathname.startsWith("/partner-form") ||
       pathname.startsWith("/forms/become-an-adviser") ||
@@ -117,7 +124,9 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       pathname.startsWith("/degree-match") ||
       pathname.startsWith("/eligibility-check") ||
       pathname.startsWith("/partner-form") ||
-      pathname.startsWith("/become-an-adviser")
+      pathname.startsWith("/become-an-adviser") ||
+      pathname.startsWith("/adviser-leads") ||
+      pathname.startsWith("/adviser-call")
     );
   };
 
@@ -651,6 +660,24 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                     style={{ fontSize: "0.85rem", padding: "8px 12px" }}
                   >
                     Partner Form
+                  </NavLink>
+                  <NavLink
+                    to="/forms/adviser-leads"
+                    className={({ isActive }) =>
+                      `nav-item ${
+                        isActive ||
+                        location.pathname.startsWith("/forms/adviser-leads") ||
+                        location.pathname.startsWith("/adviser-leads") ||
+                        location.pathname.startsWith("/forms/adviser-call") ||
+                        location.pathname.startsWith("/adviser-call")
+                          ? "nav-item-active"
+                          : ""
+                      }`
+                    }
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                  >
+                    Adviser Leads
                   </NavLink>
                 </div>
               )}

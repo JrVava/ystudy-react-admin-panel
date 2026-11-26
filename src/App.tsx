@@ -43,6 +43,7 @@ import { FormSendEmailListPage } from "./pages/FormSendEmailListPage";
 import { DegreeMatchListPage } from "./pages/DegreeMatchListPage";
 import { EligibilityCheckListPage } from "./pages/EligibilityCheckListPage";
 import { PartnerFormListPage } from "./pages/PartnerFormListPage";
+import { AdviserLeadsListPage } from "./pages/AdviserLeadsListPage";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -630,6 +631,19 @@ function App() {
               <Route path="/partner-form" element={<Navigate to="/forms/partner-form" replace />} />
               <Route path="/forms/become-an-adviser" element={<Navigate to="/forms/partner-form" replace />} />
               <Route path="/become-an-adviser" element={<Navigate to="/forms/partner-form" replace />} />
+
+              {/* Form / Adviser Leads */}
+              <Route
+                path="/forms/adviser-leads"
+                element={
+                  <ProtectedRoute>
+                    <AdviserLeadsListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/adviser-leads" element={<Navigate to="/forms/adviser-leads" replace />} />
+              <Route path="/forms/adviser-call" element={<Navigate to="/forms/adviser-leads" replace />} />
+              <Route path="/adviser-call" element={<Navigate to="/forms/adviser-leads" replace />} />
 
               {/* Guides */}
               <Route
