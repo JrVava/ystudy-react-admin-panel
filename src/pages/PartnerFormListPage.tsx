@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import {
-  UserCheck,
+  Handshake,
   Search,
   X,
   RefreshCw,
@@ -14,7 +14,12 @@ import {
 } from "lucide-react";
 import { Table } from "../components/Table";
 import { toast } from "../context/ToastContext";
-import { becomeAnAdviserApi, type BecomeAnAdviserItem, type BecomeAnAdviserStatus } from "../utils/becomeAnAdviserApi";
+import {
+  partnerFormApi,
+  type PartnerFormItem,
+  type PartnerFormStatus,
+  type PartnerFormModuleOption
+} from "../utils/partnerFormApi";
 
 const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; border: string }> = {
   "Under process": {
@@ -55,18 +60,26 @@ const STATUS_CONFIG: Record<string, { label: string; bg: string; color: string; 
   }
 };
 
-const ALL_STATUS_OPTIONS: BecomeAnAdviserStatus[] = ["pending", "Under process", "reviwed", "completed", "failed"];
+const ALL_STATUS_OPTIONS: PartnerFormStatus[] = ["pending", "Under process", "reviwed", "completed", "failed"];
 
-export const BecomeAnAdviserListPage: React.FC = () => {
-  const [items, setItems] = useState<BecomeAnAdviserItem[]>([]);
+export const PartnerFormListPage: React.FC = () => {
+  const [items, setItems] = useState<PartnerFormItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
   const [statusOptions, setStatusOptions] = useState<string[]>(ALL_STATUS_OPTIONS);
+  const [modules, setModules] = useState<PartnerFormModuleOption[]>([
+    { label: "Become An Adviser", value: "becomeAnAdviser" },
+    { label: "Influencers", value: "influencers" },
+    { label: "Affiliate Partners", value: "affiliatePartners" },
+    { label: "Business", value: "business" },
+    { label: "Refer A friend", value: "referAFriend" }
+  ]);
+  const [selectedModule, setSelectedModule] = useState<string>("becomeAnAdviser");
   const [togglingIds, setTogglingIds] = useState<string[]>([]);
-  const [selectedItemForView, setSelectedItemForView] = useState<BecomeAnAdviserItem | null>(null);
+  const [selectedItemForView, setSelectedItemForView] = useState<PartnerFormItem | null>(null);
 
   // Pagination & Sorting states
   const [currentPage, setCurrentPage] = useState(1);
@@ -75,11 +88,17 @@ export const BecomeAnAdviserListPage: React.FC = () => {
   const [sortField, setSortField] = useState("createdAt");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
 
-  // Load available statuses from backend on mount
+  // Load available statuses and modules from backend on mount
   useEffect(() => {
-    becomeAnAdviserApi.getStatuses().then((statuses) => {
+    partnerFormApi.getStatuses().then((statuses) => {
       if (statuses && Array.isArray(statuses) && statuses.length > 0) {
         setStatusOptions(statuses);
+      }
+    });
+
+    partnerFormApi.getModules().then((modList) => {
+      if (modList && Array.isArray(modList) && modList.length > 0) {
+        setModules(modList);
       }
     });
   }, []);
@@ -93,11 +112,19 @@ export const BecomeAnAdviserListPage: React.FC = () => {
   }, [searchQuery]);
 
   const fetchItems = useCallback(
-    async (page: number, limit: number, field: string, sort: string, search: string, status: string) => {
+    async (
+      page: number,
+      limit: number,
+      field: string,
+      sort: string,
+      search: string,
+      status: string,
+      module: string
+    ) => {
       setLoading(true);
       setError(null);
       try {
-        const res = await becomeAnAdviserApi.getPaginated(page, limit, field, sort, search, status);
+        const res = await partnerFormApi.getPaginated(page, limit, field, sort, search, status, module);
         if (res && res.success) {
           setItems(Array.isArray(res.data) ? res.data : []);
           setTotalRows(res.total || 0);
@@ -107,9 +134,9 @@ export const BecomeAnAdviserListPage: React.FC = () => {
           setTotalRows(0);
         }
       } catch (err: any) {
-        console.error("Failed to load become an adviser records", err);
-        setError(err.message || "Failed to load become an adviser records");
-        toast.error("Failed to load become an adviser records");
+        console.error("Failed to load partner form records", err);
+        setError(err.message || "Failed to load partner form records");
+        toast.error("Failed to load partner form records");
       } finally {
         setLoading(false);
       }
@@ -118,8 +145,8 @@ export const BecomeAnAdviserListPage: React.FC = () => {
   );
 
   useEffect(() => {
-    fetchItems(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearch, selectedStatus);
-  }, [fetchItems, currentPage, rowsPerPage, sortField, sortOrder, debouncedSearch, selectedStatus]);
+    fetchItems(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearch, selectedStatus, selectedModule);
+  }, [fetchItems, currentPage, rowsPerPage, sortField, sortOrder, debouncedSearch, selectedStatus, selectedModule]);
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
@@ -141,27 +168,19 @@ export const BecomeAnAdviserListPage: React.FC = () => {
     setTogglingIds((prev) => [...prev, targetId]);
 
     try {
-      const res = await becomeAnAdviserApi.updateStatus(targetId, newStatus);
+      const res = await partnerFormApi.updateStatus(targetId, newStatus);
       if (res && res.success) {
         setItems((prev) =>
           prev.map((i) =>
             i._id === targetId
-              ? {
-                  ...i,
-                  status: (res.status || newStatus) as BecomeAnAdviserStatus,
-                  updatedAt: new Date().toISOString()
-                }
+              ? { ...i, status: (res.status || newStatus) as PartnerFormStatus, updatedAt: new Date().toISOString() }
               : i
           )
         );
         if (selectedItemForView && selectedItemForView._id === targetId) {
           setSelectedItemForView((prev) =>
             prev
-              ? {
-                  ...prev,
-                  status: (res.status || newStatus) as BecomeAnAdviserStatus,
-                  updatedAt: new Date().toISOString()
-                }
+              ? { ...prev, status: (res.status || newStatus) as PartnerFormStatus, updatedAt: new Date().toISOString() }
               : null
           );
         }
@@ -180,18 +199,18 @@ export const BecomeAnAdviserListPage: React.FC = () => {
   const columns = [
     {
       name: "Applicant Name",
-      selector: (row: BecomeAnAdviserItem) => row.fullName || "Unknown",
+      selector: (row: PartnerFormItem) => row.fullName || "Unknown",
       sortable: true,
       sortField: "fullName",
       grow: 1.4,
-      cell: (row: BecomeAnAdviserItem) => (
+      cell: (row: PartnerFormItem) => (
         <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", padding: "0.4rem 0" }}>
           <div
             style={{
               width: "36px",
               height: "36px",
               borderRadius: "10px",
-              background: "linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(245, 158, 11, 0.15))",
+              background: "linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(16, 185, 129, 0.15))",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -227,12 +246,39 @@ export const BecomeAnAdviserListPage: React.FC = () => {
       )
     },
     {
+      name: "Module",
+      selector: (row: PartnerFormItem) => row.module || "becomeAnAdviser",
+      sortable: true,
+      sortField: "module",
+      grow: 1,
+      cell: (row: PartnerFormItem) => {
+        const mod = modules.find((m) => (m.value || "").toLowerCase() === (row.module || "").toLowerCase());
+        const label = mod?.label || row.module || "Become An Adviser";
+        return (
+          <span
+            style={{
+              display: "inline-block",
+              padding: "4px 10px",
+              borderRadius: "6px",
+              background: "rgba(99, 102, 241, 0.12)",
+              color: "var(--primary)",
+              fontSize: "0.78rem",
+              fontWeight: 600,
+              whiteSpace: "nowrap"
+            }}
+          >
+            {label}
+          </span>
+        );
+      }
+    },
+    {
       name: "Status",
-      selector: (row: BecomeAnAdviserItem) => row.status,
+      selector: (row: PartnerFormItem) => row.status,
       sortable: true,
       sortField: "status",
       grow: 1.2,
-      cell: (row: BecomeAnAdviserItem) => {
+      cell: (row: PartnerFormItem) => {
         const isToggling = togglingIds.includes(row._id);
         const currentStatus = row.status || "pending";
         const cfg = STATUS_CONFIG[currentStatus] || STATUS_CONFIG["pending"];
@@ -298,11 +344,11 @@ export const BecomeAnAdviserListPage: React.FC = () => {
     },
     {
       name: "Notification (User)",
-      selector: (row: BecomeAnAdviserItem) => (row.isNotificationSend ? "Sent" : "Not Sent"),
+      selector: (row: PartnerFormItem) => (row.isNotificationSend ? "Sent" : "Not Sent"),
       sortable: true,
       sortField: "isNotificationSend",
       grow: 1,
-      cell: (row: BecomeAnAdviserItem) => {
+      cell: (row: PartnerFormItem) => {
         const isSent = Boolean(row.isNotificationSend);
         return (
           <div
@@ -327,11 +373,11 @@ export const BecomeAnAdviserListPage: React.FC = () => {
     },
     {
       name: "Notification (Admin)",
-      selector: (row: BecomeAnAdviserItem) => (row.isNotificationSendToAdmin ? "Sent" : "Not Sent"),
+      selector: (row: PartnerFormItem) => (row.isNotificationSendToAdmin ? "Sent" : "Not Sent"),
       sortable: true,
       sortField: "isNotificationSendToAdmin",
       grow: 1,
-      cell: (row: BecomeAnAdviserItem) => {
+      cell: (row: PartnerFormItem) => {
         const isSent = Boolean(row.isNotificationSendToAdmin);
         return (
           <div
@@ -356,11 +402,11 @@ export const BecomeAnAdviserListPage: React.FC = () => {
     },
     {
       name: "Submitted At",
-      selector: (row: BecomeAnAdviserItem) => row.createdAt || "",
+      selector: (row: PartnerFormItem) => row.createdAt || "",
       sortable: true,
       sortField: "createdAt",
       grow: 1,
-      cell: (row: BecomeAnAdviserItem) => {
+      cell: (row: PartnerFormItem) => {
         if (!row.createdAt) return <span style={{ color: "var(--text-muted)" }}>—</span>;
         const d = new Date(row.createdAt);
         return (
@@ -377,7 +423,7 @@ export const BecomeAnAdviserListPage: React.FC = () => {
     },
     {
       name: "Action",
-      cell: (row: BecomeAnAdviserItem) => (
+      cell: (row: PartnerFormItem) => (
         <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <button
             type="button"
@@ -431,7 +477,7 @@ export const BecomeAnAdviserListPage: React.FC = () => {
                 width: "42px",
                 height: "42px",
                 borderRadius: "12px",
-                background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(245, 158, 11, 0.2))",
+                background: "linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(16, 185, 129, 0.2))",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -439,7 +485,7 @@ export const BecomeAnAdviserListPage: React.FC = () => {
                 border: "1px solid rgba(99, 102, 241, 0.3)"
               }}
             >
-              <UserCheck size={22} />
+              <Handshake size={22} />
             </div>
             <div>
               <h1
@@ -451,7 +497,7 @@ export const BecomeAnAdviserListPage: React.FC = () => {
                   letterSpacing: "-0.5px"
                 }}
               >
-                Become an Adviser
+                Partner Form
               </h1>
               <p
                 style={{
@@ -461,14 +507,44 @@ export const BecomeAnAdviserListPage: React.FC = () => {
                   marginTop: "2px"
                 }}
               >
-                Manage and review partner and adviser application enquiries.
+                Manage and review partner and adviser application enquiries across all partnership categories.
               </p>
             </div>
           </div>
         </div>
 
-        {/* Top Actions: Status Filter & Refresh */}
+        {/* Top Actions: Module Filter, Status Filter & Refresh */}
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", flexWrap: "wrap" }}>
+          {/* Module Filter Dropdown */}
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span style={{ fontSize: "0.825rem", color: "var(--text-secondary)", fontWeight: 500 }}>Module:</span>
+            <select
+              value={selectedModule}
+              onChange={(e) => {
+                setSelectedModule(e.target.value);
+                setCurrentPage(1);
+              }}
+              style={{
+                background: "var(--input-bg, var(--panel-bg))",
+                color: "var(--text-primary)",
+                border: "1px solid var(--panel-border)",
+                padding: "8px 12px",
+                borderRadius: "8px",
+                fontSize: "0.85rem",
+                outline: "none",
+                cursor: "pointer",
+                fontWeight: 600
+              }}
+            >
+              <option value="all">All Modules</option>
+              {modules.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
           {/* Status Filter */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
             <span style={{ fontSize: "0.825rem", color: "var(--text-secondary)", fontWeight: 500 }}>Status:</span>
@@ -500,7 +576,17 @@ export const BecomeAnAdviserListPage: React.FC = () => {
 
           <button
             type="button"
-            onClick={() => fetchItems(currentPage, rowsPerPage, sortField, sortOrder, debouncedSearch, selectedStatus)}
+            onClick={() =>
+              fetchItems(
+                currentPage,
+                rowsPerPage,
+                sortField,
+                sortOrder,
+                debouncedSearch,
+                selectedStatus,
+                selectedModule
+              )
+            }
             disabled={loading}
             style={{
               display: "flex",
@@ -522,6 +608,68 @@ export const BecomeAnAdviserListPage: React.FC = () => {
             <span>Refresh</span>
           </button>
         </div>
+      </div>
+
+      {/* Module Selection Tabs */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "0.5rem",
+          overflowX: "auto",
+          paddingBottom: "6px",
+          marginBottom: "1.25rem",
+          scrollbarWidth: "none"
+        }}
+      >
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedModule("all");
+            setCurrentPage(1);
+          }}
+          style={{
+            padding: "8px 16px",
+            borderRadius: "10px",
+            fontSize: "0.85rem",
+            fontWeight: 600,
+            cursor: "pointer",
+            border: selectedModule === "all" ? "1px solid var(--primary)" : "1px solid var(--panel-border)",
+            background: selectedModule === "all" ? "var(--primary)" : "var(--card-bg, var(--panel-bg))",
+            color: selectedModule === "all" ? "#ffffff" : "var(--text-secondary)",
+            transition: "all 0.2s ease",
+            whiteSpace: "nowrap"
+          }}
+        >
+          All Modules
+        </button>
+        {modules.map((m) => {
+          const isActive = selectedModule.toLowerCase() === m.value.toLowerCase();
+          return (
+            <button
+              key={m.value}
+              type="button"
+              onClick={() => {
+                setSelectedModule(m.value);
+                setCurrentPage(1);
+              }}
+              style={{
+                padding: "8px 16px",
+                borderRadius: "10px",
+                fontSize: "0.85rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                border: isActive ? "1px solid var(--primary)" : "1px solid var(--panel-border)",
+                background: isActive ? "var(--primary)" : "var(--card-bg, var(--panel-bg))",
+                color: isActive ? "#ffffff" : "var(--text-secondary)",
+                transition: "all 0.2s ease",
+                whiteSpace: "nowrap"
+              }}
+            >
+              {m.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Filter and Search Bar Card */}
@@ -618,7 +766,7 @@ export const BecomeAnAdviserListPage: React.FC = () => {
         >
           <AlertCircle size={20} style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>Failed to load Become an Adviser records</div>
+            <div style={{ fontWeight: 700, fontSize: "0.9rem" }}>Failed to load Partner Form records</div>
             <div style={{ fontSize: "0.825rem", opacity: 0.9 }}>{error}</div>
           </div>
         </div>
@@ -647,8 +795,8 @@ export const BecomeAnAdviserListPage: React.FC = () => {
           serverSide={true}
           noDataText={
             searchQuery || selectedStatus !== "ALL"
-              ? "No become an adviser inquiries found for the current search or filter."
-              : "No become an adviser inquiries recorded yet."
+              ? "No partner form inquiries found for the current search or filter."
+              : "No partner form inquiries recorded yet."
           }
         />
       </div>
@@ -708,7 +856,7 @@ export const BecomeAnAdviserListPage: React.FC = () => {
                     color: "var(--primary)"
                   }}
                 >
-                  <UserCheck size={22} />
+                  <Handshake size={22} />
                 </div>
                 <div>
                   <h3
@@ -719,7 +867,7 @@ export const BecomeAnAdviserListPage: React.FC = () => {
                       color: "var(--text-primary)"
                     }}
                   >
-                    Become an Adviser Details
+                    Partner Form Inquiry Details
                   </h3>
                   <span style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>ID: {selectedItemForView._id}</span>
                 </div>
@@ -940,7 +1088,7 @@ export const BecomeAnAdviserListPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* 2. Adviser & Enquiry Details */}
+              {/* 2. Partner & Enquiry Details */}
               <div>
                 <h4
                   style={{
@@ -953,7 +1101,7 @@ export const BecomeAnAdviserListPage: React.FC = () => {
                     gap: "6px"
                   }}
                 >
-                  <Briefcase size={16} /> Adviser & Enquiry Details
+                  <Briefcase size={16} /> Partner & Enquiry Details
                 </h4>
                 <div
                   style={{
@@ -962,6 +1110,18 @@ export const BecomeAnAdviserListPage: React.FC = () => {
                     gap: "0.85rem"
                   }}
                 >
+                  <div className="detail-item" style={{ gridColumn: "1 / -1" }}>
+                    <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
+                      Target Module / Enquiry Category
+                    </span>
+                    <p style={{ margin: "3px 0 0", fontWeight: 600, color: "var(--primary)" }}>
+                      {modules.find(
+                        (m) => (m.value || "").toLowerCase() === (selectedItemForView.module || "").toLowerCase()
+                      )?.label ||
+                        selectedItemForView.module ||
+                        "Become An Adviser"}
+                    </p>
+                  </div>
                   <div className="detail-item" style={{ gridColumn: "1 / -1" }}>
                     <span style={{ fontSize: "0.78rem", color: "var(--text-muted)" }}>
                       Best Description of Role / Expertise
