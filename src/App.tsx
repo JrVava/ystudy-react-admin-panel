@@ -44,6 +44,8 @@ import { DegreeMatchListPage } from "./pages/DegreeMatchListPage";
 import { EligibilityCheckListPage } from "./pages/EligibilityCheckListPage";
 import { PartnerFormListPage } from "./pages/PartnerFormListPage";
 import { AdviserLeadsListPage } from "./pages/AdviserLeadsListPage";
+import { LanguageListPage } from "./pages/LanguageListPage";
+import { LanguageAdminPanel } from "./components/LanguageAdminPanel";
 
 // Protected Route wrapper that redirects unauthenticated users to /login
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -596,6 +598,33 @@ function App() {
                 }
               />
               <Route path="/form-send-email-to-user" element={<Navigate to="/form-send-email" replace />} />
+
+              {/* Settings / Languages */}
+              <Route
+                path="/languages"
+                element={
+                  <ProtectedRoute>
+                    <LanguageListPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/languages/new"
+                element={
+                  <ProtectedRoute>
+                    <LanguageAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/languages/edit/:id"
+                element={
+                  <ProtectedRoute>
+                    <LanguageAdminPanel />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/settings/languages" element={<Navigate to="/languages" replace />} />
 
               {/* Form / Degree Match */}
               <Route

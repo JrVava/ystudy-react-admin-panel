@@ -96,6 +96,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
     if (pathname.startsWith("/google-sheets")) return { category: "Settings", title: "Google Sheets Config" };
     if (pathname.startsWith("/dynamic-forms")) return { category: "Settings", title: "Form Builder" };
     if (pathname.startsWith("/form-send-email")) return { category: "Settings", title: "Form Send Email" };
+    if (pathname.startsWith("/languages") || pathname.startsWith("/settings/languages"))
+      return { category: "Settings", title: "Languages" };
     if (pathname.startsWith("/recycle-bin")) return { category: "Settings", title: "Recycle Bin" };
     return { title: "Dashboard" };
   };
@@ -136,6 +138,8 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
       pathname.startsWith("/google-sheets") ||
       pathname.startsWith("/smtp-config") ||
       pathname.startsWith("/form-send-email") ||
+      pathname.startsWith("/languages") ||
+      pathname.startsWith("/settings/languages") ||
       pathname.startsWith("/recycle-bin")
     );
   };
@@ -770,6 +774,22 @@ export const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ child
                     style={{ fontSize: "0.85rem", padding: "8px 12px" }}
                   >
                     Notification
+                  </NavLink>
+                  <NavLink
+                    to="/languages"
+                    className={({ isActive }) =>
+                      `nav-item ${
+                        isActive ||
+                        location.pathname.startsWith("/languages") ||
+                        location.pathname.startsWith("/settings/languages")
+                          ? "nav-item-active"
+                          : ""
+                      }`
+                    }
+                    onClick={closeMobileSidebar}
+                    style={{ fontSize: "0.85rem", padding: "8px 12px" }}
+                  >
+                    Languages
                   </NavLink>
                   <NavLink
                     to="/recycle-bin"
